@@ -398,12 +398,7 @@ export default function NitroflareDegenLanding(){
             {lockedBtc || previewBtc || '—'}
           </div>
         </div>
-        <div>
-          <div className="text-sm text-white/70">Savings today</div>
-          <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-            Save ${(selected.wasUSD - selected.priceUSD).toFixed(2)}
-          </div>
-        </div>
+       
       </div>
 
       {/* Actions */}
@@ -431,7 +426,7 @@ export default function NitroflareDegenLanding(){
       </div>
 
       <p className="mt-3 text-xs text-white/60">
-        By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
+        By continuing you agree to our Terms.
       </p>
 
       {/* Payment Details — full-width inner card (neutral) */}
