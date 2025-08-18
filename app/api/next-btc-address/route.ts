@@ -1,10 +1,11 @@
-import wallets from "../../../data/bitcoin-wallets.json";
-import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-let index = 0;
+import { NextResponse } from "next/server";
+import wallets from "../../../data/bitcoin-wallets.json";
 
 export async function GET() {
-  const address = wallets.wallets[index % wallets.wallets.length];
-  index++;
-  return NextResponse.json({ address });
+  const arr: string[] = Array.isArray((wallets as any)?.wallets) ? (wallets as any).wallets : [];
+  const addr = arr.length ? arr[Math.floor(Math.random() * arr.length)] : "";
+  return NextResponse.json({ address: addr || null });
 }
