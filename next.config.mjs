@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: { appDir: true }, // for Next 13.4 with /app
   async headers() {
     return [
       {
@@ -15,5 +16,4 @@ const nextConfig = {
     ];
   },
 };
-
 export default nextConfig;
