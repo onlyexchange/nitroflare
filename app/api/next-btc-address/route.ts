@@ -1,4 +1,4 @@
-import wallets from "@/data/bitcoin-wallets.json";
+import wallets from "../../../data/bitcoin-wallets.json";
 import { NextResponse } from "next/server";
 
 let index = 0;
