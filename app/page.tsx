@@ -330,11 +330,7 @@ export default function NitroflareDegenLanding(){
         <h3 className="text-2xl font-semibold flex items-center gap-2">
           <Bitcoin className="h-5 w-5" /> Pay with Bitcoin
         </h3>
-        <div className="text-xs font-mono text-white/70">
-          {step === 'pay'
-            ? <>Window: <span className="text-white">{fmtSecs(paySecs)}</span></>
-            : <></>}
-        </div>
+        
       </div>
 
       {/* Order summary + email */}
@@ -425,10 +421,6 @@ export default function NitroflareDegenLanding(){
         )}
       </div>
 
-      <p className="mt-3 text-xs text-white/60">
-        By continuing you agree to our Terms.
-      </p>
-
       {/* Payment Details — full-width inner card (neutral) */}
       {step === 'pay' && address && (
         <div className="mt-10 rounded-2xl border border-white/10 bg-black/30 p-6">
@@ -488,6 +480,54 @@ export default function NitroflareDegenLanding(){
               )}
             </div>
           </div>
+
+{/* Order Summary */}
+<div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-6">
+  <h4 className="text-lg font-semibold">Order Summary</h4>
+
+  <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div>
+      <div className="text-xs text-white/60">Selected Pack</div>
+      <div className="mt-1 text-white/90">{selected.label}</div>
+    </div>
+
+    <div>
+      <div className="text-xs text-white/60">Total Price (USD)</div>
+      <div className="mt-1 font-mono">${selected.priceUSD.toFixed(2)}</div>
+    </div>
+
+    <div>
+      <div className="text-xs text-white/60">Amount (BTC)</div>
+      <div className="mt-1 font-mono">{lockedBtc || previewBtc || '—'}</div>
+    </div>
+
+    <div className="sm:col-span-2">
+      <div className="text-xs text-white/60">Email</div>
+      <div className="mt-1 break-all">{email || '—'}</div>
+    </div>
+
+    <div className="sm:col-span-2 lg:col-span-3">
+      <div className="text-xs text-white/60">Recipient Address</div>
+      <div className="mt-1 font-mono break-all">{address}</div>
+    </div>
+
+    <div>
+      <div className="text-xs text-white/60">Delivery</div>
+      <div className="mt-1">Instant email after 1–2 confirmations</div>
+    </div>
+
+    <div>
+      <div className="text-xs text-white/60">Status</div>
+      <div className="mt-1 font-mono">{status || scanMessages[scanIdx]}</div>
+    </div>
+
+    <div>
+      <div className="text-xs text-white/60">Window</div>
+      <div className="mt-1 font-mono">{fmtSecs(paySecs)}</div>
+    </div>
+  </div>
+</div>
+
 
           {/* Centered status + centered rules */}
           <div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
