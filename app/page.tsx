@@ -481,6 +481,14 @@ export default function NitroflareDegenLanding(){
             </div>
           </div>
 
+<div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
+            <div className="font-medium">Send the exact amount.</div>
+            <div className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin"/>
+              <span className="font-mono">{status || scanMessages[scanIdx]}</span>
+            </div>
+          </div>
+
 {/* Order Summary */}
 <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-6">
   <h4 className="text-lg font-semibold">Order Summary</h4>
@@ -507,7 +515,7 @@ export default function NitroflareDegenLanding(){
     </div>
 
     <div className="sm:col-span-2 lg:col-span-3">
-      <div className="text-xs text-white/60">Recipient Address</div>
+      <div className="text-xs text-white/60">Payment Address</div>
       <div className="mt-1 font-mono break-all">{address}</div>
     </div>
 
@@ -516,27 +524,15 @@ export default function NitroflareDegenLanding(){
       <div className="mt-1">Instant email after 1–2 confirmations</div>
     </div>
 
-    <div>
-      <div className="text-xs text-white/60">Status</div>
-      <div className="mt-1 font-mono">{status || scanMessages[scanIdx]}</div>
-    </div>
+  
 
-    <div>
-      <div className="text-xs text-white/60">Window</div>
-      <div className="mt-1 font-mono">{fmtSecs(paySecs)}</div>
-    </div>
+    
   </div>
 </div>
 
 
           {/* Centered status + centered rules */}
-          <div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
-            <div className="font-medium">Send the exact amount.</div>
-            <div className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin"/>
-              <span className="font-mono">{status || scanMessages[scanIdx]}</span>
-            </div>
-          </div>
+          
 
           <ul className="mt-3 text-xs text-white/60 space-y-1 text-center">
             <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
