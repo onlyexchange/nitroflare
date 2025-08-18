@@ -1,0 +1,14 @@
+next.config.ts
+tsconfig.json
+next-env.d.ts
+postcss.config.js
+tailwind.config.ts
+.gitignore
+
+app/globals.css
+app/layout.tsx
+app/page.tsx
+app/api/price/route.ts
+app/api/next-btc-address/route.ts
+
+data/bitcoin-wallets.json
