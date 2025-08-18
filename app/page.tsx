@@ -17,11 +17,11 @@ import {
 } from "lucide-react";
 
 /**
- * NitroFlare Premium Key – Degen Landing Page
+ * NitroFlare Premium Key – Degen Landing Page (BTC Orange theme)
  */
 
-const COINGECKO_URL = "/api/price?ids=bitcoin";
-const WALLETS_URL   = "/api/next-btc-address";
+const COINGECKO_URL = "/api/price?ids=bitcoin";     // used to compute BTC amount once when generating
+const WALLETS_URL   = "/api/next-btc-address";       // returns { address }
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -40,19 +40,19 @@ export default function NitroflareDegenLanding(){
 
   // Payment session state
   const [address, setAddress] = useState('');
-  const [lockedBtc, setLockedBtc] = useState('');
+  const [lockedBtc, setLockedBtc] = useState(''); // amount locked at generation time
   const [status, setStatus] = useState('');
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
 
   // 30-minute window
   const WINDOW_SECS = 30 * 60;
   const [paySecs, setPaySecs] = useState(WINDOW_SECS);
-  const payTicker = useRef<NodeJS.Timeout | null>(null);
+  const payTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const [generating, setGenerating] = useState(false);
 
   // Animated scanning messages
   const [scanIdx, setScanIdx] = useState(0);
-  const scanTicker = useRef<NodeJS.Timeout | null>(null);
+  const scanTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const scanMessages = [
     "Scanning blockchain network…",
     "Watching mempool for your tx…",
@@ -61,7 +61,7 @@ export default function NitroflareDegenLanding(){
     "Verifying inputs…",
     "0/2 confirmations…",
     "Checking network fee…",
-    "Still scanning…",
+    "Still scanning…"
   ];
 
   // Hero FOMO timer (visual only)
@@ -72,7 +72,7 @@ export default function NitroflareDegenLanding(){
   },[]);
   const heroTimeLeft = `${String(Math.floor(heroTimer/60)).padStart(2,'0')}:${String(heroTimer%60).padStart(2,'0')}`;
 
-  // Live BTC every 60s (for preview calc)
+  // Live BTC every 60s (to compute BTC amount preview/lock)
   useEffect(()=>{
     let active = true;
     async function fetchPrice(){
@@ -88,6 +88,7 @@ export default function NitroflareDegenLanding(){
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
+  // Amount preview (before locking)
   const previewBtc = useMemo(()=>{
     if (!btcUSD) return '';
     const amt = selected.priceUSD / btcUSD;
@@ -103,7 +104,7 @@ export default function NitroflareDegenLanding(){
     payTicker.current = setInterval(() => {
       setPaySecs(prev => {
         if (prev <= 1) {
-          clearInterval(payTicker.current!);
+          if (payTicker.current) clearInterval(payTicker.current);
           stopScanLoop();
           setStatus('Payment window expired. Generate a new address to continue.');
           return 0;
@@ -144,7 +145,6 @@ export default function NitroflareDegenLanding(){
     setStatus('');
     setStep('select');
     setPaySecs(WINDOW_SECS);
-    // keep email as-is but unlock it
     setEmailLocked(false);
   }
 
@@ -159,15 +159,13 @@ export default function NitroflareDegenLanding(){
       const addr = data?.address || '';
       if (!addr) throw new Error('No wallet available');
 
-      // Lock amount + timers
+      // Lock amount and start session timers
       setAddress(addr);
       setLockedBtc(previewBtc);
       setStep('pay');
       startPayCountdown();
       startScanLoop();
-
-      // Lock email (with Edit button to change)
-      setEmailLocked(true);
+      setEmailLocked(true); // lock email after generating
     } catch(e){
       console.error(e);
       const demo = 'bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx';
@@ -205,7 +203,6 @@ export default function NitroflareDegenLanding(){
 
   // Select a plan: reset checkout and jump back to checkout section
   function handleSelectPlan(p: Plan){
-    // if user switches pack, reset the active session first
     resetPayment();
     setSelected(p);
     scrollToId('checkout');
@@ -219,7 +216,7 @@ export default function NitroflareDegenLanding(){
       <header className="sticky top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 rounded-xl bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500"/>
+            <span className="inline-flex h-8 w-8 rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500"/>
             <span className="font-semibold">NitroFlare Premium Keys</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
@@ -228,7 +225,11 @@ export default function NitroflareDegenLanding(){
             <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hover:text-white">Checkout</a>
             <a href="#faq" onClick={e=>{e.preventDefault(); scrollToId('faq')}} className="hover:text-white">FAQ</a>
           </nav>
-          <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500">
+          <a
+            href="#checkout"
+            onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500"
+          >
             <Bitcoin className="h-4 w-4"/> Pay with Bitcoin
           </a>
         </div>
@@ -242,7 +243,7 @@ export default function NitroflareDegenLanding(){
               <Zap className="h-3.5 w-3.5"/> Live BTC pricing • Unique address • Instant email delivery
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              NitroFlare <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400">Premium Keys</span>
+              NitroFlare <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400">Premium Keys</span>
             </h1>
             <p className="mt-4 text-white/80 text-lg max-w-2xl">
               Pay with <strong>Bitcoin</strong> and get your NitroFlare premium key <em>instantly</em> after confirmation.
@@ -252,10 +253,18 @@ export default function NitroflareDegenLanding(){
               <TimerIcon className="h-4 w-4"/> Flash deal ends in <span className="font-mono">{heroTimeLeft}</span>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 inline-flex items-center gap-2 hover:from-purple-400 hover:to-indigo-400">
+              <a
+                href="#plans"
+                onClick={e=>{e.preventDefault(); scrollToId('plans')}}
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 inline-flex items-center gap-2 hover:from-orange-400 hover:to-amber-400"
+              >
                 <Flame className="h-5 w-5"/> View Plans
               </a>
-              <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2">
+              <a
+                href="#checkout"
+                onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
+                className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2"
+              >
                 <Bitcoin className="h-5 w-5"/> Pay with BTC
               </a>
             </div>
@@ -267,18 +276,18 @@ export default function NitroflareDegenLanding(){
       <section id="plans" className="py-14 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold">Choose your plan</h2>
-        <p className="text-white/70 mt-2">Big savings today. Instant delivery after BTC confirmation.</p>
+          <p className="text-white/70 mt-2">Big savings today. Instant delivery after BTC confirmation.</p>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLANS.map((p) => (
               <motion.button
                 key={p.id}
                 onClick={()=> handleSelectPlan(p)}
                 whileHover={{scale:1.02}}
-                className={`text-left rounded-2xl border ${selected.id===p.id? 'border-fuchsia-400/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
+                className={`text-left rounded-2xl border ${selected.id===p.id? 'border-orange-400/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-xl font-semibold">{p.label}</div>
-                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-fuchsia-300"/>}
+                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-amber-300"/>}
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
                   <div className="text-3xl font-bold">${p.priceUSD.toFixed(2)}</div>
@@ -307,7 +316,7 @@ export default function NitroflareDegenLanding(){
         </div>
       </section>
 
-      {/* Checkout */}
+      {/* Checkout — orange single-column */}
       <section id="checkout" className="py-16 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -315,7 +324,7 @@ export default function NitroflareDegenLanding(){
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="relative rounded-3xl p-[2px] bg-gradient-to-r from-fuchsia-600/60 via-purple-600/40 to-indigo-600/60 shadow-[0_0_40px_rgba(168,85,247,0.35)]"
+            className="relative rounded-3xl p-[2px] bg-gradient-to-r from-orange-600/60 via-amber-500/40 to-yellow-500/60 shadow-[0_0_40px_rgba(247,147,26,0.35)]"
           >
             <div className="rounded-[22px] bg-black/50 border border-white/10 p-6">
               <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -329,7 +338,7 @@ export default function NitroflareDegenLanding(){
                 </div>
               </div>
 
-              {/* Order summary + email (with Change + Edit) */}
+              {/* Order summary + email */}
               <div className="mt-5 grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-white/70">Selected Plan</label>
@@ -346,7 +355,6 @@ export default function NitroflareDegenLanding(){
                     </button>
                   </div>
                 </div>
-
                 <div>
                   <label className="text-sm text-white/70">Your Email (for key delivery)</label>
                   <div className="mt-1 flex items-center gap-2">
@@ -376,7 +384,7 @@ export default function NitroflareDegenLanding(){
                 </div>
               </div>
 
-              {/* Price row */}
+              {/* Price row - USD total + BTC amount */}
               <div className="mt-5 grid sm:grid-cols-3 gap-4">
                 <div>
                   <div className="text-sm text-white/70">Total Price (USD)</div>
@@ -398,7 +406,7 @@ export default function NitroflareDegenLanding(){
                 </div>
               </div>
 
-              {/* Actions */}
+              {/* Action buttons */}
               <div className="mt-5 grid sm:grid-cols-2 gap-3">
                 <button
                   onClick={startPayment}
@@ -406,7 +414,7 @@ export default function NitroflareDegenLanding(){
                   className={`w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
                     ${(!isEmailValid || !btcUSD || generating)
                       ? "bg-white/10 text-white/50 cursor-not-allowed"
-                      : "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_25px_rgba(168,85,247,0.4)]"}`}
+                      : "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 hover:from-orange-500 hover:to-yellow-400 shadow-[0_0_25px_rgba(247,147,26,0.4)]"}`}
                 >
                   {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
                   {generating ? 'Generating…' : 'Generate address & start payment'}
@@ -426,9 +434,9 @@ export default function NitroflareDegenLanding(){
                 By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
               </p>
 
-              {/* Payment Details */}
+              {/* Payment Details — only after generate */}
               {step === 'pay' && address && (
-                <div className="mt-8 rounded-2xl border border-fuchsia-500/30 bg-gradient-to-br from-white/5 to-transparent p-5 shadow-[0_0_30px_rgba(217,70,239,0.25)]">
+                <div className="mt-8 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-white/5 to-transparent p-5 shadow-[0_0_30px_rgba(247,147,26,0.25)]">
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <h4 className="text-lg font-semibold flex items-center gap-2">
                       <QrCode className="h-5 w-5"/> Payment Details
@@ -436,9 +444,9 @@ export default function NitroflareDegenLanding(){
                     <div className="text-xs font-mono text-white/70">Time left: {fmtSecs(paySecs)}</div>
                   </div>
 
-                  {/* animated stripe */}
+                  {/* tiny animated bar */}
                   <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
-                    <div className="h-full w-1/3 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 animate-[pulse_1.6s_linear_infinite]"></div>
+                    <div className="h-full w-1/3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 animate-[pulse_1.6s_linear_infinite]"></div>
                   </div>
 
                   <div className="mt-4 grid md:grid-cols-2 gap-4">
@@ -470,7 +478,7 @@ export default function NitroflareDegenLanding(){
                           alt="Bitcoin payment QR"
                           width={260}
                           height={260}
-                          className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(129,140,248,0.25)]"
+                          className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(247,147,26,0.25)]"
                           referrerPolicy="no-referrer"
                           onError={(e) => {
                             const uri = `bitcoin:${address}${lockedBtc ? `?amount=${lockedBtc}` : ''}`;
@@ -525,7 +533,7 @@ export default function NitroflareDegenLanding(){
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-white/70">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500"/>
+              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500"/>
               <span className="font-semibold text-white">NitroFlare Premium Keys</span>
             </div>
             <div className="flex flex-wrap gap-6">
@@ -568,8 +576,8 @@ function QA({ q, a }: { q: string; a: string }){
 function BG(){
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[80vh] w-[120vw] rounded-full bg-gradient-to-br from-fuchsia-600/25 via-purple-600/15 to-indigo-600/25 blur-3xl"/>
-      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-gradient-to-br from-indigo-600/15 via-fuchsia-600/10 to-purple-600/15 blur-3xl"/>
+      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[80vh] w-[120vw] rounded-full bg-gradient-to-br from-orange-600/25 via-amber-500/15 to-yellow-500/25 blur-3xl"/>
+      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-gradient-to-br from-yellow-600/15 via-orange-600/10 to-amber-600/15 blur-3xl"/>
     </div>
   );
 }
