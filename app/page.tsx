@@ -21,8 +21,8 @@ import {
  * Style: Dark Web3 / Degen energy
  */
 
-const COINGECKO_URL = "/api/price?ids=bitcoin";     // use your server proxy
-const WALLETS_URL   = "/api/next-btc-address";       // use your server endpoint
+const COINGECKO_URL = '/api/price?ids=bitcoin';
+const WALLETS_URL   = '/api/next-btc-address';
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -85,9 +85,9 @@ export default function NitroflareDegenLanding(){
 
     setStatus('Generating your unique BTC address…');
     try{
-      const res = await fetch(WALLETS_URL, { cache: 'no-store' });
-      const data = await res.json();
-      const addr = data?.address || '';
+     const res = await fetch(WALLETS_URL, { cache: 'no-store' });
+const data = await res.json();
+const addr = data?.address || '';
       if (!addr) throw new Error('No wallet available');
       setAddress(addr);
       setAmountBTC(computedAmount);
@@ -105,12 +105,13 @@ export default function NitroflareDegenLanding(){
   }
 
   function qrURL(){
-    // Show QR only when we have both address & amount
-    if (!address || !amountBTC) return '';
-    const uri = `bitcoin:${address}?amount=${amountBTC}`;
-    // Use encodeURIComponent to avoid broken QR payloads
-    return `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
-  }
+  if (!address) return '';
+  // Support address-only; amount is optional
+  const uri = `bitcoin:${address}${amountBTC ? `?amount=${amountBTC}` : ''}`;
+  // Primary provider
+  const p1 = `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
+  return p1;
+}
 
   function copy(v: string){
     navigator.clipboard?.writeText(v);
@@ -310,23 +311,28 @@ export default function NitroflareDegenLanding(){
                   </div>
 
                   {/* QR */}
-                  <div className="md:col-span-2 flex items-center justify-center">
-                    {qrURL() ? (
-                      <img
-                        src={qrURL()}
-                        alt="Bitcoin payment QR"
-                        width={260}
-                        height={260}
-                        className="mt-2 rounded-xl border border-white/10"
-                        referrerPolicy="no-referrer"
-                        loading="eager"
-                      />
-                    ) : (
-                      <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
-                        QR will appear here
-                      </div>
-                    )}
-                  </div>
+                 <div className="md:col-span-2 flex items-center justify-center">
+  {address ? (
+    <img
+      src={qrURL()}
+      alt="Bitcoin payment QR"
+      width={260}
+      height={260}
+      className="mt-2 rounded-xl border border-white/10"
+      referrerPolicy="no-referrer"
+      onError={(e) => {
+        // fallback to qrserver
+        const uri = `bitcoin:${address}${amountBTC ? `?amount=${amountBTC}` : ''}`;
+        (e.currentTarget as HTMLImageElement).src =
+          `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
+      }}
+    />
+  ) : (
+    <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
+      QR will appear here
+    </div>
+  )}
+</div>
                 </div>
 
                 <div className="mt-4 text-sm text-white/70 min-h-[40px]">{status}</div>
