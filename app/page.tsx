@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Bitcoin,
@@ -18,11 +18,10 @@ import {
 /**
  * NitroFlare Premium Key – Degen Landing Page
  * Framework: React + Tailwind + framer-motion + lucide-react
- * Style: Dark Web3 / Degen energy
  */
 
-const COINGECKO_URL = '/api/price?ids=bitcoin';
-const WALLETS_URL   = '/api/next-btc-address';
+const COINGECKO_URL = "/api/price?ids=bitcoin";     // server proxy
+const WALLETS_URL   = "/api/next-btc-address";       // server endpoint
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -37,21 +36,28 @@ export default function NitroflareDegenLanding(){
   const [selected, setSelected] = useState<Plan>(PLANS[0]);
   const [email, setEmail] = useState('');
   const [btcUSD, setBtcUSD] = useState<number | null>(null);
+
+  // Payment session state
   const [address, setAddress] = useState('');
-  const [amountBTC, setAmountBTC] = useState('');
+  const [lockedBtc, setLockedBtc] = useState(''); // amount locked at generation time
+  const [lockedAt, setLockedAt] = useState<Date | null>(null);
   const [status, setStatus] = useState('');
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
-  const [timer, setTimer] = useState(29 * 60 + 59); // 29:59 FOMO timer
+  const [paySecs, setPaySecs] = useState(20 * 60); // 20 min per address
+  const payTicker = useRef<NodeJS.Timeout | null>(null);
+  const [showSats, setShowSats] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [toast, setToast] = useState<string>('');
 
-  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  // Deal countdown
+  // Hero deal countdown (visual only)
+  const [heroTimer, setHeroTimer] = useState(29 * 60 + 59);
   useEffect(()=>{
-    const t = setInterval(()=> setTimer(v => (v>0? v-1 : 0)), 1000);
+    const t = setInterval(()=> setHeroTimer(v => (v>0? v-1 : 0)), 1000);
     return ()=> clearInterval(t);
   },[]);
+  const heroTimeLeft = `${String(Math.floor(heroTimer/60)).padStart(2,'0')}:${String(heroTimer%60).padStart(2,'0')}`;
 
-  // Fetch BTC/USD on load & every 60s
+  // Live BTC every 60s
   useEffect(()=>{
     let active = true;
     async function fetchPrice(){
@@ -67,61 +73,111 @@ export default function NitroflareDegenLanding(){
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
-  // Compute amount in BTC (truncate to 8 decimals)
-  const computedAmount = useMemo(()=>{
+  // Amount (live preview before locking)
+  const previewBtc = useMemo(()=>{
     if (!btcUSD) return '';
     const amt = selected.priceUSD / btcUSD;
     const truncated = Math.trunc(amt * 1e8) / 1e8;
     return truncated.toFixed(8);
   }, [btcUSD, selected]);
 
-  async function startPayment(){
-    if (!isEmailValid) {
-      setStatus('Enter a valid email to continue.');
-      return;
-    }
-    setStatus('Fetching live BTC price…');
-    if (!btcUSD){ setStatus('Could not fetch BTC price. Please try again.'); return; }
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  function showToast(msg: string){
+    setToast(msg);
+    setTimeout(()=> setToast(''), 1400);
+  }
+
+  function startPayCountdown() {
+    if (payTicker.current) clearInterval(payTicker.current);
+    setPaySecs(20 * 60);
+    payTicker.current = setInterval(() => {
+      setPaySecs(prev => {
+        if (prev <= 1) {
+          clearInterval(payTicker.current!);
+          setStatus('Payment window expired. Generate a new address to continue.');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
+
+  useEffect(()=>()=>{ if (payTicker.current) clearInterval(payTicker.current); },[]);
+
+  async function startPayment(){
+    if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
+    if (!btcUSD) { setStatus('Could not fetch BTC price. Please try again.'); return; }
+    setGenerating(true);
     setStatus('Generating your unique BTC address…');
     try{
-     const res = await fetch(WALLETS_URL, { cache: 'no-store' });
-const data = await res.json();
-const addr = data?.address || '';
+      const res = await fetch(WALLETS_URL, { cache: 'no-store' });
+      const data = await res.json();
+      const addr = data?.address || '';
       if (!addr) throw new Error('No wallet available');
+
+      // Lock amount and start session timer
       setAddress(addr);
-      setAmountBTC(computedAmount);
-      setStep('pay'); // <-- reveal Payment Details
+      setLockedBtc(previewBtc);
+      setLockedAt(new Date());
+      setStep('pay');
+      startPayCountdown();
       setStatus('Send the exact amount. Scanning blockchain network…');
     } catch(e){
       console.error(e);
-      // Fallback demo address (replace for production!)
       const demo = 'bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx';
       setAddress(demo);
-      setAmountBTC(computedAmount);
+      setLockedBtc(previewBtc);
+      setLockedAt(new Date());
       setStep('pay');
+      startPayCountdown();
       setStatus('Demo address loaded. Replace with a real generator.');
+    } finally {
+      setGenerating(false);
     }
   }
 
-  function qrURL(){
-  if (!address) return '';
-  // Support address-only; amount is optional
-  const uri = `bitcoin:${address}${amountBTC ? `?amount=${amountBTC}` : ''}`;
-  // Primary provider
-  const p1 = `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
-  return p1;
-}
-
-  function copy(v: string){
-    navigator.clipboard?.writeText(v);
+  function resetPayment(){
+    if (payTicker.current) clearInterval(payTicker.current);
+    setAddress('');
+    setLockedBtc('');
+    setLockedAt(null);
+    setPaySecs(20 * 60);
+    setStep('select');
+    setStatus('');
   }
 
-  const timeLeft = `${String(Math.floor(timer/60)).padStart(2,'0')}:${String(timer%60).padStart(2,'0')}`;
+  function fmtSecs(s: number){
+    const m = Math.floor(s/60);
+    const ss = s % 60;
+    return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+    }
+
+  function bip21URI(amount?: string){
+    if (!address) return '';
+    const query = amount && Number(amount) > 0 ? `?amount=${amount}` : '';
+    return `bitcoin:${address}${query}`;
+  }
+
+  function qrURL(){
+    const uri = bip21URI(lockedBtc);
+    if (!uri) return '';
+    // primary
+    return `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
+  }
+
+  function copy(value: string, label='Copied'){
+    navigator.clipboard?.writeText(value).then(()=>showToast(label)).catch(()=>showToast('Could not copy'));
+  }
+
+  const displayAmount = showSats && lockedBtc
+    ? `${Math.round(parseFloat(lockedBtc) * 1e8).toLocaleString()} sats`
+    : (lockedBtc || previewBtc || '—');
 
   return (
     <div className="min-h-screen bg-[#0b0b12] text-white">
       <BG />
+
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -156,7 +212,7 @@ const addr = data?.address || '';
               Flash discount active — don’t miss it.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80">
-              <TimerIcon className="h-4 w-4"/> Flash deal ends in <span className="font-mono">{timeLeft}</span>
+              <TimerIcon className="h-4 w-4"/> Flash deal ends in <span className="font-mono">{heroTimeLeft}</span>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#plans" className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 inline-flex items-center gap-2 hover:from-purple-400 hover:to-indigo-400">
@@ -214,7 +270,7 @@ const addr = data?.address || '';
         </div>
       </section>
 
-      {/* Checkout (single centered column; details revealed after button) */}
+      {/* Checkout (centered, feature-rich) */}
       <section id="checkout" className="py-16 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
@@ -246,7 +302,7 @@ const addr = data?.address || '';
               </div>
             </div>
 
-            {/* Price row */}
+            {/* Price row + unit toggle */}
             <div className="mt-5 grid sm:grid-cols-3 gap-4">
               <div>
                 <div className="text-sm text-white/70">BTC/USD</div>
@@ -255,9 +311,17 @@ const addr = data?.address || '';
                 </div>
               </div>
               <div>
-                <div className="text-sm text-white/70">Amount in BTC</div>
+                <div className="text-sm text-white/70 flex items-center justify-between">
+                  <span>Amount</span>
+                  <button
+                    onClick={()=>setShowSats(s=>!s)}
+                    className="text-xs px-2 py-0.5 rounded-lg bg-white/10 border border-white/10 hover:bg-white/15"
+                  >
+                    {showSats ? 'Show BTC' : 'Show sats'}
+                  </button>
+                </div>
                 <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
-                  {computedAmount || '—'}
+                  {displayAmount}
                 </div>
               </div>
               <div>
@@ -268,76 +332,131 @@ const addr = data?.address || '';
               </div>
             </div>
 
-            {/* Action button */}
-            <button
-              onClick={startPayment}
-              disabled={!isEmailValid || !btcUSD}
-              className={`mt-5 w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
-                ${(!isEmailValid || !btcUSD)
-                  ? "bg-white/10 text-white/50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400"}`}
-            >
-              <Rocket className="h-5 w-5"/> Generate address & start payment
-            </button>
+            {/* Action buttons */}
+            <div className="mt-5 grid sm:grid-cols-2 gap-3">
+              <button
+                onClick={startPayment}
+                disabled={!isEmailValid || !btcUSD || generating}
+                className={`w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
+                  ${(!isEmailValid || !btcUSD || generating)
+                    ? "bg-white/10 text-white/50 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400"}`}
+              >
+                <Rocket className="h-5 w-5"/>
+                {generating ? 'Generating…' : 'Generate address & start payment'}
+              </button>
+
+              {step === 'pay' && (
+                <button
+                  onClick={resetPayment}
+                  className="w-full px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30"
+                >
+                  Cancel / Start Over
+                </button>
+              )}
+            </div>
+
             <p className="mt-3 text-xs text-white/60">
               By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
             </p>
 
-            {/* Payment Details – shown only after we have an address */}
+            {/* Payment Details */}
             {step === 'pay' && address && (
               <div className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5">
-                <h4 className="text-lg font-semibold flex items-center gap-2">
-                  <QrCode className="h-5 w-5"/> Payment Details
-                </h4>
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <h4 className="text-lg font-semibold flex items-center gap-2">
+                    <QrCode className="h-5 w-5"/> Payment Details
+                  </h4>
+                  <div className="text-sm text-white/70">
+                    Window: <span className="font-mono">{fmtSecs(paySecs)}</span>
+                    {lockedAt && <span className="ml-3">• Locked at {lockedAt.toLocaleTimeString()}</span>}
+                  </div>
+                </div>
 
                 <div className="mt-4 grid md:grid-cols-2 gap-4">
                   <div>
                     <div className="text-sm text-white/70">Amount (BTC)</div>
                     <div className="mt-1 flex gap-2">
-                      <input readOnly value={amountBTC} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
-                      <button onClick={()=>copy(amountBTC)} className="px-3 rounded-xl border border-white/10 hover:border-white/20">
+                      <input readOnly value={lockedBtc} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
+                      <button onClick={()=>copy(lockedBtc,'Amount copied')} className="px-3 rounded-xl border border-white/10 hover:border-white/20">
                         <Copy className="h-4 w-4"/>
                       </button>
                     </div>
+                    <div className="mt-1 text-xs text-white/50">
+                      {showSats ? `${Math.round(parseFloat(lockedBtc) * 1e8).toLocaleString()} sats` : 'Switch to sats above'}
+                    </div>
                   </div>
+
                   <div>
                     <div className="text-sm text-white/70">Recipient Address</div>
                     <div className="mt-1 flex gap-2">
                       <input readOnly value={address} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
-                      <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20">
+                      <button onClick={()=>copy(address,'Address copied')} className="px-3 rounded-xl border border-white/10 hover:border-white/20">
                         <Copy className="h-4 w-4"/>
                       </button>
                     </div>
                   </div>
 
                   {/* QR */}
-                 <div className="md:col-span-2 flex items-center justify-center">
-  {address ? (
-    <img
-      src={qrURL()}
-      alt="Bitcoin payment QR"
-      width={260}
-      height={260}
-      className="mt-2 rounded-xl border border-white/10"
-      referrerPolicy="no-referrer"
-      onError={(e) => {
-        // fallback to qrserver
-        const uri = `bitcoin:${address}${amountBTC ? `?amount=${amountBTC}` : ''}`;
-        (e.currentTarget as HTMLImageElement).src =
-          `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
-      }}
-    />
-  ) : (
-    <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
-      QR will appear here
-    </div>
-  )}
-</div>
+                  <div className="md:col-span-2 flex items-center justify-center">
+                    {qrURL() ? (
+                      <a
+                        href={bip21URI(lockedBtc)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open in your wallet"
+                        className="group"
+                      >
+                        <img
+                          src={qrURL()}
+                          alt="Bitcoin payment QR"
+                          width={260}
+                          height={260}
+                          className="mt-2 rounded-xl border border-white/10 transition group-hover:scale-[1.02]"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const uri = bip21URI(lockedBtc);
+                            (e.currentTarget as HTMLImageElement).src =
+                              `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
+                          }}
+                        />
+                      </a>
+                    ) : (
+                      <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
+                        QR will appear here
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions under QR */}
+                  <div className="md:col-span-2 grid sm:grid-cols-3 gap-3">
+                    <button
+                      onClick={()=>copy(bip21URI(lockedBtc),'Payment URI copied')}
+                      className="px-4 py-2 rounded-xl border border-white/15 hover:border-white/30"
+                    >
+                      Copy Payment URI
+                    </button>
+                    <a
+                      href={qrURL() || '#'}
+                      download={`bitcoin-${address}.png`}
+                      className={`px-4 py-2 rounded-xl text-center ${qrURL() ? 'border border-white/15 hover:border-white/30' : 'border border-white/10 pointer-events-none opacity-50'}`}
+                    >
+                      Download QR
+                    </a>
+                    <a
+                      href={bip21URI(lockedBtc) || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-4 py-2 rounded-xl text-center ${address ? 'border border-white/15 hover:border-white/30' : 'border border-white/10 pointer-events-none opacity-50'}`}
+                    >
+                      Open in Wallet
+                    </a>
+                  </div>
                 </div>
 
                 <div className="mt-4 text-sm text-white/70 min-h-[40px]">{status}</div>
                 <ul className="mt-3 text-xs text-white/60 space-y-1">
-                  <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
+                  <li>• Send the <strong>exact</strong> BTC amount within 20 minutes.</li>
                   <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
                   <li>• Key delivered to your email immediately after confirmation.</li>
                 </ul>
@@ -380,6 +499,13 @@ const addr = data?.address || '';
           </p>
         </div>
       </footer>
+
+      {/* Tiny toast */}
+      {toast && (
+        <div className="fixed bottom-5 right-5 z-50 rounded-xl bg-white/10 border border-white/15 px-3 py-2 text-sm">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
