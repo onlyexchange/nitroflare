@@ -316,204 +316,203 @@ export default function NitroflareDegenLanding(){
         </div>
       </section>
 
-      {/* Checkout — orange single-column */}
-      <section id="checkout" className="py-16 border-t border-white/10 bg-white/5">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="relative rounded-3xl p-[2px] bg-gradient-to-r from-orange-600/60 via-amber-500/40 to-yellow-500/60 shadow-[0_0_40px_rgba(247,147,26,0.35)]"
+     {/* Checkout — full-width, no orange frame */}
+<section id="checkout" className="py-20 border-t border-white/10 bg-white/5">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4 }}
+      className="rounded-3xl bg-black/40 border border-white/10 p-8 md:p-10"
+    >
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h3 className="text-2xl font-semibold flex items-center gap-2">
+          <Bitcoin className="h-5 w-5" /> Pay with Bitcoin
+        </h3>
+        <div className="text-xs font-mono text-white/70">
+          {step === 'pay'
+            ? <>Window: <span className="text-white">{fmtSecs(paySecs)}</span></>
+            : <>Live price locks on generate</>}
+        </div>
+      </div>
+
+      {/* Order summary + email */}
+      <div className="mt-6 grid lg:grid-cols-2 gap-6">
+        <div>
+          <label className="text-sm text-white/70">Selected Plan</label>
+          <div className="mt-1 flex items-center gap-2">
+            <div className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+              {selected.label} — ${selected.priceUSD.toFixed(2)}
+            </div>
+            <button
+              onClick={() => { resetPayment(); scrollToId('plans'); }}
+              className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
+              aria-label="Change plan"
+            >
+              Change
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm text-white/70">Your Email (for key delivery)</label>
+          <div className="mt-1 flex items-center gap-2">
+            <input
+              value={email}
+              onChange={e=>setEmail(e.target.value)}
+              readOnly={emailLocked}
+              placeholder="you@email.com"
+              className={`flex-1 px-3 py-2 rounded-xl bg-white/5 border outline-none ${
+                emailLocked
+                  ? "border-emerald-400/60 opacity-90"
+                  : email.length === 0
+                    ? "border-white/10"
+                    : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
+              }`}
+            />
+            {emailLocked && (
+              <button
+                onClick={()=>{ setEmailLocked(false); resetPayment(); }}
+                className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
+                aria-label="Edit email"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Price row */}
+      <div className="mt-6 grid sm:grid-cols-3 gap-6">
+        <div>
+          <div className="text-sm text-white/70">Total Price (USD)</div>
+          <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
+            ${selected.priceUSD.toFixed(2)}
+          </div>
+        </div>
+        <div>
+          <div className="text-sm text-white/70">Amount (BTC)</div>
+          <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
+            {lockedBtc || previewBtc || '—'}
+          </div>
+        </div>
+        <div>
+          <div className="text-sm text-white/70">Savings today</div>
+          <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+            Save ${(selected.wasUSD - selected.priceUSD).toFixed(2)}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-6 grid sm:grid-cols-2 gap-4">
+        <button
+          onClick={startPayment}
+          disabled={!isEmailValid || !btcUSD || generating}
+          className={`w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
+            ${(!isEmailValid || !btcUSD || generating)
+              ? "bg-white/10 text-white/50 cursor-not-allowed"
+              : "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 hover:from-orange-500 hover:to-yellow-400 shadow-[0_0_25px_rgba(247,147,26,0.4)]"}`}
+        >
+          {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
+          {generating ? 'Generating…' : 'Generate address & start payment'}
+        </button>
+
+        {step === 'pay' && (
+          <button
+            onClick={resetPayment}
+            className="w-full px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30"
           >
-            <div className="rounded-[22px] bg-black/50 border border-white/10 p-6">
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <Bitcoin className="h-5 w-5"/> Pay with Bitcoin
-                </h3>
-                <div className="text-xs font-mono text-white/70">
-                  {step === 'pay'
-                    ? <>Window: <span className="text-white">{fmtSecs(paySecs)}</span></>
-                    : <>Live price locks on generate</>}
-                </div>
-              </div>
+            Cancel / Start Over
+          </button>
+        )}
+      </div>
 
-              {/* Order summary + email */}
-              <div className="mt-5 grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-white/70">Selected Plan</label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-                      {selected.label} — ${selected.priceUSD.toFixed(2)}
-                    </div>
-                    <button
-                      onClick={()=>{ resetPayment(); scrollToId('plans'); }}
-                      className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
-                      aria-label="Change plan"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm text-white/70">Your Email (for key delivery)</label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <input
-                      value={email}
-                      onChange={e=>setEmail(e.target.value)}
-                      readOnly={emailLocked}
-                      placeholder="you@email.com"
-                      className={`flex-1 px-3 py-2 rounded-xl bg-white/5 border outline-none ${
-                        emailLocked
-                          ? "border-emerald-400/60 opacity-90"
-                          : email.length === 0
-                            ? "border-white/10"
-                            : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
-                      }`}
-                    />
-                    {emailLocked ? (
-                      <button
-                        onClick={()=>{ setEmailLocked(false); resetPayment(); }}
-                        className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
-                        aria-label="Edit email"
-                      >
-                        Edit
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
+      <p className="mt-3 text-xs text-white/60">
+        By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
+      </p>
 
-              {/* Price row - USD total + BTC amount */}
-              <div className="mt-5 grid sm:grid-cols-3 gap-4">
-                <div>
-                  <div className="text-sm text-white/70">Total Price (USD)</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
-                    ${selected.priceUSD.toFixed(2)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-white/70">Amount (BTC)</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
-                    {lockedBtc || previewBtc || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-white/70">Savings today</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-                    Save ${(selected.wasUSD - selected.priceUSD).toFixed(2)}
-                  </div>
-                </div>
-              </div>
+      {/* Payment Details — full-width inner card (neutral) */}
+      {step === 'pay' && address && (
+        <div className="mt-10 rounded-2xl border border-white/10 bg-black/30 p-6">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h4 className="text-lg font-semibold flex items-center gap-2">
+              <QrCode className="h-5 w-5"/> Payment Details
+            </h4>
+            <div className="text-xs font-mono text-white/70">Time left: {fmtSecs(paySecs)}</div>
+          </div>
 
-              {/* Action buttons */}
-              <div className="mt-5 grid sm:grid-cols-2 gap-3">
-                <button
-                  onClick={startPayment}
-                  disabled={!isEmailValid || !btcUSD || generating}
-                  className={`w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
-                    ${(!isEmailValid || !btcUSD || generating)
-                      ? "bg-white/10 text-white/50 cursor-not-allowed"
-                      : "bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-500 hover:from-orange-500 hover:to-yellow-400 shadow-[0_0_25px_rgba(247,147,26,0.4)]"}`}
-                >
-                  {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
-                  {generating ? 'Generating…' : 'Generate address & start payment'}
+          {/* subtle animated bar (kept, not a big orange frame) */}
+          <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full w-1/3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 animate-[pulse_1.6s_linear_infinite]"></div>
+          </div>
+
+          <div className="mt-4 grid md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-sm text-white/70">Amount (BTC)</div>
+              <div className="mt-1 flex gap-2">
+                <input readOnly value={lockedBtc} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
+                <button onClick={()=>copy(lockedBtc)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
+                  <Copy className="h-4 w-4"/>
                 </button>
-
-                {step === 'pay' && (
-                  <button
-                    onClick={resetPayment}
-                    className="w-full px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30"
-                  >
-                    Cancel / Start Over
-                  </button>
-                )}
               </div>
+            </div>
 
-              <p className="mt-3 text-xs text-white/60">
-                By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
-              </p>
+            <div>
+              <div className="text-sm text-white/70">Recipient Address</div>
+              <div className="mt-1 flex gap-2">
+                <input readOnly value={address} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
+                <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy address">
+                  <Copy className="h-4 w-4"/>
+                </button>
+              </div>
+            </div>
 
-              {/* Payment Details — only after generate */}
-              {step === 'pay' && address && (
-                <div className="mt-8 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-white/5 to-transparent p-5 shadow-[0_0_30px_rgba(247,147,26,0.25)]">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <h4 className="text-lg font-semibold flex items-center gap-2">
-                      <QrCode className="h-5 w-5"/> Payment Details
-                    </h4>
-                    <div className="text-xs font-mono text-white/70">Time left: {fmtSecs(paySecs)}</div>
-                  </div>
-
-                  {/* tiny animated bar */}
-                  <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
-                    <div className="h-full w-1/3 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 animate-[pulse_1.6s_linear_infinite]"></div>
-                  </div>
-
-                  <div className="mt-4 grid md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-white/70">Amount (BTC)</div>
-                      <div className="mt-1 flex gap-2">
-                        <input readOnly value={lockedBtc} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
-                        <button onClick={()=>copy(lockedBtc)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
-                          <Copy className="h-4 w-4"/>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-white/70">Recipient Address</div>
-                      <div className="mt-1 flex gap-2">
-                        <input readOnly value={address} className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono"/>
-                        <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy address">
-                          <Copy className="h-4 w-4"/>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* QR */}
-                    <div className="md:col-span-2 flex items-center justify-center">
-                      {qrURL() ? (
-                        <img
-                          src={qrURL()}
-                          alt="Bitcoin payment QR"
-                          width={260}
-                          height={260}
-                          className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(247,147,26,0.25)]"
-                          referrerPolicy="no-referrer"
-                          onError={(e) => {
-                            const uri = `bitcoin:${address}${lockedBtc ? `?amount=${lockedBtc}` : ''}`;
-                            (e.currentTarget as HTMLImageElement).src =
-                              `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
-                          }}
-                        />
-                      ) : (
-                        <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
-                          QR will appear here
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Centered status + centered rules */}
-                  <div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
-                    <div className="font-medium">Send the exact amount.</div>
-                    <div className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin"/>
-                      <span className="font-mono">{status || scanMessages[scanIdx]}</span>
-                    </div>
-                  </div>
-
-                  <ul className="mt-3 text-xs text-white/60 space-y-1 text-center">
-                    <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
-                    <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
-                    <li>• Key delivered to your email immediately after confirmation.</li>
-                  </ul>
+            {/* QR */}
+            <div className="md:col-span-2 flex items-center justify-center">
+              {qrURL() ? (
+                <img
+                  src={qrURL()}
+                  alt="Bitcoin payment QR"
+                  width={260}
+                  height={260}
+                  className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(247,147,26,0.25)]"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const uri = `bitcoin:${address}${lockedBtc ? `?amount=${lockedBtc}` : ''}`;
+                    (e.currentTarget as HTMLImageElement).src =
+                      `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
+                  }}
+                />
+              ) : (
+                <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
+                  QR will appear here
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
+
+          {/* Centered status + centered rules */}
+          <div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
+            <div className="font-medium">Send the exact amount.</div>
+            <div className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin"/>
+              <span className="font-mono">{status || scanMessages[scanIdx]}</span>
+            </div>
+          </div>
+
+          <ul className="mt-3 text-xs text-white/60 space-y-1 text-center">
+            <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
+            <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
+            <li>• Key delivered to your email immediately after confirmation.</li>
+          </ul>
         </div>
-      </section>
+      )}
+    </motion.div>
+  </div>
+</section>
 
       {/* FAQ */}
       <section id="faq" className="py-14">
