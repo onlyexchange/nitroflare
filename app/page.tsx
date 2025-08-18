@@ -11,7 +11,7 @@ import {
   Copy,
   QrCode,
   ArrowRight,
-  Timer as TimerIcon, // <- correct Timer icon
+  Timer as TimerIcon,
   Flame,
 } from "lucide-react";
 
@@ -21,8 +21,8 @@ import {
  * Style: Dark Web3 / Degen energy
  */
 
-const COINGECKO_URL = "/api/price?ids=bitcoin";     // <- use your server proxy
-const WALLETS_URL   = "/api/next-btc-address";       // <- use your server endpoint
+const COINGECKO_URL = "/api/price?ids=bitcoin";     // use your server proxy
+const WALLETS_URL   = "/api/next-btc-address";       // use your server endpoint
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -43,6 +43,8 @@ export default function NitroflareDegenLanding(){
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
   const [timer, setTimer] = useState(29 * 60 + 59); // 29:59 FOMO timer
 
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   // Deal countdown
   useEffect(()=>{
     const t = setInterval(()=> setTimer(v => (v>0? v-1 : 0)), 1000);
@@ -56,7 +58,6 @@ export default function NitroflareDegenLanding(){
       try{
         const res = await fetch(COINGECKO_URL, { cache: 'no-store' });
         const data = await res.json();
-        // our /api/price returns { bitcoin: { usd: number } }
         const usd = data?.bitcoin?.usd ?? null;
         if (active) setBtcUSD(usd);
       }catch(e){ console.error(e); }
@@ -75,11 +76,13 @@ export default function NitroflareDegenLanding(){
   }, [btcUSD, selected]);
 
   async function startPayment(){
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setStatus('Enter a valid email to continue.'); return;
+    if (!isEmailValid) {
+      setStatus('Enter a valid email to continue.');
+      return;
     }
     setStatus('Fetching live BTC price…');
     if (!btcUSD){ setStatus('Could not fetch BTC price. Please try again.'); return; }
+
     setStatus('Generating your unique BTC address…');
     try{
       const res = await fetch(WALLETS_URL, { cache: 'no-store' });
@@ -88,10 +91,11 @@ export default function NitroflareDegenLanding(){
       if (!addr) throw new Error('No wallet available');
       setAddress(addr);
       setAmountBTC(computedAmount);
-      setStep('pay');
+      setStep('pay'); // <-- reveal Payment Details
       setStatus('Send the exact amount. Scanning blockchain network…');
     } catch(e){
       console.error(e);
+      // Fallback demo address (replace for production!)
       const demo = 'bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx';
       setAddress(demo);
       setAmountBTC(computedAmount);
@@ -101,7 +105,10 @@ export default function NitroflareDegenLanding(){
   }
 
   function qrURL(){
+    // Show QR only when we have both address & amount
+    if (!address || !amountBTC) return '';
     const uri = `bitcoin:${address}?amount=${amountBTC}`;
+    // Use encodeURIComponent to avoid broken QR payloads
     return `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
   }
 
@@ -206,66 +213,82 @@ export default function NitroflareDegenLanding(){
         </div>
       </section>
 
-      {/* Checkout */}
+      {/* Checkout (single centered column; details revealed after button) */}
       <section id="checkout" className="py-16 border-t border-white/10 bg-white/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-8 items-start">
-            {/* Left: form */}
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-              <h3 className="text-xl font-semibold flex items-center gap-2"><Bitcoin className="h-5 w-5"/> Pay with Bitcoin</h3>
-              <p className="text-white/70 mt-1">Live BTC pricing. Unique address per order.</p>
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
+            <h3 className="text-xl font-semibold flex items-center gap-2">
+              <Bitcoin className="h-5 w-5"/> Pay with Bitcoin
+            </h3>
+            <p className="text-white/70 mt-1">Live BTC pricing. Unique address per order.</p>
 
-              <div className="mt-5 grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-white/70">Selected Plan</label>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-                    {selected.label} — ${selected.priceUSD.toFixed(2)}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm text-white/70">Your Email (for key delivery)</label>
-                  <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@email.com"
-                         className="mt-1 w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 outline-none"/>
+            {/* Order summary + email */}
+            <div className="mt-5 grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-white/70">Selected Plan</label>
+                <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                  {selected.label} — ${selected.priceUSD.toFixed(2)}
                 </div>
               </div>
-
-              <div className="mt-5 grid sm:grid-cols-3 gap-4">
-                <div>
-                  <div className="text-sm text-white/70">BTC/USD</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
-                    {btcUSD? `$${btcUSD.toLocaleString()}` : '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-white/70">Amount in BTC</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
-                    {computedAmount || '—'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-white/70">Savings today</div>
-                  <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
-                    Save ${(selected.wasUSD - selected.priceUSD).toFixed(2)}
-                  </div>
-                </div>
+              <div>
+                <label className="text-sm text-white/70">Your Email (for key delivery)</label>
+                <input
+                  value={email}
+                  onChange={e=>setEmail(e.target.value)}
+                  placeholder="you@email.com"
+                  className={`mt-1 w-full px-3 py-2 rounded-xl bg-white/5 border outline-none ${
+                    email.length === 0
+                      ? "border-white/10"
+                      : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
+                  }`}
+                />
               </div>
-
-              <button onClick={startPayment}
-                      className="mt-5 w-full px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-500 inline-flex items-center justify-center gap-2 hover:from-purple-400 hover:to-indigo-400">
-                <Rocket className="h-5 w-5"/> Generate address & start payment
-              </button>
-              <p className="mt-3 text-xs text-white/60">
-                By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
-              </p>
             </div>
 
-            {/* Right: payment box */}
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-              <h3 className="text-xl font-semibold flex items-center gap-2"><QrCode className="h-5 w-5"/> Payment Details</h3>
-              {step === 'select' && (
-                <p className="text-white/70 mt-2">Select a plan and click <em>Generate address</em> to begin.</p>
-              )}
-              {step !== 'select' && (
+            {/* Price row */}
+            <div className="mt-5 grid sm:grid-cols-3 gap-4">
+              <div>
+                <div className="text-sm text-white/70">BTC/USD</div>
+                <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
+                  {btcUSD? `$${btcUSD.toLocaleString()}` : '—'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-white/70">Amount in BTC</div>
+                <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 font-mono">
+                  {computedAmount || '—'}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-white/70">Savings today</div>
+                <div className="mt-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10">
+                  Save ${(selected.wasUSD - selected.priceUSD).toFixed(2)}
+                </div>
+              </div>
+            </div>
+
+            {/* Action button */}
+            <button
+              onClick={startPayment}
+              disabled={!isEmailValid || !btcUSD}
+              className={`mt-5 w-full px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-2
+                ${(!isEmailValid || !btcUSD)
+                  ? "bg-white/10 text-white/50 cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400"}`}
+            >
+              <Rocket className="h-5 w-5"/> Generate address & start payment
+            </button>
+            <p className="mt-3 text-xs text-white/60">
+              By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
+            </p>
+
+            {/* Payment Details – shown only after we have an address */}
+            {step === 'pay' && address && (
+              <div className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5">
+                <h4 className="text-lg font-semibold flex items-center gap-2">
+                  <QrCode className="h-5 w-5"/> Payment Details
+                </h4>
+
                 <div className="mt-4 grid md:grid-cols-2 gap-4">
                   <div>
                     <div className="text-sm text-white/70">Amount (BTC)</div>
@@ -285,9 +308,19 @@ export default function NitroflareDegenLanding(){
                       </button>
                     </div>
                   </div>
+
+                  {/* QR */}
                   <div className="md:col-span-2 flex items-center justify-center">
-                    {address ? (
-                      <img src={qrURL()} alt="QR" className="mt-2 rounded-xl border border-white/10" width={260} height={260}/>
+                    {qrURL() ? (
+                      <img
+                        src={qrURL()}
+                        alt="Bitcoin payment QR"
+                        width={260}
+                        height={260}
+                        className="mt-2 rounded-xl border border-white/10"
+                        referrerPolicy="no-referrer"
+                        loading="eager"
+                      />
                     ) : (
                       <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
                         QR will appear here
@@ -295,14 +328,15 @@ export default function NitroflareDegenLanding(){
                     )}
                   </div>
                 </div>
-              )}
-              <div className="mt-4 text-sm text-white/70 min-h-[40px]">{status}</div>
-              <ul className="mt-3 text-xs text-white/60 space-y-1">
-                <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
-                <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
-                <li>• Key delivered to your email immediately after confirmation.</li>
-              </ul>
-            </div>
+
+                <div className="mt-4 text-sm text-white/70 min-h-[40px]">{status}</div>
+                <ul className="mt-3 text-xs text-white/60 space-y-1">
+                  <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
+                  <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
+                  <li>• Key delivered to your email immediately after confirmation.</li>
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </section>
