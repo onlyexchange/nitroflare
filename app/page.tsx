@@ -20,8 +20,8 @@ import {
  * NitroFlare Premium Key – Degen Landing Page
  */
 
-const COINGECKO_URL = "/api/price?ids=bitcoin";     // still needed to compute BTC amount
-const WALLETS_URL   = "/api/next-btc-address";       // address provider
+const COINGECKO_URL = "/api/price?ids=bitcoin";
+const WALLETS_URL   = "/api/next-btc-address";
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -35,14 +35,18 @@ type Plan = typeof PLANS[number];
 export default function NitroflareDegenLanding(){
   const [selected, setSelected] = useState<Plan>(PLANS[0]);
   const [email, setEmail] = useState('');
+  const [emailLocked, setEmailLocked] = useState(false);
   const [btcUSD, setBtcUSD] = useState<number | null>(null);
 
   // Payment session state
   const [address, setAddress] = useState('');
-  const [lockedBtc, setLockedBtc] = useState(''); // amount locked at generation time
+  const [lockedBtc, setLockedBtc] = useState('');
   const [status, setStatus] = useState('');
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
-  const [paySecs, setPaySecs] = useState(20 * 60); // 20 min window
+
+  // 30-minute window
+  const WINDOW_SECS = 30 * 60;
+  const [paySecs, setPaySecs] = useState(WINDOW_SECS);
   const payTicker = useRef<NodeJS.Timeout | null>(null);
   const [generating, setGenerating] = useState(false);
 
@@ -57,7 +61,7 @@ export default function NitroflareDegenLanding(){
     "Verifying inputs…",
     "0/2 confirmations…",
     "Checking network fee…",
-    "Still scanning…"
+    "Still scanning…",
   ];
 
   // Hero FOMO timer (visual only)
@@ -68,7 +72,7 @@ export default function NitroflareDegenLanding(){
   },[]);
   const heroTimeLeft = `${String(Math.floor(heroTimer/60)).padStart(2,'0')}:${String(heroTimer%60).padStart(2,'0')}`;
 
-  // Live BTC every 60s (to compute BTC amount once)
+  // Live BTC every 60s (for preview calc)
   useEffect(()=>{
     let active = true;
     async function fetchPrice(){
@@ -84,7 +88,6 @@ export default function NitroflareDegenLanding(){
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
-  // Amount preview (before locking)
   const previewBtc = useMemo(()=>{
     if (!btcUSD) return '';
     const amt = selected.priceUSD / btcUSD;
@@ -96,7 +99,7 @@ export default function NitroflareDegenLanding(){
 
   function startPayCountdown() {
     if (payTicker.current) clearInterval(payTicker.current);
-    setPaySecs(20 * 60);
+    setPaySecs(WINDOW_SECS);
     payTicker.current = setInterval(() => {
       setPaySecs(prev => {
         if (prev <= 1) {
@@ -108,6 +111,10 @@ export default function NitroflareDegenLanding(){
         return prev - 1;
       });
     }, 1000);
+  }
+  function stopPayCountdown(){
+    if (payTicker.current) clearInterval(payTicker.current);
+    payTicker.current = null;
   }
 
   function startScanLoop(){
@@ -127,10 +134,19 @@ export default function NitroflareDegenLanding(){
     scanTicker.current = null;
   }
 
-  useEffect(()=>()=>{ 
-    if (payTicker.current) clearInterval(payTicker.current);
-    if (scanTicker.current) clearInterval(scanTicker.current);
-  },[]);
+  useEffect(()=>()=>{ stopPayCountdown(); stopScanLoop(); },[]);
+
+  function resetPayment(){
+    stopPayCountdown();
+    stopScanLoop();
+    setAddress('');
+    setLockedBtc('');
+    setStatus('');
+    setStep('select');
+    setPaySecs(WINDOW_SECS);
+    // keep email as-is but unlock it
+    setEmailLocked(false);
+  }
 
   async function startPayment(){
     if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
@@ -143,12 +159,15 @@ export default function NitroflareDegenLanding(){
       const addr = data?.address || '';
       if (!addr) throw new Error('No wallet available');
 
-      // Lock amount and start session timers
+      // Lock amount + timers
       setAddress(addr);
       setLockedBtc(previewBtc);
       setStep('pay');
       startPayCountdown();
       startScanLoop();
+
+      // Lock email (with Edit button to change)
+      setEmailLocked(true);
     } catch(e){
       console.error(e);
       const demo = 'bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx';
@@ -157,19 +176,10 @@ export default function NitroflareDegenLanding(){
       setStep('pay');
       startPayCountdown();
       startScanLoop();
+      setEmailLocked(true);
     } finally {
       setGenerating(false);
     }
-  }
-
-  function resetPayment(){
-    if (payTicker.current) clearInterval(payTicker.current);
-    stopScanLoop();
-    setAddress('');
-    setLockedBtc('');
-    setPaySecs(20 * 60);
-    setStep('select');
-    setStatus('');
   }
 
   function fmtSecs(s: number){
@@ -191,6 +201,14 @@ export default function NitroflareDegenLanding(){
   function scrollToId(id: string){
     const el = document.getElementById(id);
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Select a plan: reset checkout and jump back to checkout section
+  function handleSelectPlan(p: Plan){
+    // if user switches pack, reset the active session first
+    resetPayment();
+    setSelected(p);
+    scrollToId('checkout');
   }
 
   return (
@@ -249,12 +267,12 @@ export default function NitroflareDegenLanding(){
       <section id="plans" className="py-14 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold">Choose your plan</h2>
-          <p className="text-white/70 mt-2">Big savings today. Instant delivery after BTC confirmation.</p>
+        <p className="text-white/70 mt-2">Big savings today. Instant delivery after BTC confirmation.</p>
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLANS.map((p) => (
               <motion.button
                 key={p.id}
-                onClick={()=> { setSelected(p); scrollToId('checkout'); }}
+                onClick={()=> handleSelectPlan(p)}
                 whileHover={{scale:1.02}}
                 className={`text-left rounded-2xl border ${selected.id===p.id? 'border-fuchsia-400/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
               >
@@ -289,7 +307,7 @@ export default function NitroflareDegenLanding(){
         </div>
       </section>
 
-      {/* Checkout — degen single-column */}
+      {/* Checkout */}
       <section id="checkout" className="py-16 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -311,7 +329,7 @@ export default function NitroflareDegenLanding(){
                 </div>
               </div>
 
-              {/* Order summary + email */}
+              {/* Order summary + email (with Change + Edit) */}
               <div className="mt-5 grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-white/70">Selected Plan</label>
@@ -320,30 +338,45 @@ export default function NitroflareDegenLanding(){
                       {selected.label} — ${selected.priceUSD.toFixed(2)}
                     </div>
                     <button
-                      onClick={()=>scrollToId('plans')}
-                      className="text-xs px-3 py-2 rounded-xl bg-white/8 border border-white/15 hover:border-white/30"
+                      onClick={()=>{ resetPayment(); scrollToId('plans'); }}
+                      className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
                       aria-label="Change plan"
                     >
                       Change
                     </button>
                   </div>
                 </div>
+
                 <div>
                   <label className="text-sm text-white/70">Your Email (for key delivery)</label>
-                  <input
-                    value={email}
-                    onChange={e=>setEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    className={`mt-1 w-full px-3 py-2 rounded-xl bg-white/5 border outline-none ${
-                      email.length === 0
-                        ? "border-white/10"
-                        : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
-                    }`}
-                  />
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      value={email}
+                      onChange={e=>setEmail(e.target.value)}
+                      readOnly={emailLocked}
+                      placeholder="you@email.com"
+                      className={`flex-1 px-3 py-2 rounded-xl bg-white/5 border outline-none ${
+                        emailLocked
+                          ? "border-emerald-400/60 opacity-90"
+                          : email.length === 0
+                            ? "border-white/10"
+                            : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
+                      }`}
+                    />
+                    {emailLocked ? (
+                      <button
+                        onClick={()=>{ setEmailLocked(false); resetPayment(); }}
+                        className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
+                        aria-label="Edit email"
+                      >
+                        Edit
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
-              {/* Price row - USD total + BTC amount */}
+              {/* Price row */}
               <div className="mt-5 grid sm:grid-cols-3 gap-4">
                 <div>
                   <div className="text-sm text-white/70">Total Price (USD)</div>
@@ -365,7 +398,7 @@ export default function NitroflareDegenLanding(){
                 </div>
               </div>
 
-              {/* Action buttons */}
+              {/* Actions */}
               <div className="mt-5 grid sm:grid-cols-2 gap-3">
                 <button
                   onClick={startPayment}
@@ -393,7 +426,7 @@ export default function NitroflareDegenLanding(){
                 By continuing you agree to our Terms. Prices shown in USD; you will pay the BTC equivalent at current rate.
               </p>
 
-              {/* Payment Details — only after generate */}
+              {/* Payment Details */}
               {step === 'pay' && address && (
                 <div className="mt-8 rounded-2xl border border-fuchsia-500/30 bg-gradient-to-br from-white/5 to-transparent p-5 shadow-[0_0_30px_rgba(217,70,239,0.25)]">
                   <div className="flex items-center justify-between flex-wrap gap-3">
@@ -403,7 +436,7 @@ export default function NitroflareDegenLanding(){
                     <div className="text-xs font-mono text-white/70">Time left: {fmtSecs(paySecs)}</div>
                   </div>
 
-                  {/* tiny animated bar for extra degen feel */}
+                  {/* animated stripe */}
                   <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
                     <div className="h-full w-1/3 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 animate-[pulse_1.6s_linear_infinite]"></div>
                   </div>
@@ -453,14 +486,17 @@ export default function NitroflareDegenLanding(){
                     </div>
                   </div>
 
-                  {/* Dynamic scanning row */}
-                  <div className="mt-4 flex items-center gap-2 text-sm text-white/80">
-                    <Loader2 className="h-4 w-4 animate-spin"/>
-                    <span className="font-mono">{status || scanMessages[scanIdx]}</span>
+                  {/* Centered status + centered rules */}
+                  <div className="mt-4 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
+                    <div className="font-medium">Send the exact amount.</div>
+                    <div className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin"/>
+                      <span className="font-mono">{status || scanMessages[scanIdx]}</span>
+                    </div>
                   </div>
 
-                  <ul className="mt-3 text-xs text-white/60 space-y-1">
-                    <li>• Send the <strong>exact</strong> BTC amount within 20 minutes.</li>
+                  <ul className="mt-3 text-xs text-white/60 space-y-1 text-center">
+                    <li>• Send the <strong>exact</strong> BTC amount within 30 minutes.</li>
                     <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
                     <li>• Key delivered to your email immediately after confirmation.</li>
                   </ul>
