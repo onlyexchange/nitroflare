@@ -55,13 +55,8 @@ export default function NitroflareDegenLanding(){
   const scanTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const scanMessages = [
     "Scanning blockchain network…",
-    "Watching mempool for your tx…",
-    "Matching recipient address…",
     "Waiting for broadcast…",
-    "Verifying inputs…",
     "0/2 confirmations…",
-    "Checking network fee…",
-    "Still scanning…"
   ];
 
   // Hero FOMO timer (visual only)
@@ -128,7 +123,7 @@ export default function NitroflareDegenLanding(){
         setStatus(scanMessages[next]);
         return next;
       });
-    }, 1600);
+    }, 2600);
   }
   function stopScanLoop(){
     if (scanTicker.current) clearInterval(scanTicker.current);
