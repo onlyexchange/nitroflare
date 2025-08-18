@@ -333,7 +333,7 @@ export default function NitroflareDegenLanding(){
         <div className="text-xs font-mono text-white/70">
           {step === 'pay'
             ? <>Window: <span className="text-white">{fmtSecs(paySecs)}</span></>
-            : <>Live price locks on generate</>}
+            : <></>}
         </div>
       </div>
 
