@@ -16,10 +16,23 @@ import {
   Loader2
 } from "lucide-react";
 
-/** Degen Landing — full-bleed checkout + multi-asset + network-aware stables */
+/** Degen Landing — full-bleed checkout + multi-asset + network-aware stables + live prices */
 
-const COINGECKO_URL = "/api/price?ids=bitcoin"; // BTC price for BTC amount
-// You can add more ids later, e.g. ids=bitcoin,litecoin if you want LTC conversion too.
+const COINGECKO_IDS = {
+  BTC:  'bitcoin',
+  ETH:  'ethereum',
+  SOL:  'solana',
+  BNB:  'binancecoin',
+  LTC:  'litecoin',
+  USDT: 'tether',
+  USDC: 'usd-coin',
+} as const;
+
+type Method = keyof typeof COINGECKO_IDS;
+type Chain = 'ETH' | 'SOL' | 'BNB'; // Networks we expose for stables
+
+const ALL_IDS = Object.values(COINGECKO_IDS);
+const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -27,9 +40,9 @@ const PLANS = [
   { id: 'nf-180', label: '180 Days', days: 180, priceUSD: 32.99, wasUSD: 55.0 },
   { id: 'nf-365', label: '365 Days', days: 365, priceUSD: 59.99, wasUSD: 100.0 },
 ] as const;
+type Plan = typeof PLANS[number];
 
-// ===== Payment Methods & Chains =====
-// Using Zap as placeholder icon for non-BTC; swap to proper logos if you like.
+// UI list (using Zap placeholders for non-BTC)
 const METHODS = [
   { id: 'BTC',  label: 'Bitcoin',  icon: Bitcoin },
   { id: 'ETH',  label: 'Ethereum', icon: Zap },
@@ -40,22 +53,17 @@ const METHODS = [
   { id: 'USDC', label: 'USDC',     icon: Zap },
 ] as const;
 
-type Plan = typeof PLANS[number];
-type Method = typeof METHODS[number]['id'];
-type Chain = 'ETH' | 'SOL' | 'BNB'; // Networks we expose for stables
-
 const METHOD_NEEDS_CHAIN: Record<Method, boolean> = {
   BTC: false, ETH: false, SOL: false, BNB: false, LTC: false,
   USDT: true, USDC: true,
 };
 
-// Which chains each stablecoin supports:
 const CHAIN_OPTIONS: Record<'USDT'|'USDC', Chain[]> = {
   USDT: ['ETH', 'SOL', 'BNB'],
   USDC: ['ETH', 'SOL', 'BNB'],
 };
 
-// Endpoints per method (and per chain for stables). Each should return { address: "..." }.
+// Endpoints (must return { address: "..." })
 const ENDPOINTS: Record<Method, string | Record<Chain, string>> = {
   BTC:  "/api/next-btc-address",
   ETH:  "/api/next-eth-address",
@@ -74,7 +82,7 @@ const ENDPOINTS: Record<Method, string | Record<Chain, string>> = {
   },
 };
 
-// Demo fallback addresses (used if endpoint fails)
+// Demo fallback addresses
 const DEMO_ADDR: Record<Method, string> = {
   BTC:  "bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   ETH:  "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -91,23 +99,25 @@ export default function Page(){
   const [emailLocked, setEmailLocked] = useState(false);
 
   const [method, setMethod] = useState<Method>('BTC');
-  const [chain, setChain]   = useState<Chain | null>(null); // only for stables
+  const [chain, setChain] = useState<Chain | null>(null);
 
-  const [btcUSD, setBtcUSD] = useState<number | null>(null);
+  // prices in USD per asset
+  const [pricesUSD, setPricesUSD] = useState<Record<Method, number | null>>({
+    BTC: null, ETH: null, SOL: null, BNB: null, LTC: null, USDT: null, USDC: null
+  });
 
   // Payment session
   const [address, setAddress] = useState('');
-  const [lockedBtc, setLockedBtc] = useState(''); // only for BTC amount locking
+  const [lockedAmount, setLockedAmount] = useState(''); // locked token amount for ANY method
   const [status, setStatus] = useState('');
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
 
-  // Timers
+  // Timers & effects
   const WINDOW_SECS = 30 * 60;
   const [paySecs, setPaySecs] = useState(WINDOW_SECS);
   const payTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const [generating, setGenerating] = useState(false);
 
-  // Animated scan messages
   const [scanIdx, setScanIdx] = useState(0);
   const scanTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const scanMessages = [
@@ -129,29 +139,43 @@ export default function Page(){
   },[]);
   const heroTimeLeft = `${String(Math.floor(heroTimer/60)).padStart(2,'0')}:${String(heroTimer%60).padStart(2,'0')}`;
 
-  // BTC price (for preview/lock when method === 'BTC')
+  // Fetch ALL prices every 60s
   useEffect(()=>{
     let active = true;
-    async function fetchPrice(){
+    async function fetchPrices(){
       try{
-        const res = await fetch(COINGECKO_URL, { cache: 'no-store' });
+        const res = await fetch(PRICE_URL, { cache: 'no-store' });
         const data = await res.json();
-        const usd = data?.bitcoin?.usd ?? null;
-        if (active) setBtcUSD(usd);
+
+        const map: Record<Method, number | null> = {
+          BTC:  data?.bitcoin?.usd ?? null,
+          ETH:  data?.ethereum?.usd ?? null,
+          SOL:  data?.solana?.usd ?? null,
+          BNB:  data?.binancecoin?.usd ?? null,
+          LTC:  data?.litecoin?.usd ?? null,
+          USDT: data?.tether?.usd ?? null,
+          USDC: data?.['usd-coin']?.usd ?? null,
+        };
+        if (active) setPricesUSD(map);
       }catch(e){ console.error(e); }
     }
-    fetchPrice();
-    const i = setInterval(fetchPrice, 60000);
+    fetchPrices();
+    const i = setInterval(fetchPrices, 60000);
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
-  // preview BTC amount
-  const previewBtc = useMemo(()=>{
-    if (method !== 'BTC' || !btcUSD) return '';
-    const amt = selected.priceUSD / btcUSD;
+  // live amount preview for current method (truncated 8 dp)
+  const previewAmount = useMemo(()=>{
+    const usd = pricesUSD[method];
+    if (method === 'USDT' || method === 'USDC') {
+      // stablecoins ≈ $1.00; show token count equal to USD total if price is around 1
+      return selected.priceUSD.toFixed(2);
+    }
+    if (!usd) return '';
+    const amt = selected.priceUSD / usd;
     const truncated = Math.trunc(amt * 1e8) / 1e8;
     return truncated.toFixed(8);
-  }, [btcUSD, selected, method]);
+  }, [pricesUSD, method, selected]);
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -196,22 +220,24 @@ export default function Page(){
     stopPayCountdown();
     stopScanLoop();
     setAddress('');
-    setLockedBtc('');
+    setLockedAmount('');
     setStatus('');
     setStep('select');
     setPaySecs(WINDOW_SECS);
     setEmailLocked(false);
   }
 
+  // helper: does this method need a live price to proceed?
+  const methodNeedsLivePrice = (m: Method) => !(m === 'USDT' || m === 'USDC');
+
   async function startPayment(){
     if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
-    if (method === 'BTC' && !btcUSD) { setStatus('Could not fetch BTC price. Please try again.'); return; }
     if (METHOD_NEEDS_CHAIN[method] && !chain) { setStatus('Select a network to continue.'); return; }
+    if (methodNeedsLivePrice(method) && !pricesUSD[method]) { setStatus('Could not fetch live price. Please try again.'); return; }
 
     setGenerating(true);
     setStatus('Generating your unique address…');
     try{
-      // Resolve endpoint based on method (+ chain for stables)
       const ep = ENDPOINTS[method];
       let endpoint = '';
       if (typeof ep === 'string') endpoint = ep;
@@ -223,16 +249,15 @@ export default function Page(){
       if (!addr) throw new Error('No wallet available');
 
       setAddress(addr);
-      setLockedBtc(method === 'BTC' ? (previewBtc || '') : ''); // lock BTC amount only
+      setLockedAmount(previewAmount || '');
       setStep('pay');
       startPayCountdown();
       startScanLoop();
       setEmailLocked(true);
     }catch(e){
       console.error(e);
-      // Fallback demo
       setAddress(DEMO_ADDR[method]);
-      setLockedBtc(method === 'BTC' ? (previewBtc || '') : '');
+      setLockedAmount(previewAmount || '');
       setStep('pay');
       startPayCountdown();
       startScanLoop();
@@ -248,25 +273,22 @@ export default function Page(){
     return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
   }
 
+  // Build payment URI for QR (embed amount only for BTC; others stick to raw address)
   function paymentURI(){
     if (!address) return '';
     if (method === 'BTC') {
-      return `bitcoin:${address}${lockedBtc ? `?amount=${lockedBtc}` : ''}`;
+      return `bitcoin:${address}${lockedAmount ? `?amount=${lockedAmount}` : ''}`;
     }
     if (method === 'LTC') {
-      // Optional: include amount later if you add LTC conversion.
-      return `litecoin:${address}`;
+      return `litecoin:${address}`; // you could add ?amount= later if you add LTC conversion-lock to URI
     }
-    // For ETH/SOL/BNB/USDT/USDC we use raw address in QR.
-    return address;
+    return address; // ETH/SOL/BNB/USDT/USDC — wallets accept address-only QR
   }
-
   function qrURL(){
     const uri = paymentURI();
     if (!uri) return '';
     return `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
   }
-
   function copy(value: string){
     if (!value) return;
     navigator.clipboard?.writeText(value).catch(()=>{});
@@ -298,11 +320,7 @@ export default function Page(){
             <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hover:text-white">Checkout</a>
             <a href="#faq" onClick={e=>{e.preventDefault(); scrollToId('faq')}} className="hover:text-white">FAQ</a>
           </nav>
-          <a
-            href="#checkout"
-            onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
-            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500"
-          >
+          <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500">
             <Bitcoin className="h-4 w-4"/> Pay with Crypto
           </a>
         </div>
@@ -320,24 +338,15 @@ export default function Page(){
             </h1>
             <p className="mt-4 text-white/80 text-lg max-w-2xl">
               Pay with crypto and get your NitroFlare premium key <em>instantly</em> after confirmation.
-              Flash discount active — don’t miss it.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80">
               <TimerIcon className="h-4 w-4"/> Flash deal ends in <span className="font-mono">{heroTimeLeft}</span>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="#plans"
-                onClick={e=>{e.preventDefault(); scrollToId('plans')}}
-                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 inline-flex items-center gap-2 hover:from-fuchsia-400 hover:to-indigo-400"
-              >
+              <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 inline-flex items-center gap-2 hover:from-fuchsia-400 hover:to-indigo-400">
                 <Flame className="h-5 w-5"/> View Plans
               </a>
-              <a
-                href="#checkout"
-                onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
-                className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2"
-              >
+              <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2">
                 <Bitcoin className="h-5 w-5"/> Pay with Crypto
               </a>
             </div>
@@ -354,7 +363,7 @@ export default function Page(){
             {PLANS.map((p) => (
               <motion.button
                 key={p.id}
-                onClick={()=> handleSelectPlan(p)}
+                onClick={()=> { resetPayment(); setSelected(p); scrollToId('checkout'); }}
                 whileHover={{scale:1.02}}
                 className={`text-left rounded-2xl border ${selected.id===p.id? 'border-fuchsia-400/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
               >
@@ -378,7 +387,7 @@ export default function Page(){
       <section id="features" className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold">Why NitroFlare Premium?</h2>
-          <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Full-speed downloads" text="No throttling during peak hours—maximize your bandwidth."/>
             <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="No ads, no waiting" text="Skip timers and interstitials for 1-click access."/>
             <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Parallel connections" text="Download multiple files at once with your manager."/>
@@ -389,24 +398,14 @@ export default function Page(){
         </div>
       </section>
 
-      {/* Checkout — full-bleed degen (no box) */}
+      {/* Checkout — full-bleed */}
       <section id="checkout" className="py-24 border-t border-white/10 bg-gradient-to-b from-transparent via-white/5 to-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-          >
-            {/* Big heading */}
+          <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                  Checkout
-                </h3>
-                <p className="mt-2 text-white/70">
-                  Live price locks when you generate the address.
-                </p>
+                <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight">Checkout</h3>
+                <p className="mt-2 text-white/70">Live price locks when you generate the address.</p>
               </div>
               <div className="text-xs font-mono text-white/70">
                 {step === 'pay'
@@ -419,14 +418,14 @@ export default function Page(){
             <div className="mt-8 flex flex-wrap gap-2">
               {METHODS.map(m=>{
                 const Icon = m.icon;
-                const active = method === m.id;
+                const active = method === m.id as Method;
                 return (
                   <button
                     key={m.id}
                     onClick={()=>{
                       if (method!==m.id){
                         resetPayment();
-                        setMethod(m.id);
+                        setMethod(m.id as Method);
                         setChain(null);
                       }
                     }}
@@ -442,7 +441,7 @@ export default function Page(){
               })}
             </div>
 
-            {/* Network picker for stablecoins */}
+            {/* Network picker for stables */}
             {METHOD_NEEDS_CHAIN[method] && (
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="text-sm text-white/70">Network:</span>
@@ -472,10 +471,7 @@ export default function Page(){
                     <div className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-lg">
                       {selected.label} — ${selected.priceUSD.toFixed(2)}
                     </div>
-                    <button
-                      onClick={()=>{ resetPayment(); scrollToId('plans'); }}
-                      className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
-                    >
+                    <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
                       Change
                     </button>
                   </div>
@@ -498,10 +494,7 @@ export default function Page(){
                       }`}
                     />
                     {emailLocked && (
-                      <button
-                        onClick={()=>{ setEmailLocked(false); resetPayment(); }}
-                        className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30"
-                      >
+                      <button onClick={()=>{ setEmailLocked(false); resetPayment(); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
                         Edit
                       </button>
                     )}
@@ -512,11 +505,7 @@ export default function Page(){
                   <Stat label="Total Price (USD)" value={`$${selected.priceUSD.toFixed(2)}`} mono />
                   <Stat
                     label={`Amount (${method})`}
-                    value={
-                      method === 'BTC'
-                        ? (lockedBtc || previewBtc || '—')
-                        : (step==='pay' ? `≈ $${selected.priceUSD.toFixed(2)} in ${method}` : '—')
-                    }
+                    value={lockedAmount || previewAmount || '—'}
                     mono
                   />
                   <Stat label="Savings today" value={`Save $${(selected.wasUSD - selected.priceUSD).toFixed(2)}`} />
@@ -527,12 +516,12 @@ export default function Page(){
                     onClick={startPayment}
                     disabled={
                       !isEmailValid ||
-                      (method==='BTC' && !btcUSD) ||
+                      (methodNeedsLivePrice(method) && !pricesUSD[method]) ||
                       (METHOD_NEEDS_CHAIN[method] && !chain) ||
                       generating
                     }
                     className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
-                      ${(!isEmailValid || (method==='BTC' && !btcUSD) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
+                      ${(!isEmailValid || (methodNeedsLivePrice(method) && !pricesUSD[method]) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
                         ? "bg-white/10 text-white/50 cursor-not-allowed"
                         : "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_25px_rgba(168,85,247,0.4)]"}`}
                   >
@@ -541,10 +530,7 @@ export default function Page(){
                   </button>
 
                   {step === 'pay' && (
-                    <button
-                      onClick={resetPayment}
-                      className="w-full px-6 py-4 rounded-2xl border border-white/15 hover:border-white/30"
-                    >
+                    <button onClick={resetPayment} className="w-full px-6 py-4 rounded-2xl border border-white/15 hover:border-white/30">
                       Cancel / Start Over
                     </button>
                   )}
@@ -555,7 +541,7 @@ export default function Page(){
                 </p>
               </div>
 
-              {/* Payment details side — no big box, just elements */}
+              {/* Payment details */}
               <div className="space-y-6">
                 <h4 className="text-2xl font-semibold flex items-center gap-2">
                   <QrCode className="h-5 w-5"/> Payment Details
@@ -567,21 +553,11 @@ export default function Page(){
                     <div className="mt-1 flex gap-2">
                       <input
                         readOnly
-                        value={
-                          method === 'BTC'
-                            ? (lockedBtc || previewBtc || '')
-                            : (step==='pay' ? `≈ $${selected.priceUSD.toFixed(2)}` : '')
-                        }
-                        placeholder={method==='BTC' ? '' : 'Shown after you generate'}
+                        value={lockedAmount || (step==='pay' ? previewAmount : '')}
+                        placeholder="Shown after you generate"
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-lg"
                       />
-                      <button
-                        onClick={()=>copy(
-                          method==='BTC'
-                            ? (lockedBtc || '')
-                            : (step==='pay' ? `${selected.priceUSD.toFixed(2)}` : '')
-                        )}
-                        className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
+                      <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
                         <Copy className="h-4 w-4"/>
                       </button>
                     </div>
@@ -627,7 +603,6 @@ export default function Page(){
                   )}
                 </div>
 
-                {/* Centered status + rules */}
                 <div className="pt-2 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
                   <div className="font-medium">Send the exact amount.</div>
                   {step === 'pay' && (
@@ -644,7 +619,6 @@ export default function Page(){
                   <li>• Key delivered to your email immediately after confirmation.</li>
                 </ul>
 
-                {/* Order Summary (inline) */}
                 {step === 'pay' && address && (
                   <div className="mt-6">
                     <h5 className="text-lg font-semibold">Order Summary</h5>
@@ -657,9 +631,7 @@ export default function Page(){
                           chain === 'ETH' ? 'Ethereum' : chain === 'SOL' ? 'Solana' : 'BNB Smart Chain'
                         }/>
                       )}
-                      <Summary label="Amount"
-                               value={method==='BTC' ? (lockedBtc || previewBtc || '—') : `≈ $${selected.priceUSD.toFixed(2)}`}
-                               mono/>
+                      <Summary label="Amount" value={lockedAmount || '—'} mono/>
                       <Summary label="Email" value={email || '—'}/>
                       <Summary label="Recipient" value={address} mono wrap/>
                     </div>
