@@ -16,11 +16,10 @@ import {
   Loader2
 } from "lucide-react";
 
-/** Degen Landing (full-bleed checkout + multi-method) */
+/** Degen Landing — full-bleed checkout + multi-asset + network-aware stables */
 
 const COINGECKO_URL = "/api/price?ids=bitcoin"; // BTC price for BTC amount
-// Default BTC endpoint (others are optional; see ENDPOINTS below)
-const WALLETS_URL   = "/api/next-btc-address";
+// You can add more ids later, e.g. ids=bitcoin,litecoin if you want LTC conversion too.
 
 const PLANS = [
   { id: 'nf-30',  label: '30 Days',  days: 30,  priceUSD: 8.99,  wasUSD: 15.0 },
@@ -29,28 +28,61 @@ const PLANS = [
   { id: 'nf-365', label: '365 Days', days: 365, priceUSD: 59.99, wasUSD: 100.0 },
 ] as const;
 
+// ===== Payment Methods & Chains =====
+// Using Zap as placeholder icon for non-BTC; swap to proper logos if you like.
 const METHODS = [
-  { id: 'BTC',  label: 'Bitcoin', icon: Bitcoin },
-  { id: 'USDT', label: 'USDT',   icon: Zap },
-  { id: 'USDC', label: 'USDC',   icon: Zap },
-  { id: 'SOL',  label: 'SOL',    icon: Zap },
+  { id: 'BTC',  label: 'Bitcoin',  icon: Bitcoin },
+  { id: 'ETH',  label: 'Ethereum', icon: Zap },
+  { id: 'SOL',  label: 'Solana',   icon: Zap },
+  { id: 'BNB',  label: 'BNB',      icon: Zap },   // BNB Smart Chain
+  { id: 'LTC',  label: 'Litecoin', icon: Zap },
+  { id: 'USDT', label: 'USDT',     icon: Zap },
+  { id: 'USDC', label: 'USDC',     icon: Zap },
 ] as const;
 
 type Plan = typeof PLANS[number];
 type Method = typeof METHODS[number]['id'];
+type Chain = 'ETH' | 'SOL' | 'BNB'; // Networks we expose for stables
 
-const ENDPOINTS: Record<Method, string> = {
-  BTC:  "/api/next-btc-address",
-  USDT: "/api/next-usdt-address", // create this route when ready
-  USDC: "/api/next-usdc-address", // create this route when ready
-  SOL:  "/api/next-sol-address",  // create this route when ready
+const METHOD_NEEDS_CHAIN: Record<Method, boolean> = {
+  BTC: false, ETH: false, SOL: false, BNB: false, LTC: false,
+  USDT: true, USDC: true,
 };
 
+// Which chains each stablecoin supports:
+const CHAIN_OPTIONS: Record<'USDT'|'USDC', Chain[]> = {
+  USDT: ['ETH', 'SOL', 'BNB'],
+  USDC: ['ETH', 'SOL', 'BNB'],
+};
+
+// Endpoints per method (and per chain for stables). Each should return { address: "..." }.
+const ENDPOINTS: Record<Method, string | Record<Chain, string>> = {
+  BTC:  "/api/next-btc-address",
+  ETH:  "/api/next-eth-address",
+  SOL:  "/api/next-sol-address",
+  BNB:  "/api/next-bnb-address",
+  LTC:  "/api/next-ltc-address",
+  USDT: {
+    ETH: "/api/next-usdt-eth-address",
+    SOL: "/api/next-usdt-sol-address",
+    BNB: "/api/next-usdt-bnb-address",
+  },
+  USDC: {
+    ETH: "/api/next-usdc-eth-address",
+    SOL: "/api/next-usdc-sol-address",
+    BNB: "/api/next-usdc-bnb-address",
+  },
+};
+
+// Demo fallback addresses (used if endpoint fails)
 const DEMO_ADDR: Record<Method, string> = {
   BTC:  "bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  USDT: "TExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXXX",    // TRON example-ish
-  USDC: "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",    // EVM example-ish
-  SOL:  "So11111111111111111111111111111111111111112",    // SOL example-ish
+  ETH:  "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
+  SOL:  "So11111111111111111111111111111111111111112",
+  BNB:  "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
+  LTC:  "ltc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxx",
+  USDT: "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
+  USDC: "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
 };
 
 export default function Page(){
@@ -59,11 +91,13 @@ export default function Page(){
   const [emailLocked, setEmailLocked] = useState(false);
 
   const [method, setMethod] = useState<Method>('BTC');
+  const [chain, setChain]   = useState<Chain | null>(null); // only for stables
+
   const [btcUSD, setBtcUSD] = useState<number | null>(null);
 
   // Payment session
   const [address, setAddress] = useState('');
-  const [lockedBtc, setLockedBtc] = useState(''); // only for BTC
+  const [lockedBtc, setLockedBtc] = useState(''); // only for BTC amount locking
   const [status, setStatus] = useState('');
   const [step, setStep] = useState<'select'|'pay'|'done'>('select');
 
@@ -172,26 +206,32 @@ export default function Page(){
   async function startPayment(){
     if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
     if (method === 'BTC' && !btcUSD) { setStatus('Could not fetch BTC price. Please try again.'); return; }
+    if (METHOD_NEEDS_CHAIN[method] && !chain) { setStatus('Select a network to continue.'); return; }
 
     setGenerating(true);
     setStatus('Generating your unique address…');
     try{
-      const endpoint = ENDPOINTS[method] || WALLETS_URL;
+      // Resolve endpoint based on method (+ chain for stables)
+      const ep = ENDPOINTS[method];
+      let endpoint = '';
+      if (typeof ep === 'string') endpoint = ep;
+      else endpoint = ep[(chain as Chain)];
+
       const res = await fetch(endpoint, { cache: 'no-store' });
       const data = await res.json();
       const addr = data?.address || '';
       if (!addr) throw new Error('No wallet available');
 
       setAddress(addr);
-      setLockedBtc(method === 'BTC' ? (previewBtc || '') : '');
+      setLockedBtc(method === 'BTC' ? (previewBtc || '') : ''); // lock BTC amount only
       setStep('pay');
       startPayCountdown();
       startScanLoop();
       setEmailLocked(true);
     }catch(e){
       console.error(e);
-      const demo = DEMO_ADDR[method];
-      setAddress(demo);
+      // Fallback demo
+      setAddress(DEMO_ADDR[method]);
       setLockedBtc(method === 'BTC' ? (previewBtc || '') : '');
       setStep('pay');
       startPayCountdown();
@@ -213,7 +253,11 @@ export default function Page(){
     if (method === 'BTC') {
       return `bitcoin:${address}${lockedBtc ? `?amount=${lockedBtc}` : ''}`;
     }
-    // generic URI for other assets (encode raw address)
+    if (method === 'LTC') {
+      // Optional: include amount later if you add LTC conversion.
+      return `litecoin:${address}`;
+    }
+    // For ETH/SOL/BNB/USDT/USDC we use raw address in QR.
     return address;
   }
 
@@ -224,6 +268,7 @@ export default function Page(){
   }
 
   function copy(value: string){
+    if (!value) return;
     navigator.clipboard?.writeText(value).catch(()=>{});
   }
   function scrollToId(id: string){
@@ -258,7 +303,7 @@ export default function Page(){
             onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
             className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-500 to-indigo-500"
           >
-            <Bitcoin className="h-4 w-4"/> Pay with Bitcoin
+            <Bitcoin className="h-4 w-4"/> Pay with Crypto
           </a>
         </div>
       </header>
@@ -378,7 +423,13 @@ export default function Page(){
                 return (
                   <button
                     key={m.id}
-                    onClick={()=>{ if (method!==m.id){ resetPayment(); setMethod(m.id); }}}
+                    onClick={()=>{
+                      if (method!==m.id){
+                        resetPayment();
+                        setMethod(m.id);
+                        setChain(null);
+                      }
+                    }}
                     className={`px-4 py-2 rounded-2xl border text-sm inline-flex items-center gap-2
                       ${active
                         ? "border-fuchsia-400/60 bg-white/10"
@@ -391,7 +442,28 @@ export default function Page(){
               })}
             </div>
 
-            {/* Summary row */}
+            {/* Network picker for stablecoins */}
+            {METHOD_NEEDS_CHAIN[method] && (
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="text-sm text-white/70">Network:</span>
+                {(CHAIN_OPTIONS[method as 'USDT'|'USDC'] || []).map(c => {
+                  const active = chain === c;
+                  return (
+                    <button
+                      key={c}
+                      onClick={() => { setChain(c); resetPayment(); }}
+                      className={`px-3 py-1.5 rounded-xl border text-sm
+                        ${active ? 'border-fuchsia-400/60 bg-white/10'
+                                 : 'border-white/10 hover:border-white/30 bg-white/5'}`}
+                    >
+                      {c === 'ETH' ? 'Ethereum' : c === 'SOL' ? 'Solana' : 'BNB Smart Chain'}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Summary + Payment */}
             <div className="mt-10 grid lg:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div>
@@ -440,7 +512,11 @@ export default function Page(){
                   <Stat label="Total Price (USD)" value={`$${selected.priceUSD.toFixed(2)}`} mono />
                   <Stat
                     label={`Amount (${method})`}
-                    value={method === 'BTC' ? (lockedBtc || previewBtc || '—') : `≈ $${selected.priceUSD.toFixed(2)} in ${method}`}
+                    value={
+                      method === 'BTC'
+                        ? (lockedBtc || previewBtc || '—')
+                        : (step==='pay' ? `≈ $${selected.priceUSD.toFixed(2)} in ${method}` : '—')
+                    }
                     mono
                   />
                   <Stat label="Savings today" value={`Save $${(selected.wasUSD - selected.priceUSD).toFixed(2)}`} />
@@ -449,9 +525,14 @@ export default function Page(){
                 <div className="grid sm:grid-cols-2 gap-3">
                   <button
                     onClick={startPayment}
-                    disabled={!isEmailValid || (method==='BTC' && !btcUSD) || generating}
+                    disabled={
+                      !isEmailValid ||
+                      (method==='BTC' && !btcUSD) ||
+                      (METHOD_NEEDS_CHAIN[method] && !chain) ||
+                      generating
+                    }
                     className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
-                      ${(!isEmailValid || (method==='BTC' && !btcUSD) || generating)
+                      ${(!isEmailValid || (method==='BTC' && !btcUSD) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
                         ? "bg-white/10 text-white/50 cursor-not-allowed"
                         : "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_25px_rgba(168,85,247,0.4)]"}`}
                   >
@@ -474,7 +555,7 @@ export default function Page(){
                 </p>
               </div>
 
-              {/* Payment details side — still no big box, just elements */}
+              {/* Payment details side — no big box, just elements */}
               <div className="space-y-6">
                 <h4 className="text-2xl font-semibold flex items-center gap-2">
                   <QrCode className="h-5 w-5"/> Payment Details
@@ -486,11 +567,20 @@ export default function Page(){
                     <div className="mt-1 flex gap-2">
                       <input
                         readOnly
-                        value={method === 'BTC' ? (lockedBtc || previewBtc || '') : (step==='pay' ? `≈ $${selected.priceUSD.toFixed(2)}` : '')}
+                        value={
+                          method === 'BTC'
+                            ? (lockedBtc || previewBtc || '')
+                            : (step==='pay' ? `≈ $${selected.priceUSD.toFixed(2)}` : '')
+                        }
                         placeholder={method==='BTC' ? '' : 'Shown after you generate'}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-lg"
                       />
-                      <button onClick={()=>copy(method==='BTC' ? (lockedBtc || '') : (step==='pay' ? `${selected.priceUSD}` : ''))}
+                      <button
+                        onClick={()=>copy(
+                          method==='BTC'
+                            ? (lockedBtc || '')
+                            : (step==='pay' ? `${selected.priceUSD.toFixed(2)}` : '')
+                        )}
                         className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
                         <Copy className="h-4 w-4"/>
                       </button>
@@ -505,6 +595,13 @@ export default function Page(){
                         <Copy className="h-4 w-4"/>
                       </button>
                     </div>
+                    {METHOD_NEEDS_CHAIN[method] && (
+                      <div className="text-xs text-white/60 mt-1">
+                        Network: <span className="text-white/80">
+                          {chain === 'ETH' ? 'Ethereum' : chain === 'SOL' ? 'Solana' : 'BNB Smart Chain'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -547,7 +644,7 @@ export default function Page(){
                   <li>• Key delivered to your email immediately after confirmation.</li>
                 </ul>
 
-                {/* Order Summary (inline, no box) */}
+                {/* Order Summary (inline) */}
                 {step === 'pay' && address && (
                   <div className="mt-6">
                     <h5 className="text-lg font-semibold">Order Summary</h5>
@@ -555,6 +652,11 @@ export default function Page(){
                       <Summary label="Pack" value={selected.label}/>
                       <Summary label="USD Total" value={`$${selected.priceUSD.toFixed(2)}`} mono/>
                       <Summary label="Asset" value={method}/>
+                      {METHOD_NEEDS_CHAIN[method] && (
+                        <Summary label="Network" value={
+                          chain === 'ETH' ? 'Ethereum' : chain === 'SOL' ? 'Solana' : 'BNB Smart Chain'
+                        }/>
+                      )}
                       <Summary label="Amount"
                                value={method==='BTC' ? (lockedBtc || previewBtc || '—') : `≈ $${selected.priceUSD.toFixed(2)}`}
                                mono/>
@@ -575,9 +677,9 @@ export default function Page(){
           <h2 className="text-3xl md:text-4xl font-bold">FAQ</h2>
           <div className="mt-6 grid md:grid-cols-2 gap-5">
             <QA q="How fast do I get my key?" a="We dispatch instantly once your transaction reaches the required confirmations. Typically within minutes."/>
-            <QA q="Do you support coins besides BTC?" a="Yes—BTC is live here. USDT/USDC/SOL will appear as options as we enable their endpoints."/>
+            <QA q="Do you support coins besides BTC?" a="Yes—BTC, ETH, SOL, BNB, LTC, USDT and USDC are supported here."/>
+            <QA q="Which networks for USDT/USDC?" a="Ethereum, Solana, and BNB Smart Chain. Make sure you select the correct network before paying."/>
             <QA q="Unique address per order?" a="Yes. We generate a fresh address per order for clean tracking."/>
-            <QA q="What if my window expires?" a="Just generate a new address. The previous one will no longer be monitored."/>
           </div>
         </div>
       </section>
@@ -606,7 +708,7 @@ export default function Page(){
   );
 }
 
-/* Small presentational helpers */
+/* Presentational helpers */
 function Stat({ label, value, mono=false }:{label:string; value:string; mono?:boolean}){
   return (
     <div>
