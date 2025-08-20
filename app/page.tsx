@@ -67,6 +67,47 @@ const PROVIDERS: Provider[] = [
     ],
   },
   {
+  slug: 'rapidgator',
+  name: 'Rapidgator.net',
+  status: 'live',
+  blurb: 'Premium keys with instant email delivery.',
+  cta: 'Buy Rapidgator Premium',
+  monogram: 'R',
+  vibe: {
+    ring: 'from-orange-500/70 via-amber-500/60 to-orange-600/70',
+    chip: 'from-orange-500 via-amber-500 to-orange-600',
+    mono: 'from-orange-600 via-amber-500 to-orange-400',
+    glow: 'shadow-[0_0_28px_rgba(255,134,27,0.35)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'rg-30',  priceUSD: 10.49, wasUSD: 14.99, bandwidth: '1 TB Bandwidth / 1 TB Storage' },
+    { label: '90 Days',  planId: 'rg-90',  priceUSD: 27.99, wasUSD: 39.99, bandwidth: '4 TB Bandwidth / 3 TB Storage' },
+    { label: '180 Days', planId: 'rg-180', priceUSD: 34.99, wasUSD: 49.99, bandwidth: '6 TB Bandwidth / 6 TB Storage' },
+    { label: '365 Days', planId: 'rg-365', priceUSD: 69.99, wasUSD: 99.99, bandwidth: '12 TB Bandwidth / 12 TB Storage' },
+  ],
+},
+  {
+  slug: 'filesfly',
+  name: 'FilesFly.cc',
+  status: 'live',
+  blurb: 'Full-speed downloads, no ads or captchas — keys by email instantly. Includes 1TB storage.',
+  cta: 'Buy FilesFly Premium',
+  monogram: 'F',
+  vibe: {
+  // Royal → deep blue → sky (distinct from NitroFlare’s cyan mix)
+  ring: 'from-blue-600/70 via-blue-500/60 to-sky-400/70',
+  chip: 'from-blue-700 via-blue-600 to-sky-500',
+  mono: 'from-blue-700 via-blue-600 to-sky-500',
+  glow: 'shadow-[0_0_28px_rgba(59,130,246,0.35)]', // blue-500 glow
+},
+  packs: [
+    { label: '31 Days',  planId: 'ff-31',  priceUSD: 21.00,  wasUSD: 35.00,  bandwidth: 'Includes 1TB storage' },
+    { label: '110 Days', planId: 'ff-110', priceUSD: 66.00,  wasUSD: 110.00, bandwidth: 'Includes 1TB storage' },
+    { label: '180 Days', planId: 'ff-180', priceUSD: 87.00,  wasUSD: 145.00, bandwidth: 'Includes 1TB storage' },
+    { label: '365 Days', planId: 'ff-365', priceUSD: 150.00, wasUSD: 250.00, bandwidth: 'Includes 1TB storage' },
+  ],
+},
+  {
     slug: 'emload',
     name: 'Emload.com',
     status: 'soon',
