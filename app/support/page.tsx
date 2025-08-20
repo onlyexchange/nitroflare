@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, type ReactNode, type FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import {
   Mail,
@@ -16,21 +16,14 @@ import {
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
-// ======== CONFIG ========
-// Create these public env vars (no server required):
-// NEXT_PUBLIC_EMAILJS_SERVICE_ID=xxx
-// NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=xxx
-// NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=xxx
-const SERVICE_ID  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!;
-const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!;
-const PUBLIC_KEY  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!;
+// ======== CONFIG (public env; client-side) ========
+const SERVICE_ID  = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? '';
+const TEMPLATE_ID = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? '';
+const PUBLIC_KEY  = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? '';
 
-// Primary reasons
 type Reason = 'general' | 'bug' | 'order' | 'refund' | 'key';
-// Order subreasons
 type OrderIssue = 'overpaid' | 'underpaid' | 'not_received';
 
-// Supported assets & networks
 const COINS = ['BTC', 'ETH', 'SOL', 'BNB', 'LTC', 'USDT', 'USDC'] as const;
 type Coin = (typeof COINS)[number];
 
@@ -40,7 +33,7 @@ const STABLE_NETWORKS = ['Ethereum', 'Solana', 'BNB Smart Chain'] as const;
 function networksFor(coin: Coin): string[] {
   if (coin === 'ETH') return [...ETH_L2S];
   if (coin === 'USDT' || coin === 'USDC') return [...STABLE_NETWORKS];
-  return []; // BTC/LTC/SOL/BNB native => no extra picker needed
+  return [];
 }
 
 export default function SupportPage() {
@@ -49,16 +42,16 @@ export default function SupportPage() {
   const [reason, setReason] = useState<Reason>('general');
   const [orderIssue, setOrderIssue] = useState<OrderIssue>('not_received');
 
-  // Order/payment details (conditionally required)
+  // Order/payment details
   const [coin, setCoin] = useState<Coin>('BTC');
-  const [network, setNetwork] = useState<string>(''); // only when needed
+  const [network, setNetwork] = useState<string>(''); // when applicable
   const [txHash, setTxHash] = useState('');
   const [txUrl, setTxUrl] = useState('');
   const [amountPaid, setAmountPaid] = useState('');
-  const [pack, setPack] = useState(''); // e.g., 30/90/180/365 days
-  const [host, setHost] = useState('NitroFlare'); // default live host
-  const [orderEmail, setOrderEmail] = useState(''); // email used at checkout
-  const [refundAddress, setRefundAddress] = useState(''); // for refund requests
+  const [pack, setPack] = useState('');
+  const [host, setHost] = useState('NitroFlare');
+  const [orderEmail, setOrderEmail] = useState('');
+  const [refundAddress, setRefundAddress] = useState('');
 
   // Key troubleshooting
   const [keyValue, setKeyValue] = useState('');
@@ -74,19 +67,17 @@ export default function SupportPage() {
   // Honeypot (spam trap)
   const honey = useRef<HTMLInputElement | null>(null);
 
-  // Dynamic network reset when coin changes
+  // Dynamic network list
   const availableNetworks = useMemo(() => networksFor(coin), [coin]);
 
-  // Basic validators
+  // Validators
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const orderEmailValid =
-    orderEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(orderEmail);
+  const orderEmailValid = orderEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(orderEmail);
 
   // Conditional requirements
   const needsPaymentBlock = reason === 'order' || reason === 'refund';
   const needsKeyBlock = reason === 'key';
 
-  // For refunds, require "everything"
   const refundMissing =
     reason === 'refund' &&
     (!orderEmailValid ||
@@ -98,7 +89,6 @@ export default function SupportPage() {
       amountPaid.trim() === '' ||
       refundAddress.trim() === '');
 
-  // For order issues:
   const orderMissing =
     reason === 'order' &&
     (!orderEmailValid ||
@@ -106,10 +96,8 @@ export default function SupportPage() {
       pack.trim() === '' ||
       !coin ||
       (availableNetworks.length > 0 && network.trim() === '') ||
-      (orderIssue !== 'not_received' && txHash.trim() === '') // tx required if over/underpaid
-    );
+      (orderIssue !== 'not_received' && txHash.trim() === ''));
 
-  // For key not working:
   const keyMissing = reason === 'key' && keyValue.trim() === '';
 
   const disabled =
@@ -118,29 +106,31 @@ export default function SupportPage() {
     (needsPaymentBlock && (refundMissing || orderMissing)) ||
     (needsKeyBlock && keyMissing);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setOk(null);
     setErr(null);
 
     // Honeypot
     if (honey.current && honey.current.value) {
-      setErr('Something went wrong.'); // silently drop spam
+      setErr('Something went wrong.');
+      return;
+    }
+
+    // Env guard
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      setErr('Email is temporarily unavailable (config missing). Please email support@only.exchange.');
       return;
     }
 
     setSubmitting(true);
     try {
       const payload = {
-        // meta
         site: 'Only.Exchange',
-        to_email: 'support@only.exchange', // for your template
-        // user
+        to_email: 'support@only.exchange',
         email,
-        // reason
         reason,
         order_issue: reason === 'order' ? orderIssue : '',
-        // order/payment
         host: needsPaymentBlock ? host : '',
         pack: needsPaymentBlock ? pack : '',
         order_email: needsPaymentBlock ? orderEmail : '',
@@ -150,18 +140,15 @@ export default function SupportPage() {
         tx_url: needsPaymentBlock ? txUrl : '',
         amount_paid: needsPaymentBlock ? amountPaid : '',
         refund_address: reason === 'refund' ? refundAddress : '',
-        // key
         key_value: needsKeyBlock ? keyValue : '',
-        // message
         message,
       };
 
-      await emailjs.send(SERVICE_ID, TEMPLATE_ID, payload, {
-        publicKey: PUBLIC_KEY,
-      });
+      // EmailJS v3/v4 signature: send(serviceId, templateId, params, publicKey)
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, payload, PUBLIC_KEY);
 
       setOk('Thanks! Your ticket has been submitted. We’ll reply by email.');
-      // soft reset but keep email for convenience
+      // Soft reset (keep contact email)
       setReason('general');
       setOrderIssue('not_received');
       setCoin('BTC');
@@ -175,8 +162,8 @@ export default function SupportPage() {
       setRefundAddress('');
       setKeyValue('');
       setMessage('');
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       setErr('Could not send your request. Please try again in a moment.');
     } finally {
       setSubmitting(false);
@@ -242,13 +229,13 @@ export default function SupportPage() {
             <div className="rounded-[22px] bg-black/40 border border-white/10 p-6 md:p-8">
               {/* Status banners */}
               {ok && (
-                <div className="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm inline-flex items-center gap-2">
+                <div className="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm inline-flex items-center gap-2" aria-live="polite">
                   <CheckCircle2 className="h-4 w-4 text-emerald-300" />
                   {ok}
                 </div>
               )}
               {err && (
-                <div className="mb-4 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm inline-flex items-center gap-2">
+                <div className="mb-4 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm inline-flex items-center gap-2" aria-live="assertive">
                   <AlertTriangle className="h-4 w-4 text-red-300" />
                   {err}
                 </div>
@@ -262,17 +249,18 @@ export default function SupportPage() {
                   type="email"
                   placeholder="you@email.com"
                   className={`w-full px-4 py-3 rounded-xl bg-white/5 border outline-none ${email.length === 0 ? 'border-white/10' : emailValid ? 'border-emerald-400/60' : 'border-red-400/60'}`}
+                  required
                 />
               </Field>
 
               {/* Reason */}
               <Field label="How can we help?" required>
                 <div className="grid sm:grid-cols-2 gap-2">
-                  <RadioChip name="reason" value="general" current={reason} setCurrent={setReason} label="General query" />
-                  <RadioChip name="reason" value="bug" current={reason} setCurrent={setReason} label="Technical support — report a bug" />
-                  <RadioChip name="reason" value="order" current={reason} setCurrent={setReason} label="Issue with order" />
-                  <RadioChip name="reason" value="refund" current={reason} setCurrent={setReason} label="Refund request" />
-                  <RadioChip name="reason" value="key" current={reason} setCurrent={setReason} label="Key not working" />
+                  <RadioChip name="reason" value="general"   current={reason} setCurrent={setReason} label="General query" />
+                  <RadioChip name="reason" value="bug"       current={reason} setCurrent={setReason} label="Technical support — report a bug" />
+                  <RadioChip name="reason" value="order"     current={reason} setCurrent={setReason} label="Issue with order" />
+                  <RadioChip name="reason" value="refund"    current={reason} setCurrent={setReason} label="Refund request" />
+                  <RadioChip name="reason" value="key"       current={reason} setCurrent={setReason} label="Key not working" />
                 </div>
               </Field>
 
@@ -280,8 +268,8 @@ export default function SupportPage() {
               {reason === 'order' && (
                 <Field label="Order issue type" required>
                   <div className="grid sm:grid-cols-3 gap-2">
-                    <RadioChip name="orderIssue" value="overpaid" current={orderIssue} setCurrent={setOrderIssue} label="Overpaid" />
-                    <RadioChip name="orderIssue" value="underpaid" current={orderIssue} setCurrent={setOrderIssue} label="Underpaid" />
+                    <RadioChip name="orderIssue" value="overpaid"     current={orderIssue} setCurrent={setOrderIssue} label="Overpaid" />
+                    <RadioChip name="orderIssue" value="underpaid"    current={orderIssue} setCurrent={setOrderIssue} label="Underpaid" />
                     <RadioChip name="orderIssue" value="not_received" current={orderIssue} setCurrent={setOrderIssue} label="Key not received" />
                   </div>
                 </Field>
@@ -301,6 +289,7 @@ export default function SupportPage() {
                         value={host}
                         onChange={(e) => setHost(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                        required
                       >
                         <option>NitroFlare</option>
                         <option>Emload</option>
@@ -314,6 +303,7 @@ export default function SupportPage() {
                         onChange={(e) => setPack(e.target.value)}
                         placeholder="30 Days"
                         className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                        required
                       />
                     </Field>
 
@@ -323,6 +313,7 @@ export default function SupportPage() {
                         onChange={(e) => setOrderEmail(e.target.value)}
                         placeholder="the email you entered at checkout"
                         className={`w-full px-3 py-2.5 rounded-xl bg-black/40 border outline-none ${orderEmail.length === 0 ? 'border-white/10' : orderEmailValid ? 'border-emerald-400/60' : 'border-red-400/60'}`}
+                        required
                       />
                     </Field>
 
@@ -331,6 +322,7 @@ export default function SupportPage() {
                         value={coin}
                         onChange={(e) => { setCoin(e.target.value as Coin); setNetwork(''); }}
                         className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                        required
                       >
                         {COINS.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
@@ -342,6 +334,7 @@ export default function SupportPage() {
                           value={network}
                           onChange={(e) => setNetwork(e.target.value)}
                           className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                          required
                         >
                           <option value="" disabled>Select a network</option>
                           {availableNetworks.map((n) => <option key={n} value={n}>{n}</option>)}
@@ -356,6 +349,7 @@ export default function SupportPage() {
                           onChange={(e) => setTxHash(e.target.value)}
                           placeholder="0x… / txid"
                           className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                          required={reason === 'refund' || (reason === 'order' && orderIssue !== 'not_received')}
                         />
                         <span className="inline-grid place-items-center px-3 rounded-xl border border-white/10 bg-black/40">
                           <Hash className="h-4 w-4 opacity-70" />
@@ -382,6 +376,7 @@ export default function SupportPage() {
                           onChange={(e) => setAmountPaid(e.target.value)}
                           placeholder="Enter amount (e.g., 0.0012)"
                           className="flex-1 px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                          required={reason === 'refund'}
                         />
                         <span className="inline-grid place-items-center px-3 rounded-xl border border-white/10 bg-black/40 text-xs">
                           {coin}
@@ -396,6 +391,7 @@ export default function SupportPage() {
                           onChange={(e) => setRefundAddress(e.target.value)}
                           placeholder="Where should we return the funds?"
                           className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                          required
                         />
                       </Field>
                     )}
@@ -417,6 +413,7 @@ export default function SupportPage() {
                         onChange={(e) => setKeyValue(e.target.value)}
                         placeholder="Paste the key you received"
                         className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 outline-none"
+                        required
                       />
                     </Field>
                     <Field label="Email used on order (optional)">
@@ -439,6 +436,7 @@ export default function SupportPage() {
                   placeholder="Tell us what happened. Include any error messages or extra context."
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 outline-none"
+                  required
                 />
               </Field>
 
@@ -455,7 +453,7 @@ export default function SupportPage() {
               {/* Footer / actions */}
               <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="text-xs text-white/60">
-                  Or email us directly:{" "}
+                  Or email us directly:{' '}
                   <a href="mailto:support@only.exchange" className="underline decoration-white/40 hover:decoration-white">
                     support@only.exchange
                   </a>
@@ -477,7 +475,6 @@ export default function SupportPage() {
             </div>
           </form>
 
-          {/* Tiny help */}
           <div className="mt-4 text-xs text-white/50">
             By submitting, you agree to be contacted at the email provided regarding your request.
           </div>
@@ -508,7 +505,7 @@ function Field({
 }: {
   label: string;
   required?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="mt-4">
