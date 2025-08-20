@@ -121,18 +121,25 @@ const PROVIDERS: Provider[] = [
     },
   },
   {
-    slug: 'daofile',
-    name: 'DaoFile.com',
-    status: 'soon',
-    blurb: 'High-speed downloads — keys coming soon.',
-    monogram: 'D',
-    vibe: {
-      ring: 'from-amber-500/60 via-orange-500/40 to-red-500/60',
-      chip: 'from-amber-500 via-orange-500 to-red-500',
-      mono: 'from-amber-500 via-orange-500 to-red-500',
-      glow: 'shadow-[0_0_28px_rgba(245,158,11,0.28)]',
-    },
+  slug: 'daofile',
+  name: 'DaoFile.com',
+  status: 'live',
+  blurb: 'High-speed downloads — instant email delivery for premium keys.',
+  cta: 'Buy DaoFile Premium',
+  monogram: 'D',
+  vibe: {
+    ring: 'from-[#058CC2]/70 via-[#1E75BE]/60 to-[#2D58A7]/70',
+    chip: 'from-[#058CC2] via-[#1E75BE] to-[#2D58A7]',
+    mono: 'from-[#058CC2] via-[#1E75BE] to-[#2D58A7]',
+    glow: 'shadow-[0_0_28px_rgba(5,140,194,0.28)]',
   },
+  packs: [
+    { label: '31 Days',  planId: 'df-31',  priceUSD: 12.99, wasUSD: 19.95,  bandwidth: 'Up to 50 GB / 3 days' },
+    { label: '90 Days',  planId: 'df-90',  priceUSD: 27.99, wasUSD: 39.95,  bandwidth: 'Up to 50 GB / 3 days' },
+    { label: '365 Days', planId: 'df-365', priceUSD: 59.99, wasUSD: 89.95,  bandwidth: 'Up to 50 GB / 3 days' },
+    { label: '999 Days', planId: 'df-999', priceUSD: 89.99, wasUSD: 129.95, bandwidth: 'Up to 50 GB / 3 days' },
+  ],
+},
 ];
 
 export default function HomePage() {
