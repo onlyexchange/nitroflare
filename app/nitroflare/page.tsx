@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -13,10 +15,22 @@ import {
   ArrowRight,
   Timer as TimerIcon,
   Flame,
-  Loader2
+  Loader2,
+  Mail,
+  Coins,
+  HelpCircle,
+  AlertTriangle,
+  RefreshCw,
+  Gauge,
+  PlayCircle,
+  Ban,
+  RotateCcw,
+  ArrowLeftRight,
 } from "lucide-react";
 
-/** Degen Landing — full-bleed checkout + multi-asset + network-aware stables + live prices */
+/** Multi-asset degen landing w/ conditional checkout layout */
+
+
 
 const COINGECKO_IDS = {
   BTC:  'bitcoin',
@@ -29,7 +43,30 @@ const COINGECKO_IDS = {
 } as const;
 
 type Method = keyof typeof COINGECKO_IDS;
-type Chain = 'ETH' | 'SOL' | 'BNB'; // Networks we expose for stables
+
+type Chain =
+  | 'ETH'
+  | 'BASE'
+  | 'ARBITRUM'
+  | 'OPTIMISM'
+  | 'POLYGON'
+  | 'ZKSYNC'
+  | 'LINEA'
+  | 'SCROLL'
+  | 'SOL'
+  | 'BNB';
+
+const chainLabel = (c: Chain) =>
+  c === 'ETH' ? 'Ethereum'
+: c === 'BASE' ? 'Base'
+: c === 'ARBITRUM' ? 'Arbitrum'
+: c === 'OPTIMISM' ? 'Optimism'
+: c === 'POLYGON' ? 'Polygon'
+: c === 'ZKSYNC' ? 'zkSync'
+: c === 'LINEA' ? 'Linea'
+: c === 'SCROLL' ? 'Scroll'
+: c === 'SOL' ? 'Solana'
+: 'BNB Smart Chain';
 
 const ALL_IDS = Object.values(COINGECKO_IDS);
 const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
@@ -42,80 +79,57 @@ const PLANS = [
 ] as const;
 type Plan = typeof PLANS[number];
 
-// UI list (using Zap placeholders for non-BTC)
 const METHODS = [
   { id: 'BTC',  label: 'Bitcoin',  icon: Bitcoin },
   { id: 'ETH',  label: 'Ethereum', icon: Zap },
   { id: 'SOL',  label: 'Solana',   icon: Zap },
-  { id: 'BNB',  label: 'BNB',      icon: Zap },   // BNB Smart Chain
+  { id: 'BNB',  label: 'BNB',      icon: Zap },
   { id: 'LTC',  label: 'Litecoin', icon: Zap },
   { id: 'USDT', label: 'USDT',     icon: Zap },
   { id: 'USDC', label: 'USDC',     icon: Zap },
 ] as const;
 
 const METHOD_NEEDS_CHAIN: Record<Method, boolean> = {
-  BTC: false, ETH: false, SOL: false, BNB: false, LTC: false,
-  USDT: true, USDC: true,
+  BTC: false,
+  ETH: true,   // ETH shows L2s; we still serve ETH mainnet addresses
+  SOL: false,
+  BNB: false,
+  LTC: false,
+  USDT: true,
+  USDC: true,
 };
 
-const CHAIN_OPTIONS: Record<'USDT'|'USDC', Chain[]> = {
+const CHAIN_OPTIONS: Record<Method, Chain[] | undefined> = {
+  ETH:  ['ETH', 'BASE', 'ARBITRUM', 'OPTIMISM', 'POLYGON', 'ZKSYNC', 'LINEA', 'SCROLL'],
   USDT: ['ETH', 'SOL', 'BNB'],
   USDC: ['ETH', 'SOL', 'BNB'],
-};
-
-// Endpoints (must return { address: "..." })
-const ENDPOINTS: Record<Method, string | Record<Chain, string>> = {
-  BTC:  "/api/next-btc-address",
-  ETH:  "/api/next-eth-address",
-  SOL:  "/api/next-sol-address",
-  BNB:  "/api/next-bnb-address",
-  LTC:  "/api/next-ltc-address",
-  USDT: {
-    ETH: "/api/next-usdt-eth-address",
-    SOL: "/api/next-usdt-sol-address",
-    BNB: "/api/next-usdt-bnb-address",
-  },
-  USDC: {
-    ETH: "/api/next-usdc-eth-address",
-    SOL: "/api/next-usdc-sol-address",
-    BNB: "/api/next-usdc-bnb-address",
-  },
-};
-
-// Demo fallback addresses
-const DEMO_ADDR: Record<Method, string> = {
-  BTC:  "bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  ETH:  "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
-  SOL:  "So11111111111111111111111111111111111111112",
-  BNB:  "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
-  LTC:  "ltc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxx",
-  USDT: "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
-  USDC: "0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX",
+  BTC:  undefined,
+  SOL:  undefined,
+  BNB:  undefined,
+  LTC:  undefined,
 };
 
 export default function Page(){
-  const [selected, setSelected] = useState<Plan>(PLANS[0]);
-  const [email, setEmail] = useState('');
+  const [selected, setSelected]       = useState<Plan>(PLANS[0]);
+  const [email, setEmail]             = useState('');
   const [emailLocked, setEmailLocked] = useState(false);
 
   const [method, setMethod] = useState<Method>('BTC');
-  const [chain, setChain] = useState<Chain | null>(null);
+  const [chain, setChain]   = useState<Chain | null>(null);
 
-  // prices in USD per asset
   const [pricesUSD, setPricesUSD] = useState<Record<Method, number | null>>({
     BTC: null, ETH: null, SOL: null, BNB: null, LTC: null, USDT: null, USDC: null
   });
 
-  // Payment session
-  const [address, setAddress] = useState('');
-  const [lockedAmount, setLockedAmount] = useState(''); // locked token amount for ANY method
-  const [status, setStatus] = useState('');
-  const [step, setStep] = useState<'select'|'pay'|'done'>('select');
+  // Session
+  const [address, setAddress]           = useState('');
+  const [lockedAmount, setLockedAmount] = useState('');
+  const [status, setStatus]             = useState('');
+  const [step, setStep]                 = useState<'select'|'pay'|'done'>('select');
 
-  // Timers & effects
   const WINDOW_SECS = 30 * 60;
   const [paySecs, setPaySecs] = useState(WINDOW_SECS);
-  const payTicker = useRef<ReturnType<typeof setInterval> | null>(null);
+  const payTicker  = useRef<ReturnType<typeof setInterval> | null>(null);
   const [generating, setGenerating] = useState(false);
 
   const [scanIdx, setScanIdx] = useState(0);
@@ -131,7 +145,7 @@ export default function Page(){
     "Still scanning…"
   ];
 
-  // Hero FOMO timer (visual)
+  // Hero timer (cosmetic)
   const [heroTimer, setHeroTimer] = useState(29 * 60 + 59);
   useEffect(()=>{
     const t = setInterval(()=> setHeroTimer(v => (v>0? v-1 : 0)), 1000);
@@ -139,14 +153,13 @@ export default function Page(){
   },[]);
   const heroTimeLeft = `${String(Math.floor(heroTimer/60)).padStart(2,'0')}:${String(heroTimer%60).padStart(2,'0')}`;
 
-  // Fetch ALL prices every 60s
+  // Prices
   useEffect(()=>{
     let active = true;
     async function fetchPrices(){
       try{
         const res = await fetch(PRICE_URL, { cache: 'no-store' });
         const data = await res.json();
-
         const map: Record<Method, number | null> = {
           BTC:  data?.bitcoin?.usd ?? null,
           ETH:  data?.ethereum?.usd ?? null,
@@ -164,13 +177,10 @@ export default function Page(){
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
-  // live amount preview for current method (truncated 8 dp)
+  // amount preview
   const previewAmount = useMemo(()=>{
     const usd = pricesUSD[method];
-    if (method === 'USDT' || method === 'USDC') {
-      // stablecoins ≈ $1.00; show token count equal to USD total if price is around 1
-      return selected.priceUSD.toFixed(2);
-    }
+    if (method === 'USDT' || method === 'USDC') return selected.priceUSD.toFixed(2);
     if (!usd) return '';
     const amt = selected.priceUSD / usd;
     const truncated = Math.trunc(amt * 1e8) / 1e8;
@@ -178,14 +188,16 @@ export default function Page(){
   }, [pricesUSD, method, selected]);
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const methodNeedsLivePrice = (m: Method) => !(m === 'USDT' || m === 'USDC');
 
+  // timers
   function startPayCountdown() {
-    if (payTicker.current) clearInterval(payTicker.current);
+    stopPayCountdown();
     setPaySecs(WINDOW_SECS);
     payTicker.current = setInterval(() => {
       setPaySecs(prev => {
         if (prev <= 1) {
-          if (payTicker.current) clearInterval(payTicker.current);
+          stopPayCountdown();
           stopScanLoop();
           setStatus('Payment window expired. Generate a new address to continue.');
           return 0;
@@ -199,7 +211,7 @@ export default function Page(){
     payTicker.current = null;
   }
   function startScanLoop(){
-    if (scanTicker.current) clearInterval(scanTicker.current);
+    stopScanLoop();
     setScanIdx(0);
     setStatus(scanMessages[0]);
     scanTicker.current = setInterval(()=>{
@@ -216,6 +228,26 @@ export default function Page(){
   }
   useEffect(()=>()=>{ stopPayCountdown(); stopScanLoop(); },[]);
 
+  const searchParams = useSearchParams();
+
+useEffect(() => {
+  const q = searchParams?.get('plan');
+  if (!q) return;
+
+  const byId = PLANS.find(p => (p as any).id?.toLowerCase() === q.toLowerCase());
+  const byLabel = PLANS.find(p => p.label.toLowerCase() === decodeURIComponent(q).toLowerCase());
+  const target = byId || byLabel;
+  if (!target) return;
+
+  resetPayment();
+  setSelected(target);
+
+  setTimeout(() => {
+    document.getElementById('checkout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // reset helpers
   function resetPayment(){
     stopPayCountdown();
     stopScanLoop();
@@ -226,10 +258,13 @@ export default function Page(){
     setPaySecs(WINDOW_SECS);
     setEmailLocked(false);
   }
+  function handleSelectPlan(p: Plan){
+    setSelected(p);
+    resetPayment();
+    scrollToId('checkout');
+  }
 
-  // helper: does this method need a live price to proceed?
-  const methodNeedsLivePrice = (m: Method) => !(m === 'USDT' || m === 'USDC');
-
+  // actions
   async function startPayment(){
     if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
     if (METHOD_NEEDS_CHAIN[method] && !chain) { setStatus('Select a network to continue.'); return; }
@@ -238,69 +273,79 @@ export default function Page(){
     setGenerating(true);
     setStatus('Generating your unique address…');
     try{
-      const ep = ENDPOINTS[method];
-      let endpoint = '';
-      if (typeof ep === 'string') endpoint = ep;
-      else endpoint = ep[(chain as Chain)];
-
+      const endpoint = computeEndpoint(method, chain);
       const res = await fetch(endpoint, { cache: 'no-store' });
       const data = await res.json();
       const addr = data?.address || '';
-      if (!addr) throw new Error('No wallet available');
 
-      setAddress(addr);
+      setAddress(addr || demoAddress(method));
       setLockedAmount(previewAmount || '');
-      setStep('pay');
+      setStep('pay');              // switch UI to Payment Details
+      setEmailLocked(true);        // lock email
       startPayCountdown();
       startScanLoop();
-      setEmailLocked(true);
     }catch(e){
       console.error(e);
-      setAddress(DEMO_ADDR[method]);
+      setAddress(demoAddress(method));
       setLockedAmount(previewAmount || '');
       setStep('pay');
+      setEmailLocked(true);
       startPayCountdown();
       startScanLoop();
-      setEmailLocked(true);
     } finally{
       setGenerating(false);
     }
   }
 
+  // UI helpers
   function fmtSecs(s: number){
     const m = Math.floor(s/60);
     const ss = s % 60;
     return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
   }
-
-  // Build payment URI for QR (embed amount only for BTC; others stick to raw address)
   function paymentURI(){
     if (!address) return '';
-    if (method === 'BTC') {
-      return `bitcoin:${address}${lockedAmount ? `?amount=${lockedAmount}` : ''}`;
-    }
-    if (method === 'LTC') {
-      return `litecoin:${address}`; // you could add ?amount= later if you add LTC conversion-lock to URI
-    }
-    return address; // ETH/SOL/BNB/USDT/USDC — wallets accept address-only QR
+    if (method === 'BTC') return `bitcoin:${address}${lockedAmount ? `?amount=${lockedAmount}` : ''}`;
+    if (method === 'LTC') return `litecoin:${address}`;
+    return address; // raw address for ETH/SOL/BNB/USDT/USDC
   }
   function qrURL(){
     const uri = paymentURI();
     if (!uri) return '';
     return `https://chart.googleapis.com/chart?cht=qr&chs=260x260&chl=${encodeURIComponent(uri)}`;
   }
-  function copy(value: string){
-    if (!value) return;
-    navigator.clipboard?.writeText(value).catch(()=>{});
+  function copy(v: string){ if (v) navigator.clipboard?.writeText(v).catch(()=>{}); }
+  function scrollToId(id: string){ document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+  // endpoint + demo
+  function computeEndpoint(m: Method, c: Chain | null){
+    if (m === 'BTC') return '/api/next-btc-address';
+    if (m === 'ETH') return '/api/next-eth-address'; // always mainnet address
+    if (m === 'SOL') return '/api/next-sol-address';
+    if (m === 'BNB') return '/api/next-bnb-address';
+    if (m === 'LTC') return '/api/next-ltc-address';
+    if (m === 'USDT') {
+      if (c === 'ETH') return '/api/next-usdt-eth-address';
+      if (c === 'SOL') return '/api/next-usdt-sol-address';
+      return '/api/next-usdt-bnb-address';
+    }
+    if (m === 'USDC') {
+      if (c === 'ETH') return '/api/next-usdc-eth-address';
+      if (c === 'SOL') return '/api/next-usdc-sol-address';
+      return '/api/next-usdc-bnb-address';
+    }
+    return '/api/next-btc-address';
   }
-  function scrollToId(id: string){
-    const el = document.getElementById(id);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-  function handleSelectPlan(p: Plan){
-    resetPayment();
-    setSelected(p);
-    scrollToId('checkout');
+  function demoAddress(m: Method){
+    switch (m){
+      case 'BTC': return 'bc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+      case 'ETH': return '0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX';
+      case 'SOL': return 'So11111111111111111111111111111111111111112';
+      case 'BNB': return '0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX';
+      case 'LTC': return 'ltc1qexampledemoaddressxxxxxxxxxxxxxxxxxxxxx';
+      case 'USDT':
+      case 'USDC': return '0xExampleDemoAddressXXXXXXXXXXXXXXXXXXXXXXXX';
+    }
   }
 
   return (
@@ -310,10 +355,22 @@ export default function Page(){
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-8 w-8 rounded-xl bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500"/>
-            <span className="font-semibold">NitroFlare Premium Keys</span>
-          </div>
+          <Link
+  href="/"
+  className="flex items-center gap-2 group"
+  aria-label="Only.Exchange — Home"
+  prefetch={false}
+>
+  <span
+    className="inline-grid h-8 w-8 place-items-center rounded-xl
+               bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500
+               text-white ring-1 ring-white/20 shadow-sm
+               transition-transform group-hover:scale-105"
+  >
+    <ArrowLeftRight className="h-4 w-4" />
+  </span>
+  <span className="font-semibold group-hover:text-white">Only.Exchange</span>
+</Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
             <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="hover:text-white">Plans</a>
             <a href="#features" onClick={e=>{e.preventDefault(); scrollToId('features')}} className="hover:text-white">Features</a>
@@ -331,7 +388,7 @@ export default function Page(){
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-3 py-1 text-xs text-white/70 mb-6">
-              <Zap className="h-3.5 w-3.5"/> Live pricing • Unique address • Instant email delivery
+              <Zap className="h-3.5 w-3.5"/> Best pricing • Instant email delivery
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
               NitroFlare <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400">Premium Keys</span>
@@ -339,9 +396,7 @@ export default function Page(){
             <p className="mt-4 text-white/80 text-lg max-w-2xl">
               Pay with crypto and get your NitroFlare premium key <em>instantly</em> after confirmation.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80">
-              <TimerIcon className="h-4 w-4"/> Flash deal ends in <span className="font-mono">{heroTimeLeft}</span>
-            </div>
+            
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 inline-flex items-center gap-2 hover:from-fuchsia-400 hover:to-indigo-400">
                 <Flame className="h-5 w-5"/> View Plans
@@ -363,7 +418,7 @@ export default function Page(){
             {PLANS.map((p) => (
               <motion.button
                 key={p.id}
-                onClick={()=> { resetPayment(); setSelected(p); scrollToId('checkout'); }}
+                onClick={()=> handleSelectPlan(p)}
                 whileHover={{scale:1.02}}
                 className={`text-left rounded-2xl border ${selected.id===p.id? 'border-fuchsia-400/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
               >
@@ -383,42 +438,64 @@ export default function Page(){
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold">Why NitroFlare Premium?</h2>
-        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Full-speed downloads" text="No throttling during peak hours—maximize your bandwidth."/>
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="No ads, no waiting" text="Skip timers and interstitials for 1-click access."/>
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Parallel connections" text="Download multiple files at once with your manager."/>
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Resume support" text="Pause/resume large files without starting over."/>
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Direct links" text="Stable, resumable links that work in apps & DMs."/>
-            <Feature icon={<ShieldCheck className="h-5 w-5"/>} title="Priority network" text="Premium routes for more reliable connectivity."/>
-          </div>
-        </div>
-      </section>
+      {/* Features — NitroFlare highlights */}
+<section id="features" className="py-14">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h2 className="text-3xl md:text-4xl font-bold">
+      💎 Premium Plan Highlights
+    </h2>
 
-      {/* Checkout — full-bleed */}
+    <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <Feature
+        icon={<Gauge className="h-5 w-5" />}
+        title="Daily bandwidth"
+        text="25–100 GB per day depending on your plan."
+      />
+      <Feature
+        icon={<Zap className="h-5 w-5" />}
+        title="Max speed"
+        text="No throttling—full-speed downloads, any time."
+      />
+      <Feature
+        icon={<PlayCircle className="h-5 w-5" />}
+        title="Stream seamlessly"
+        text="Watch videos online without buffering or delays."
+      />
+      <Feature
+        icon={<Ban className="h-5 w-5" />}
+        title="No interruptions"
+        text="Zero ads, no popups, and no captchas."
+      />
+      <Feature
+        icon={<RotateCcw className="h-5 w-5" />}
+        title="Resume support"
+        text="Pause and resume large downloads anytime."
+      />
+      <Feature
+        icon={<Mail className="h-5 w-5" />}
+        title="Instant delivery"
+        text="Premium key is emailed after 2 confirmations."
+      />
+    </div>
+  </div>
+</section>
+
+      {/* Checkout — full-bleed; switches content on step */}
       <section id="checkout" className="py-24 border-t border-white/10 bg-gradient-to-b from-transparent via-white/5 to-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight">Checkout</h3>
-                <p className="mt-2 text-white/70">Live price locks when you generate the address.</p>
-              </div>
-              <div className="text-xs font-mono text-white/70">
-                {step === 'pay'
-                  ? <>Window: <span className="text-white">{fmtSecs(paySecs)}</span></>
-                  : <>Ready</>}
+                <p className="mt-2 text-white/70">Buy NitroFlare.com Premium Key direct to Email.</p>
               </div>
             </div>
 
-            {/* Method selector */}
+            {/* Method selector (always visible; changing resets form) */}
             <div className="mt-8 flex flex-wrap gap-2">
               {METHODS.map(m=>{
                 const Icon = m.icon;
-                const active = method === m.id as Method;
+                const active = method === (m.id as Method);
                 return (
                   <button
                     key={m.id}
@@ -441,11 +518,11 @@ export default function Page(){
               })}
             </div>
 
-            {/* Network picker for stables */}
+            {/* Network picker (ETH + stables; change resets) */}
             {METHOD_NEEDS_CHAIN[method] && (
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <span className="text-sm text-white/70">Network:</span>
-                {(CHAIN_OPTIONS[method as 'USDT'|'USDC'] || []).map(c => {
+                {(CHAIN_OPTIONS[method] || []).map(c => {
                   const active = chain === c;
                   return (
                     <button
@@ -455,206 +532,346 @@ export default function Page(){
                         ${active ? 'border-fuchsia-400/60 bg-white/10'
                                  : 'border-white/10 hover:border-white/30 bg-white/5'}`}
                     >
-                      {c === 'ETH' ? 'Ethereum' : c === 'SOL' ? 'Solana' : 'BNB Smart Chain'}
+                      {chainLabel(c)}
                     </button>
                   );
                 })}
               </div>
             )}
 
-            {/* Summary + Payment */}
+            {/* Two-column switcher */}
             <div className="mt-10 grid lg:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm text-white/70">Selected Plan</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-lg">
-                      {selected.label} — ${selected.priceUSD.toFixed(2)}
+              {/* LEFT COLUMN */}
+              {step !== 'pay' ? (
+                // ====== PRE-GENERATE ======
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm text-white/70">Selected Plan</div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <div className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-lg">
+                        {selected.label} — ${selected.priceUSD.toFixed(2)}
+                      </div>
+                      <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
+                        Change
+                      </button>
                     </div>
-                    <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
-                      Change
-                    </button>
                   </div>
-                </div>
 
-                <div>
-                  <div className="text-sm text-white/70">Your Email (for key delivery)</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <input
-                      value={email}
-                      onChange={e=>setEmail(e.target.value)}
-                      readOnly={emailLocked}
-                      placeholder="you@email.com"
-                      className={`flex-1 px-4 py-3 rounded-xl bg-white/5 border outline-none text-lg ${
-                        emailLocked
-                          ? "border-emerald-400/60 opacity-90"
-                          : email.length === 0
+                  <div>
+                    <div className="text-sm text-white/70">Your Email (for key delivery)</div>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        value={email}
+                        onChange={e=>setEmail(e.target.value)}
+                        placeholder="you@email.com"
+                        disabled={emailLocked}
+                        className={`flex-1 px-4 py-3 rounded-xl bg-white/5 border outline-none text-lg ${
+                          email.length === 0
                             ? "border-white/10"
                             : isEmailValid ? "border-emerald-400/60" : "border-red-400/60"
-                      }`}
-                    />
-                    {emailLocked && (
-                      <button onClick={()=>{ setEmailLocked(false); resetPayment(); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <Stat label="Total Price (USD)" value={`$${selected.priceUSD.toFixed(2)}`} mono />
-                  <Stat
-                    label={`Amount (${method})`}
-                    value={lockedAmount || previewAmount || '—'}
-                    mono
-                  />
-                  <Stat label="Savings today" value={`Save $${(selected.wasUSD - selected.priceUSD).toFixed(2)}`} />
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={startPayment}
-                    disabled={
-                      !isEmailValid ||
-                      (methodNeedsLivePrice(method) && !pricesUSD[method]) ||
-                      (METHOD_NEEDS_CHAIN[method] && !chain) ||
-                      generating
-                    }
-                    className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
-                      ${(!isEmailValid || (methodNeedsLivePrice(method) && !pricesUSD[method]) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
-                        ? "bg-white/10 text-white/50 cursor-not-allowed"
-                        : "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_25px_rgba(168,85,247,0.4)]"}`}
-                  >
-                    {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
-                    {generating ? 'Generating…' : 'Generate address & start payment'}
-                  </button>
-
-                  {step === 'pay' && (
-                    <button onClick={resetPayment} className="w-full px-6 py-4 rounded-2xl border border-white/15 hover:border-white/30">
-                      Cancel / Start Over
-                    </button>
-                  )}
-                </div>
-
-                <p className="text-xs text-white/60">
-                  By continuing you agree to our Terms. USD total is converted to your selected asset at current rate.
-                </p>
-              </div>
-
-              {/* Payment details */}
-              <div className="space-y-6">
-                <h4 className="text-2xl font-semibold flex items-center gap-2">
-                  <QrCode className="h-5 w-5"/> Payment Details
-                </h4>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-white/70">Amount ({method})</div>
-                    <div className="mt-1 flex gap-2">
-                      <input
-                        readOnly
-                        value={lockedAmount || (step==='pay' ? previewAmount : '')}
-                        placeholder="Shown after you generate"
-                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-lg"
+                        }`}
                       />
-                      <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
-                        <Copy className="h-4 w-4"/>
-                      </button>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="text-sm text-white/70">Recipient Address</div>
-                    <div className="mt-1 flex gap-2">
-                      <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-sm"/>
-                      <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy address">
-                        <Copy className="h-4 w-4"/>
-                      </button>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <Stat label="Total Price (USD)" value={`$${selected.priceUSD.toFixed(2)}`} mono />
+                    <Stat label={`Amount (${method})`} value={previewAmount || '—'} mono />
+                  </div>
+
+                  <div className="grid sm:grid-cols-1 gap-3">
+                    <button
+                      onClick={startPayment}
+                      disabled={
+                        !isEmailValid ||
+                        (methodNeedsLivePrice(method) && !pricesUSD[method]) ||
+                        (METHOD_NEEDS_CHAIN[method] && !chain) ||
+                        generating
+                      }
+                      className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
+                        ${(!isEmailValid || (methodNeedsLivePrice(method) && !pricesUSD[method]) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
+                          ? "bg-white/10 text-white/50 cursor-not-allowed"
+                          : "bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_0_25px_rgba(168,85,247,0.4)]"}`}
+                    >
+                      {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
+                      {generating ? 'Generating…' : 'Buy Now'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // ====== DURING PAYMENT ======
+                <div className="space-y-6">
+                  <h4 className="text-2xl font-semibold flex items-center gap-2">
+                    <QrCode className="h-5 w-5"/> Payment Details
+                  </h4>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-white/70">Amount ({method})</div>
+                      <div className="mt-1 flex gap-2">
+                        <input
+                          readOnly
+                          value={lockedAmount}
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-lg"
+                        />
+                        <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
+                          <Copy className="h-4 w-4"/>
+                        </button>
+                      </div>
                     </div>
-                    {METHOD_NEEDS_CHAIN[method] && (
-                      <div className="text-xs text-white/60 mt-1">
-                        Network: <span className="text-white/80">
-                          {chain === 'ETH' ? 'Ethereum' : chain === 'SOL' ? 'Solana' : 'BNB Smart Chain'}
-                        </span>
+
+                    <div>
+                      <div className="text-sm text-white/70">Payment Address</div>
+                      <div className="mt-1 flex gap-2">
+                        <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-sm"/>
+                        <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy address">
+                          <Copy className="h-4 w-4"/>
+                        </button>
+                      </div>
+                      {METHOD_NEEDS_CHAIN[method] && chain && (
+                        <div className="text-xs text-white/60 mt-1">
+                          Network: <span className="text-white/80">{chainLabel(chain)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-full flex items-center justify-center">
+                    {qrURL() ? (
+                      <img
+                        src={qrURL()}
+                        alt="Payment QR"
+                        width={260}
+                        height={260}
+                        className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(129,140,248,0.25)]"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const uri = paymentURI();
+                          (e.currentTarget as HTMLImageElement).src =
+                            `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
+                        }}
+                      />
+                    ) : (
+                      <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
+                        QR will appear here
                       </div>
                     )}
                   </div>
-                </div>
 
-                <div className="w-full flex items-center justify-center">
-                  {qrURL() ? (
-                    <img
-                      src={qrURL()}
-                      alt="Payment QR"
-                      width={260}
-                      height={260}
-                      className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(129,140,248,0.25)]"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        const uri = paymentURI();
-                        (e.currentTarget as HTMLImageElement).src =
-                          `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(uri)}`;
-                      }}
-                    />
-                  ) : (
-                    <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-white/10 grid place-items-center text-white/40">
-                      QR will appear here
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-2 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
-                  <div className="font-medium">Send the exact amount.</div>
-                  {step === 'pay' && (
+                  <div className="pt-2 flex flex-col items-center gap-2 text-sm text-white/80 text-center">
+                    <div className="font-medium">Send the exact amount.</div>
                     <div className="inline-flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin"/>
                       <span className="font-mono">{status || scanMessages[scanIdx]}</span>
                     </div>
-                  )}
+                  </div>
                 </div>
+              )}
 
-                <ul className="text-xs text-white/60 space-y-1 text-center">
-                  <li>• Payment window: <strong>{fmtSecs(paySecs)}</strong></li>
-                  <li>• Network fees are paid by the sender. 1–2 confirmations required.</li>
-                  <li>• Key delivered to your email immediately after confirmation.</li>
-                </ul>
+              {/* RIGHT COLUMN */}
+              {step !== 'pay' ? (
+                // Pre-generate: placeholder / guidance
+                <div className="space-y-4">
+                  <h4 className="text-2xl font-semibold">How it works</h4>
+                  <ol className="space-y-3 text-white/80 text-sm">
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <Bitcoin className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Select a NitroFlare Premium plan</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <Mail className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Enter your email for delivery</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <ShieldCheck className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Choose coin (and network for ETH / USDT / USDC)</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <QrCode className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Generate to lock price &amp; get your address</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <TimerIcon className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Send the exact amount within 30:00</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+                        <Rocket className="h-4 w-4 opacity-80" />
+                      </div>
+                      <span>Key emailed after <span className="text-white/90">2 confirmations</span></span>
+                    </li>
+                  </ol>
 
-                {step === 'pay' && address && (
-                  <div className="mt-6">
-                    <h5 className="text-lg font-semibold">Order Summary</h5>
-                    <div className="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <Summary label="Pack" value={selected.label}/>
-                      <Summary label="USD Total" value={`$${selected.priceUSD.toFixed(2)}`} mono/>
-                      <Summary label="Asset" value={method}/>
-                      {METHOD_NEEDS_CHAIN[method] && (
-                        <Summary label="Network" value={
-                          chain === 'ETH' ? 'Ethereum' : chain === 'SOL' ? 'Solana' : 'BNB Smart Chain'
-                        }/>
-                      )}
-                      <Summary label="Amount" value={lockedAmount || '—'} mono/>
-                      <Summary label="Email" value={email || '—'}/>
-                      <Summary label="Recipient" value={address} mono wrap/>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/70">
+                    Payment details and QR will appear after you generate an address.
+                  </div>
+                </div>
+              ) : (
+                // During payment: ORDER SUMMARY moves to the right column
+                <div>
+                  <h5 className="text-2xl font-semibold">Order Summary</h5>
+                  <div className="mt-4 grid sm:grid-cols-2 gap-4">
+                    <Summary label="Pack" value={selected.label}/>
+                    <Summary label="USD Total" value={`$${selected.priceUSD.toFixed(2)}`} mono/>
+                    <Summary label="Asset" value={method}/>
+                    {METHOD_NEEDS_CHAIN[method] && chain && (
+                      <Summary label="Network" value={chainLabel(chain)}/>
+                    )}
+                    <Summary label="Amount" value={lockedAmount} mono/>
+                    <Summary label="Email" value={email}/>
+                  </div>
+
+                  <div className="mt-6 space-y-3 text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-sm text-white/80">
+                      <TimerIcon className="h-4 w-4" />
+                      <span>Time left</span>
+                      <span className="font-mono text-white">{fmtSecs(paySecs)}</span>
+                    </div>
+
+                    <div className="grid sm:grid-cols-3 gap-3 text-xs">
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 flex items-center justify-center gap-2 text-white/70">
+                        <ShieldCheck className="h-4 w-4 opacity-80" />
+                        Buyer pays network fees
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 flex items-center justify-center gap-2 text-white/70">
+                        <ShieldCheck className="h-4 w-4 opacity-80" />
+                        2 confirmations required
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 flex items-center justify-center gap-2 text-white/70">
+                        <Mail className="h-4 w-4 opacity-80" />
+                        Instant Delivery
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
+
+                  <div className="mt-6 grid sm:grid-cols-2 gap-3">
+                    <button onClick={resetPayment} className="w-full px-6 py-4 rounded-2xl border border-white/15 hover:border-white/30">
+                      Cancel / Start Over
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold">FAQ</h2>
-          <div className="mt-6 grid md:grid-cols-2 gap-5">
-            <QA q="How fast do I get my key?" a="We dispatch instantly once your transaction reaches the required confirmations. Typically within minutes."/>
-            <QA q="Do you support coins besides BTC?" a="Yes—BTC, ETH, SOL, BNB, LTC, USDT and USDC are supported here."/>
-            <QA q="Which networks for USDT/USDC?" a="Ethereum, Solana, and BNB Smart Chain. Make sure you select the correct network before paying."/>
-            <QA q="Unique address per order?" a="Yes. We generate a fresh address per order for clean tracking."/>
-          </div>
-        </div>
-      </section>
+      {/* FAQ (lighter / glassy) */}
+<section id="faq" className="py-14 border-t border-white/10 bg-gradient-to-b from-transparent via-white/[0.04] to-transparent">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h2 className="text-3xl md:text-4xl font-bold">
+      FAQ
+      <span className="ml-3 inline-block align-middle h-2 w-20 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
+    </h2>
+
+    <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <Mail className="h-4 w-4 opacity-90" />
+            How fast do I get my key?
+          </span>
+        }
+        a="Instantly after your payment reaches 2 confirmations on the selected network."
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <Coins className="h-4 w-4 opacity-90" />
+            Which coins and networks are supported?
+          </span>
+        }
+        a={
+          <>
+            <div className="text-white/85">Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
+            <div className="text-white/85">USDT/USDC Networks: Ethereum, Solana, BNB Smart Chain.</div>
+          </>
+        }
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <TimerIcon className="h-4 w-4 opacity-90" />
+            How long do I have to pay?
+          </span>
+        }
+        a="30-minute window from when you click Generate. The amount and address lock for that window."
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <AlertTriangle className="h-4 w-4 opacity-90" />
+            What if I send the wrong amount?
+          </span>
+        }
+        a={
+          <>
+            <div><strong>Underpaid:</strong> send the difference to the same address before the timer ends.</div>
+            <div><strong>Overpaid:</strong> contact support with your TX hash; we’ll reconcile.</div>
+          </>
+        }
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <RefreshCw className="h-4 w-4 opacity-90" />
+            Can I change my plan or email after generating?
+          </span>
+        }
+        a="During payment, email is locked. Use “Cancel / Start Over” to edit your plan/email, then Generate again."
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <QrCode className="h-4 w-4 opacity-90" />
+            QR code won’t scan—what now?
+          </span>
+        }
+        a={
+          <>
+            <div>Use the copy buttons next to the amount and address.</div>
+            <div>As a fallback, paste the raw address in your wallet and enter the exact amount.</div>
+          </>
+        }
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <ShieldCheck className="h-4 w-4 opacity-90" />
+            Who pays network fees & confirmations?
+          </span>
+        }
+        a="Sender pays network/miner fees. We release your key after 2 confirmations."
+      />
+
+      <QA
+        q={
+          <span className="inline-flex items-center gap-2 text-white">
+            <HelpCircle className="h-4 w-4 opacity-90" />
+            Need help?
+          </span>
+        }
+        a="Email support@only.exchange with your order email and the transaction hash."
+      />
+    </div>
+  </div>
+</section>
 
       {/* Footer */}
       <footer className="border-t border-white/10">
@@ -707,14 +924,20 @@ function Feature({ icon, title, text }: { icon: React.ReactNode; title: string; 
     </div>
   );
 }
-function QA({ q, a }: { q: string; a: string }){
+function QA({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
   return (
-    <details className="rounded-2xl border border-white/10 bg-black/40 p-4">
-      <summary className="cursor-pointer list-none flex items-center justify-between">
-        <span className="font-medium">{q}</span>
-        <ArrowRight className="h-4 w-4 opacity-60"/>
+    <details className="group rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-sm hover:border-white/20 transition overflow-hidden">
+      <summary className="cursor-pointer list-none flex items-center justify-between p-4">
+        <div className="inline-flex items-center gap-2">{q}</div>
+        <ArrowRight className="h-4 w-4 opacity-60 transition-transform group-open:rotate-90" />
       </summary>
-      <p className="text-white/75 pt-3">{a}</p>
+
+      {/* Accent divider */}
+      <div className="h-px w-full bg-gradient-to-r from-fuchsia-500/40 via-purple-500/30 to-indigo-500/40" />
+
+      <div className="px-4 pb-4 pt-3 text-white/80 text-sm">
+        {a}
+      </div>
     </details>
   );
 }
