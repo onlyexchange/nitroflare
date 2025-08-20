@@ -147,6 +147,20 @@ const PROVIDERS: Provider[] = [
     { label: '999 Days', planId: 'df-999', priceUSD: 89.99, wasUSD: 129.95, bandwidth: 'Up to 50 GB / 3 days' },
   ],
 },
+{
+  slug: 'tezfiles',
+  name: 'TezFiles.com',
+  status: 'live',
+  blurb: 'Premium keys (20–150GB/day), ad-free, instant email delivery.',
+  cta: 'Buy TezFiles Premium',
+  monogram: 'T',
+  vibe: {
+    ring: 'from-amber-400/70 via-orange-500/60 to-[#ff861b]/70',
+    chip: 'from-amber-500 via-orange-500 to-[#ff861b]',
+    mono: 'from-amber-500 via-orange-500 to-[#ff861b]',
+    glow: 'shadow-[0_0_28px_rgba(255,134,27,0.28)]',
+  },
+},
 ];
 
 export default function HomePage() {
