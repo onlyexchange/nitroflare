@@ -46,6 +46,26 @@ type Provider = {
 
 const PROVIDERS: Provider[] = [
   {
+  slug: '1fichier',
+  name: '1Fichier.com',
+  status: 'live',
+  blurb: 'Premium GOLD keys — instant email delivery.',
+  cta: 'Buy 1Fichier GOLD',
+  monogram: '1F',
+  vibe: {
+    // soft sand + orange highlight
+    ring: 'from-amber-300/70 via-orange-400/60 to-amber-600/70',
+    chip: 'from-amber-400 via-orange-500 to-amber-600',
+    mono: 'from-amber-400 via-orange-500 to-amber-600',
+    glow: 'shadow-[0_0_28px_rgba(251,146,60,0.28)]',
+  },
+  packs: [
+    { label: '30 Days GOLD',  planId: '1f-30',   priceUSD: 7.00,   wasUSD: 11.95 },
+    { label: '1 Year GOLD',   planId: '1f-365',  priceUSD: 26.95,  wasUSD: 44.95 },
+    { label: '5 Years GOLD',  planId: '1f-1825', priceUSD: 119.95, wasUSD: 199.95 },
+  ],
+},
+{
     slug: 'nitroflare',
     name: 'NitroFlare.com',
     status: 'live',
@@ -86,6 +106,26 @@ const PROVIDERS: Provider[] = [
     { label: '365 Days', planId: 'rg-365', priceUSD: 69.99, wasUSD: 99.99, bandwidth: '12 TB Bandwidth / 12 TB Storage' },
   ],
 },
+{
+  slug: 'real-debrid',
+  name: 'Real-Debrid.com',
+  status: 'live',
+  blurb: 'Multi-host premium — high-speed links from many filehosters.',
+  cta: 'Buy Real-Debrid Premium',
+  monogram: 'R',
+  // Emerald/teal/sky vibe (matches RD logo ring)
+  vibe: {
+    ring: 'from-emerald-500/70 via-teal-500/60 to-sky-600/70',
+    chip: 'from-emerald-500 via-teal-500 to-sky-600',
+    mono: 'from-emerald-500 via-teal-500 to-sky-600',
+    glow: 'shadow-[0_0_28px_rgba(45,212,191,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'rd-30',  priceUSD: 3.75,  wasUSD: 4.95,  bandwidth: 'Up to 2500 Mbps' },
+    { label: '90 Days',  planId: 'rd-90',  priceUSD: 11.95, wasUSD: 14.95, bandwidth: 'Up to 2500 Mbps' },
+    { label: '180 Days', planId: 'rd-180', priceUSD: 16.95, wasUSD: 18.95, bandwidth: 'Unlimited traffic*' },
+    { label: '360 Days', planId: 'rd-360', priceUSD: 28.95, wasUSD: 34.95, bandwidth: 'Unlimited traffic*' },
+  ],},
   {
   slug: 'filesfly',
   name: 'FilesFly.cc',
@@ -160,47 +200,69 @@ const PROVIDERS: Provider[] = [
     mono: 'from-amber-500 via-orange-500 to-[#ff861b]',
     glow: 'shadow-[0_0_28px_rgba(255,134,27,0.28)]',
   },
+   packs: [
+    // Silver
+    { label: 'Premium Silver — 30 Days',  planId: 'tz-silver-30',  priceUSD: 20.95,  wasUSD: 29.95,  bandwidth: '20 GB/day' },
+    { label: 'Premium Silver — 90 Days',  planId: 'tz-silver-90',  priceUSD: 48.95,  wasUSD: 69.95,  bandwidth: '20 GB/day' },
+    { label: 'Premium Silver — 365 Days', planId: 'tz-silver-365', priceUSD: 125.95, wasUSD: 179.95, bandwidth: '20 GB/day' },
+
+    // Gold
+    { label: 'Premium Gold — 30 Days',    planId: 'tz-gold-30',    priceUSD: 24.45,  wasUSD: 34.95,  bandwidth: '50 GB/day' },
+    { label: 'Premium Gold — 90 Days',    planId: 'tz-gold-90',    priceUSD: 55.95,  wasUSD: 79.95,  bandwidth: '50 GB/day' },
+    { label: 'Premium Gold — 365 Days',   planId: 'tz-gold-365',   priceUSD: 132.95, wasUSD: 189.95, bandwidth: '50 GB/day' },
+
+    // Max
+    { label: 'Premium Max — 30 Days',     planId: 'tz-max-30',     priceUSD: 27.95,  wasUSD: 39.95,  bandwidth: '150 GB/day' },
+    { label: 'Premium Max — 90 Days',     planId: 'tz-max-90',     priceUSD: 66.45,  wasUSD: 94.95,  bandwidth: '150 GB/day' },
+    { label: 'Premium Max — 365 Days',    planId: 'tz-max-365',    priceUSD: 139.95, wasUSD: 199.95, bandwidth: '150 GB/day' },
+  ],
 },
 ];
 
+
+
 export default function HomePage() {
+  const providersAlpha = useMemo(
+  () => [...PROVIDERS].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+  ),
+  []
+);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'soon'>('all');
 
-  // Keep whole provider card if provider matches query; else filter packs within it
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const byStatus = PROVIDERS.filter(p => statusFilter === 'all' || p.status === statusFilter);
+  const q = query.trim().toLowerCase();
 
-    if (!q) return byStatus;
+  // use the alphabetized list here
+  const byStatus = providersAlpha.filter(
+    (p) => statusFilter === 'all' || p.status === statusFilter
+  );
 
-    return byStatus
-      .map((p) => {
-        const providerMatches =
-          p.name.toLowerCase().includes(q) ||
-          p.slug.toLowerCase().includes(q) ||
-          p.blurb.toLowerCase().includes(q);
+  if (!q) return byStatus;
 
-        if (providerMatches) return p; // keep all packs
+  return byStatus
+    .map((p) => {
+      const providerMatches =
+        p.name.toLowerCase().includes(q) ||
+        p.slug.toLowerCase().includes(q) ||
+        p.blurb.toLowerCase().includes(q);
 
-        const packs = p.packs?.filter(
-          (pk) =>
-            pk.label.toLowerCase().includes(q) ||
-            String(pk.priceUSD).includes(q) ||
-            (pk.bandwidth ?? '').toLowerCase().includes(q)
-        );
+      if (providerMatches) return p;
 
-        return { ...p, packs };
-      })
-      .filter((p) => {
-        const providerMatches =
-          p.name.toLowerCase().includes(q) ||
-          p.slug.toLowerCase().includes(q) ||
-          p.blurb.toLowerCase().includes(q);
+      const packs = p.packs?.filter(
+        (pk) =>
+          pk.label.toLowerCase().includes(q) ||
+          String(pk.priceUSD).includes(q) ||
+          (pk.bandwidth ?? '').toLowerCase().includes(q)
+      );
 
-        return providerMatches || (p.packs && p.packs.length > 0);
-      });
-  }, [query, statusFilter]);
+      return { ...p, packs };
+    })
+    .filter((p) => (p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.blurb.toLowerCase().includes(q) || (p.packs && p.packs.length > 0)));
+}, [query, statusFilter, providersAlpha]);
+
+
 
   return (
     <div className="min-h-screen bg-[#0b0b12] text-white">
