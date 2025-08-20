@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   Mail,
   ArrowLeftRight,
+  HelpCircle,
 
 } from 'lucide-react';
 
@@ -198,13 +199,17 @@ export default function HomePage() {
           Browse filehosts
           <ArrowRight className="h-4 w-4" />
         </a>
-        <a
-          href="/nitroflare"
-          className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2"
-        >
-          NitroFlare deals
-          <ArrowRight className="h-4 w-4" />
-        </a>
+       <a
+  href="/support"
+  className="px-5 py-3 rounded-2xl border border-white/15 hover:border-white/30 inline-flex items-center gap-2
+             bg-white/5 hover:bg-white/10 transition"
+>
+  <HelpCircle className="h-4 w-4 text-fuchsia-300" />
+  <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+    Contact Support
+  </span>
+</a>
+
       </div>
 
       <div className="mt-4 text-xs text-white/60">
@@ -356,132 +361,321 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold">Why Only.Exchange?</h2>
-          <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="Instant delivery" text="Keys are emailed automatically once confirmations hit." />
-            <Feature icon={<QrCode className="h-5 w-5" />} title="Unique address per order" text="Clean tracking for each checkout session." />
-            <Feature icon={<Zap className="h-5 w-5" />} title="Multi-chain support" text="BTC, ETH, SOL, BNB, LTC plus USDT/USDC with networks." />
-            <Feature icon={<Coins className="h-5 w-5" />} title="Transparent pricing" text="Live market pricing via our price proxy." />
-            <Feature icon={<Bitcoin className="h-5 w-5" />} title="Sender pays fees" text="No surprises—miner/validator fees paid by sender." />
-            <Feature icon={<ArrowRight className="h-5 w-5" />} title="Smooth UX" text="Deep links pick your pack and jump to checkout." />
-          </div>
+      {/* Features (upgraded) */}
+<section id="features" className="py-16">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    {/* Title + value badges */}
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <h2 className="text-3xl md:text-4xl font-bold">
+        Why Only.Exchange?
+        <span className="ml-3 inline-block align-middle h-2 w-20 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
+      </h2>
+      <div className="flex flex-wrap gap-2">
+        <span className="text-xs px-2.5 py-1 rounded-lg bg-gradient-to-r from-fuchsia-600/20 via-purple-600/20 to-indigo-600/20 border border-white/10">
+          No KYC • Crypto only
+        </span>
+        <span className="text-xs px-2.5 py-1 rounded-lg bg-gradient-to-r from-fuchsia-600/20 via-purple-600/20 to-indigo-600/20 border border-white/10">
+          On-chain tracking
+        </span>
+        <span className="text-xs px-2.5 py-1 rounded-lg bg-gradient-to-r from-fuchsia-600/20 via-purple-600/20 to-indigo-600/20 border border-white/10">
+          Auto-delivery API
+        </span>
+      </div>
+    </div>
+
+    {/* Core features */}
+    <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <Feature
+        icon={<Zap className="h-5 w-5" />}
+        title="Instant, API-driven delivery"
+        text="We monitor the mempool and dispatch keys the moment confirmations hit—no screenshots or tickets needed."
+      />
+      <Feature
+  icon={<ShieldCheck className="h-5 w-5" />}
+  title="Privacy by design"
+  text="Rotating, single-use addresses reduce reuse and improve on-chain privacy vs. shared deposit wallets."
+/>
+      <Feature
+        icon={<ShieldCheck className="h-5 w-5" />}
+        title="On-chain matching"
+        text="Your payment is matched by address + amount on the blockchain, then auto-verified for release."
+      />
+      <Feature
+        icon={<Coins className="h-5 w-5" />}
+        title="Transparent pricing"
+        text="Live crypto market pricing. What you see at Checkout is what you pay."
+      />
+      <Feature
+        icon={<Bitcoin className="h-5 w-5" />}
+        title="Multi-chain options"
+        text="BTC, ETH (+ L2s), SOL, BNB, LTC, plus USDT/USDC on Ethereum, Solana, and BNB Smart Chain."
+      />
+    <Feature
+  icon={<TimerIcon className="h-5 w-5" />}
+  title="One-click checkout"
+  text="Choose a pack, we prefill the order—generate an address and pay in seconds."
+/>
+    </div>
+
+    {/* Why crypto */}
+    <div className="mt-10 rounded-3xl p-[1.5px] bg-gradient-to-r from-fuchsia-600/60 via-purple-600/40 to-indigo-600/60 shadow-[0_0_26px_rgba(168,85,247,0.25)]">
+      <div className="rounded-[22px] bg-black/40 border border-white/10 p-6 md:p-8">
+        <div className="inline-flex items-center gap-2 text-sm font-semibold">
+          <Bitcoin className="h-4 w-4" />
+          Why pay with crypto?
         </div>
-      </section>
 
-      {/* FAQ (lighter / glassy) */}
-      <section id="faq" className="py-14 border-t border-white/10 bg-gradient-to-b from-transparent via-white/[0.04] to-transparent">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            FAQ
-            <span className="ml-3 inline-block align-middle h-2 w-20 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
-          </h2>
-
-          <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <QrCode className="h-4 w-4 opacity-90" />
-                  How do deep links work?
-                </span>
-              }
-              a="Click a pack on the homepage—the host page opens with that pack pre-selected and auto-scrolls to checkout."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <Coins className="h-4 w-4 opacity-90" />
-                  Which coins & networks are supported?
-                </span>
-              }
-              a={
-                <>
-                  <div>Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
-                  <div>USDT/USDC networks: Ethereum, Solana, BNB Smart Chain.</div>
-                </>
-              }
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <TimerIcon className="h-4 w-4 opacity-90" />
-                  When do I get my key?
-                </span>
-              }
-              a="Instantly after the required confirmations on the selected network (typically minutes)."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <Coins className="h-4 w-4 opacity-90" />
-                  Where do your prices come from?
-                </span>
-              }
-              a="Live market pricing via our /api/price proxy (CoinGecko source). The amount is locked when you click Generate."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <TimerIcon className="h-4 w-4 opacity-90" />
-                  How long is the payment window?
-                </span>
-              }
-              a="30 minutes from Generate. If it expires, just start a new session to get a fresh address and amount."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <RefreshCw className="h-4 w-4 opacity-90" />
-                  Can I change my pack or email?
-                </span>
-              }
-              a="During payment, email is temporarily locked. Use “Cancel / Start Over” to edit your pack or email, then Generate again."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 opacity-90" />
-                  What if I use the wrong network or amount?
-                </span>
-              }
-              a={
-                <>
-                  <div><strong>Network:</strong> USDT/USDC must match the selected network. ETH supports L2 choices—send on the network you picked.</div>
-                  <div><strong>Amount:</strong> Underpaid? Send the difference to the same address before the timer ends. Overpaid? Contact support.</div>
-                </>
-              }
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 opacity-90" />
-                  Do you store my data?
-                </span>
-              }
-              a="Only what’s needed to deliver your key (email + order metadata). No card/KYC data—payments are on-chain."
-            />
-
-            <QA
-              q={
-                <span className="inline-flex items-center gap-2">
-                  <Mail className="h-4 w-4 opacity-90" />
-                  Need help?
-                </span>
-              }
-              a="Email support@only.exchange with your order email and transaction hash—we’ll get you sorted."
-            />
-          </div>
+        <div className="mt-4 grid md:grid-cols-2 gap-4">
+          <Bullet
+            icon={<ShieldCheck className="h-4 w-4" />}
+            title="Final, global, borderless"
+            desc="No banks, regions, or card declines—crypto works wherever you do."
+          />
+          <Bullet
+            icon={<Zap className="h-4 w-4" />}
+            title="Fast settlement"
+            desc="Keys auto-send as soon as confirmations clear—typically within minutes."
+          />
+          <Bullet
+            icon={<QrCode className="h-4 w-4" />}
+            title="Exact-amount accuracy"
+            desc="QR & copy buttons ensure the exact amount—no rounding headaches."
+          />
+          <Bullet
+            icon={<Coins className="h-4 w-4" />}
+            title="Fewer chargebacks, better prices"
+            desc="On-chain payments reduce fraud and keep plan prices competitive."
+          />
         </div>
-      </section>
+
+        <div className="mt-5 text-sm text-white/70">
+          Have questions about networks or confirmations?{" "}
+          <a
+            href="/support"
+            className="font-semibold text-transparent bg-clip-text
+                       bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400
+                       underline underline-offset-4 decoration-white/20"
+          >
+            Contact support
+          </a>
+          .
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+      {/* FAQ (upgraded: colorful, link-rich, customer-focused) */}
+<section id="faq" className="py-16 border-t border-white/10 bg-gradient-to-b from-transparent via-white/[0.05] to-transparent">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    {/* Heading + quick actions */}
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <h2 className="text-3xl md:text-4xl font-bold">
+        FAQ
+        <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
+      </h2>
+
+      <div className="flex flex-wrap gap-2">
+        <a
+          href="/support"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
+                     text-sm font-semibold text-white
+                     bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                     hover:from-fuchsia-500 hover:to-indigo-500
+                     shadow-[0_0_18px_rgba(168,85,247,0.4)]"
+        >
+          <Mail className="h-4 w-4" />
+          Contact support
+        </a>
+        <a
+          href="/nitroflare"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm
+                     border border-white/15 bg-white/5 hover:border-white/30"
+        >
+          <Zap className="h-4 w-4" />
+          Buy NitroFlare keys
+        </a>
+      </div>
+    </div>
+
+    <div className="mt-8 grid lg:grid-cols-3 gap-6">
+      {/* Main Q&A (2 cols) */}
+      <div className="lg:col-span-2 grid md:grid-cols-2 gap-5">
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <QrCode className="h-4 w-4 opacity-90" />
+              How do I buy a key?
+            </span>
+          }
+          a={
+            <>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Open <a href="/nitroflare">NitroFlare</a> (more hosts soon).</li>
+                <li>Choose a pack & enter your email.</li>
+                <li>Select coin (and network if using USDT/USDC or ETH L2).</li>
+                <li>Click <em>Generate</em> to lock price & get your address.</li>
+                <li>Send the exact amount within 30 minutes.</li>
+              </ol>
+              <p className="mt-2 text-white/70 text-xs">
+                Need a hand? <a href="/support">Contact support</a>.
+              </p>
+            </>
+          }
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Coins className="h-4 w-4 opacity-90" />
+              Which coins & networks are supported?
+            </span>
+          }
+          a={
+            <>
+              <div>Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
+              <div className="mt-1">
+                USDT/USDC networks: Ethereum, Solana, BNB Smart Chain.
+              </div>
+              <div className="mt-1">
+                ETH supports L2 choices (Base, Arbitrum, Optimism, Polygon, zkSync, Linea, Scroll). Pick where you’re sending from.
+              </div>
+            </>
+          }
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <TimerIcon className="h-4 w-4 opacity-90" />
+              When do I get my key?
+            </span>
+          }
+          a={
+            <>
+              <div>Instantly after required confirmations (usually minutes).</div>
+              <div className="mt-1 text-white/70 text-sm">
+                You’ll receive the key at the email you entered at checkout.
+              </div>
+            </>
+          }
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <RefreshCw className="h-4 w-4 opacity-90" />
+              Can I change my pack or email?
+            </span>
+          }
+          a={
+            <>
+              <div>During payment, email is temporarily locked.</div>
+              <div className="mt-1">Hit <em>Cancel / Start Over</em> to update pack or email and click <em>Generate</em> again.</div>
+            </>
+          }
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 opacity-90" />
+              Sent wrong amount or network?
+            </span>
+          }
+          a={
+            <>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Underpaid:</strong> send the difference to the same address before the timer expires.</li>
+                <li><strong>Overpaid:</strong> <a href="/support">Contact support</a> with your TX hash—We’ll reconcile.</li>
+                <li><strong>Wrong network:</strong> For USDT/USDC, the network must match. If you’re unsure, <a href="/support">reach out</a> ASAP.</li>
+              </ul>
+            </>
+          }
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Bitcoin className="h-4 w-4 opacity-90" />
+              Where do your prices come from?
+            </span>
+          }
+          a="Live market pricing via our /api/price proxy (CoinGecko source). Your amount is locked for 30 minutes when you click Generate."
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 opacity-90" />
+              What about fees & confirmations?
+            </span>
+          }
+          a="Sender pays network/miner fees. Keys are released after 2 confirmations (network-dependent)."
+        />
+
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Mail className="h-4 w-4 opacity-90" />
+              Didn’t receive my key—what now?
+            </span>
+          }
+          a={
+            <>
+              <div>Check spam/junk first.</div>
+              <div className="mt-1">
+                Still missing? <a href="/support">Open a ticket</a> with your order email and TX hash so we can look it up immediately.
+              </div>
+            </>
+          }
+        />
+      </div>
+
+      {/* Side panel: quick help & links */}
+      <aside className="rounded-2xl border border-white/10 bg-white/5 p-5">
+        <div className="inline-flex items-center gap-2 text-sm font-semibold">
+          <Zap className="h-4 w-4 opacity-90" />
+          Quick help
+        </div>
+
+        <ul className="mt-3 space-y-2 text-sm">
+          <li>
+            ✔️ <a href="/nitroflare">NitroFlare packs & bandwidth</a>
+          </li>
+          <li>
+            ✔️ <a href="/nitroflare?plan=nf-90#checkout">90-day pack (deep link)</a>
+          </li>
+          <li>
+            ✔️ <a href="/support">Payment issues (over/underpaid)</a>
+          </li>
+          <li>
+            ✔️ <a href="/support">Key not received / not working</a>
+          </li>
+        </ul>
+
+        <div className="mt-5 rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-600/10 via-purple-600/10 to-indigo-600/10 p-4">
+          <div className="text-sm font-semibold">Still stuck?</div>
+          <p className="text-white/70 text-sm mt-1">
+            Our support team can verify your TX and resend keys.
+          </p>
+          <a
+            href="/support"
+            className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg
+                       text-sm font-semibold text-white
+                       bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                       hover:from-fuchsia-500 hover:to-indigo-500"
+          >
+            <Mail className="h-4 w-4" />
+            Contact support
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
 
       {/* Footer */}
       <footer className="border-t border-white/10">
@@ -492,15 +686,17 @@ export default function HomePage() {
               <span className="font-semibold text-white">Only.Exchange</span>
             </div>
             <div className="flex flex-wrap gap-6">
-              <a href="#">Support</a>
-              <a href="#">Terms</a>
-              <a href="#">Privacy</a>
-              <a href="#">Refunds</a>
+              <a href="/support">Support</a>
+              <a href="/terms">Terms</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/refunds">Refunds</a>
             </div>
           </div>
-          <p className="mt-6 text-xs text-white/60 max-w-4xl">
-            NitroFlare, Emload, and DaoFile are third-party services. This site sells access codes/keys only. All brand names and logos are property of their respective owners.
-          </p>
+    <p className="mt-6 text-xs text-white/60 max-w-4xl">
+  © 2025 Only.Exchange | All brand names and logos are property of their respective owners.
+</p>
+
+
         </div>
       </footer>
     </div>
@@ -516,6 +712,28 @@ function Feature({ icon, title, text }: { icon: ReactNode; title: string; text: 
         <span className="font-semibold">{title}</span>
       </div>
       <p className="text-white/70 mt-1.5 text-sm">{text}</p>
+    </div>
+  );
+}
+
+function Bullet({
+  icon,
+  title,
+  desc,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="inline-flex items-center gap-2 text-white">
+        <span className="inline-grid place-items-center h-7 w-7 rounded-lg bg-white/5 border border-white/10">
+          {icon}
+        </span>
+        <span className="font-semibold">{title}</span>
+      </div>
+      <p className="text-white/70 mt-1.5 text-sm">{desc}</p>
     </div>
   );
 }

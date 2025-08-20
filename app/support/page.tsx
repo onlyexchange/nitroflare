@@ -13,6 +13,7 @@ import {
   Coins,
   Wallet,
   Hash,
+  ArrowLeftRight,
 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
@@ -177,16 +178,37 @@ export default function SupportPage() {
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur bg-black/30 border-b border-white/10">
         <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group" prefetch={false}>
-            <span className="inline-grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500 text-white text-[13px] font-extrabold leading-none ring-1 ring-white/20 shadow-sm transition-transform group-hover:scale-105">
-              O
-            </span>
-            <span className="font-semibold group-hover:text-white">Only.Exchange</span>
-          </Link>
+          <Link
+  href="/"
+  className="flex items-center gap-2 group"
+  aria-label="Only.Exchange — Home"
+  prefetch={false}
+>
+  <span
+    className="inline-grid h-8 w-8 place-items-center rounded-xl
+               bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500
+               text-white ring-1 ring-white/20 shadow-sm
+               transition-transform group-hover:scale-105"
+  >
+    <ArrowLeftRight className="h-4 w-4" />
+  </span>
+  <span className="font-semibold group-hover:text-white">Only.Exchange</span>
+</Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span className="text-white/60">Support</span>
-          </nav>
+  <Link href="/" className="hover:text-white">Home</Link>
+
+  {/* Active: Support */}
+  <span
+    aria-current="page"
+    className="inline-flex items-center gap-2 px-3 py-1 rounded-xl border border-white/15 bg-white/10"
+    title="You are here"
+  >
+    <HelpCircle className="h-4 w-4 text-fuchsia-300" />
+    <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-medium">
+      Support
+    </span>
+  </span>
+</nav>
         </div>
       </header>
 
@@ -481,16 +503,27 @@ export default function SupportPage() {
         </div>
       </section>
 
-      {/* Footer */}
+   
+       {/* Footer */}
       <footer className="border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-white/70">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500" />
-            <span className="font-semibold text-white">Only.Exchange</span>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500" />
+              <span className="font-semibold text-white">Only.Exchange</span>
+            </div>
+            <div className="flex flex-wrap gap-6">
+              <a href="/support">Support</a>
+              <a href="/terms">Terms</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/refunds">Refunds</a>
+            </div>
           </div>
-          <p className="mt-4 text-xs text-white/60 max-w-3xl">
-            This form sends an email to support@only.exchange via EmailJS.
-          </p>
+    <p className="mt-6 text-xs text-white/60 max-w-4xl">
+  © 2025 Only.Exchange | All brand names and logos are property of their respective owners.
+</p>
+
+
         </div>
       </footer>
     </div>

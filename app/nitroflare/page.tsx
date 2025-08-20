@@ -766,131 +766,336 @@ useEffect(() => {
         </div>
       </section>
 
-      {/* FAQ (lighter / glassy) */}
-<section id="faq" className="py-14 border-t border-white/10 bg-gradient-to-b from-transparent via-white/[0.04] to-transparent">
+     {/* FAQ (upgraded: colorful, link-rich, customer-focused for NitroFlare) */}
+<section id="faq" className="py-16 border-t border-white/10 bg-gradient-to-b from-transparent via-white/[0.05] to-transparent">
   <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <h2 className="text-3xl md:text-4xl font-bold">
-      FAQ
-      <span className="ml-3 inline-block align-middle h-2 w-20 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
-    </h2>
+    {/* Heading + quick actions */}
+    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <h2 className="text-3xl md:text-4xl font-bold">
+        FAQ
+        <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
+      </h2>
 
-    <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <Mail className="h-4 w-4 opacity-90" />
-            How fast do I get my key?
-          </span>
-        }
-        a="Instantly after your payment reaches 2 confirmations on the selected network."
-      />
+      <div className="flex flex-wrap gap-2">
+        <a
+          href="/support"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
+                     text-sm font-semibold text-white
+                     bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                     hover:from-fuchsia-500 hover:to-indigo-500
+                     shadow-[0_0_18px_rgba(168,85,247,0.4)]"
+        >
+          <Mail className="h-4 w-4" />
+          Contact support
+        </a>
+        <a
+          href="#plans"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm
+                     border border-white/15 bg-white/5 hover:border-white/30"
+        >
+          <Zap className="h-4 w-4" />
+          Buy NitroFlare keys
+        </a>
+      </div>
+    </div>
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <Coins className="h-4 w-4 opacity-90" />
-            Which coins and networks are supported?
-          </span>
-        }
-        a={
-          <>
-            <div className="text-white/85">Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
-            <div className="text-white/85">USDT/USDC Networks: Ethereum, Solana, BNB Smart Chain.</div>
-          </>
-        }
-      />
+    <div className="mt-8 grid lg:grid-cols-3 gap-6">
+      {/* Main Q&A (2 cols) */}
+      <div className="lg:col-span-2 grid md:grid-cols-2 gap-5">
+        {/* How to buy */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <QrCode className="h-4 w-4 opacity-90" />
+              How do I buy a NitroFlare key?
+            </span>
+          }
+          a={
+            <>
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Open <a href="/nitroflare" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 underline underline-offset-4 decoration-white/20">NitroFlare</a>.</li>
+                <li>Choose a pack & enter your email.</li>
+                <li>Select coin (and network for USDT/USDC or ETH L2).</li>
+                <li>Click <em>Generate</em> to lock price & get your address.</li>
+                <li>Send the exact amount within 30 minutes.</li>
+              </ol>
+              <p className="mt-2 text-white/70 text-xs">
+                Stuck? <a href="/support" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 underline underline-offset-4 decoration-white/20">Contact support</a>.
+              </p>
+            </>
+          }
+        />
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <TimerIcon className="h-4 w-4 opacity-90" />
-            How long do I have to pay?
-          </span>
-        }
-        a="30-minute window from when you click Generate. The amount and address lock for that window."
-      />
+        {/* Which plan fits? */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 opacity-90" />
+              Which plan is right for me?
+            </span>
+          }
+          a={
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/85">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                <div className="text-white/70">30 Days</div><div>25 GB/day • light usage</div>
+                <div className="text-white/70">90 Days</div><div>50 GB/day • regular</div>
+                <div className="text-white/70">180 Days</div><div>75 GB/day • heavy</div>
+                <div className="text-white/70">365 Days</div><div>100 GB/day • power user</div>
+              </div>
+              <div className="mt-2 text-xs text-white/60">Daily limits reset every 24h by host policy.</div>
+            </div>
+          }
+        />
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <AlertTriangle className="h-4 w-4 opacity-90" />
-            What if I send the wrong amount?
-          </span>
-        }
-        a={
-          <>
-            <div><strong>Underpaid:</strong> send the difference to the same address before the timer ends.</div>
-            <div><strong>Overpaid:</strong> contact support with your TX hash; we’ll reconcile.</div>
-          </>
-        }
-      />
+        {/* Delivery timing */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Mail className="h-4 w-4 opacity-90" />
+              When do I receive my key?
+            </span>
+          }
+          a={
+            <>
+              <div>Instantly after required confirmations (usually minutes).</div>
+              <div className="mt-1 text-white/70 text-sm">We send the key to the email you entered at checkout.</div>
+            </>
+          }
+        />
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <RefreshCw className="h-4 w-4 opacity-90" />
-            Can I change my plan or email after generating?
-          </span>
-        }
-        a="During payment, email is locked. Use “Cancel / Start Over” to edit your plan/email, then Generate again."
-      />
+       {/* Redeem instructions (upgraded) */}
+<QA
+  q={
+    <span className="inline-flex items-center gap-2">
+      <ShieldCheck className="h-4 w-4 opacity-90" />
+      How do I redeem a NitroFlare key?
+    </span>
+  }
+  a={
+    <>
+      {/* Example key callout */}
+      <div className="rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-600/10 via-purple-600/10 to-indigo-600/10 p-3">
+        <div className="text-sm font-semibold text-white/90">You’ll receive a Premium Key like:</div>
+        <div className="mt-1 inline-block rounded-md border border-white/10 bg-black/40 px-2 py-1 font-mono text-sm text-white/90">
+          1220s5e5cbo381XXXXX
+        </div>
+      </div>
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <QrCode className="h-4 w-4 opacity-90" />
-            QR code won’t scan—what now?
-          </span>
-        }
-        a={
-          <>
-            <div>Use the copy buttons next to the amount and address.</div>
-            <div>As a fallback, paste the raw address in your wallet and enter the exact amount.</div>
-          </>
-        }
-      />
+      {/* Steps */}
+      <ol className="mt-3 list-decimal list-inside space-y-1">
+        <li>
+          Log in to your NitroFlare account.{" "}
+          <a
+            href="https://nitroflare.com/register"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-transparent bg-clip-text
+                       bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400
+                       underline underline-offset-4 decoration-white/20"
+          >
+            No account? Register here
+          </a>
+          .
+        </li>
+        <li>
+          Open the{" "}
+          <a
+            href="https://nitroflare.com/coupons"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-transparent bg-clip-text
+                       bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400
+                       underline underline-offset-4 decoration-white/20"
+          >
+            Coupons
+          </a>{" "}
+          page.
+        </li>
+        <li>Paste your Premium Key and click Activate.</li>
+      </ol>
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <ShieldCheck className="h-4 w-4 opacity-90" />
-            Who pays network fees & confirmations?
-          </span>
-        }
-        a="Sender pays network/miner fees. We release your key after 2 confirmations."
-      />
+      {/* Tips */}
+      <p className="mt-2 text-xs text-white/70">
+        Tip: Keys are case-sensitive—paste without spaces. If activation fails, double-check you’re logged into the correct NitroFlare account
+        (the key is emailed to the address you entered at checkout).
+      </p>
+    </>
+  }
+/>
 
-      <QA
-        q={
-          <span className="inline-flex items-center gap-2 text-white">
-            <HelpCircle className="h-4 w-4 opacity-90" />
-            Need help?
-          </span>
-        }
-        a="Email support@only.exchange with your order email and the transaction hash."
-      />
+
+        {/* Coins & networks */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Coins className="h-4 w-4 opacity-90" />
+              Which coins & networks are supported?
+            </span>
+          }
+          a={
+            <>
+              <div>Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
+              <div className="mt-1">USDT/USDC networks: Ethereum, Solana, BNB Smart Chain.</div>
+              <div className="mt-1 text-white/80">
+                ETH supports L2 (Base, Arbitrum, Optimism, Polygon, zkSync, Linea, Scroll). Pick the one you’ll send from.
+              </div>
+            </>
+          }
+        />
+
+        {/* Unique address & lock */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <QrCode className="h-4 w-4 opacity-90" />
+              Unique address & price lock?
+            </span>
+          }
+          a={
+            <>
+              <div className="text-white/85">Each checkout session gets its own address and a 30-minute price lock.</div>
+              <ul className="mt-2 list-disc list-inside space-y-1 text-white/80">
+                <li>Exact-amount payment = fewer mistakes</li>
+                <li>Copy buttons + QR for wallet ease</li>
+                <li>Expired? Generate again for a fresh lock</li>
+              </ul>
+            </>
+          }
+        />
+
+        {/* Wrong amount / network */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 opacity-90" />
+              I sent the wrong amount / network
+            </span>
+          }
+          a={
+            <>
+              <ul className="list-disc list-inside space-y-1">
+                <li><strong>Underpaid:</strong> send the difference to the same address before the timer expires.</li>
+                <li><strong>Overpaid:</strong> <a href="/support" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 underline underline-offset-4 decoration-white/20">Contact support</a> with your TX hash—we’ll reconcile.</li>
+                <li><strong>Wrong network:</strong> For USDT/USDC, network must match. Not sure? <a href="/support" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 underline underline-offset-4 decoration-white/20">Reach out</a> ASAP.</li>
+              </ul>
+            </>
+          }
+        />
+
+        {/* Edit pack/email */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <RefreshCw className="h-4 w-4 opacity-90" />
+              Can I change my pack or email?
+            </span>
+          }
+          a={
+            <>
+              <div>During payment, email is temporarily locked.</div>
+              <div className="mt-1">Hit <em>Cancel / Start Over</em>, update details, then click <em>Generate</em> again.</div>
+            </>
+          }
+        />
+
+        {/* Fees & confirmations */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 opacity-90" />
+              Fees & confirmations
+            </span>
+          }
+          a="Sender pays miner/validator fees. Keys are released after 2 confirmations."
+        />
+
+        {/* Pricing source */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Coins className="h-4 w-4 opacity-90" />
+              Where do your prices come from?
+            </span>
+          }
+          a="Live crypto market pricing. Your amount is locked for 30 minutes when you click Buy Now."
+        />
+
+        {/* Didn’t get key */}
+        <QA
+          q={
+            <span className="inline-flex items-center gap-2">
+              <Mail className="h-4 w-4 opacity-90" />
+              Didn’t receive my key—what now?
+            </span>
+          }
+          a={
+            <>
+              <div>Check spam/junk first.</div>
+              <div className="mt-1">
+                Still missing? <a href="/support" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 underline underline-offset-4 decoration-white/20">Open a ticket</a> with your order email and TX hash so we can look it up immediately.
+              </div>
+            </>
+          }
+        />
+      </div>
+
+      {/* Side panel: quick help & links */}
+      <aside className="rounded-2xl border border-white/10 bg-white/5 p-5">
+        <div className="inline-flex items-center gap-2 text-sm font-semibold">
+          <Zap className="h-4 w-4 opacity-90" />
+          Quick help
+        </div>
+
+        <ul className="mt-3 space-y-2 text-sm">
+          <li>✔️ <a href="/nitroflare" className="underline decoration-white/20 hover:decoration-white">NitroFlare overview</a></li>
+          <li>✔️ <a href="/nitroflare?plan=nf-90#checkout" className="underline decoration-white/20 hover:decoration-white">90-day pack (deep link)</a></li>
+          <li>✔️ <a href="/support" className="underline decoration-white/20 hover:decoration-white">Payment issues (over/underpaid)</a></li>
+          <li>✔️ <a href="/support" className="underline decoration-white/20 hover:decoration-white">Key not received / not working</a></li>
+        </ul>
+
+        <div className="mt-5 rounded-xl border border-white/10 bg-gradient-to-br from-fuchsia-600/10 via-purple-600/10 to-indigo-600/10 p-4">
+          <div className="text-sm font-semibold">Still stuck?</div>
+          <p className="text-white/70 text-sm mt-1">
+            Our team can verify your transaction and resend keys if needed.
+          </p>
+          <a
+            href="/support"
+            className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg
+                       text-sm font-semibold text-white
+                       bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                       hover:from-fuchsia-500 hover:to-indigo-500"
+          >
+            <Mail className="h-4 w-4" />
+            Contact support
+          </a>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
+
+
 
       {/* Footer */}
       <footer className="border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-white/70">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500"/>
-              <span className="font-semibold text-white">NitroFlare Premium Keys</span>
+              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500" />
+              <span className="font-semibold text-white">Only.Exchange</span>
             </div>
             <div className="flex flex-wrap gap-6">
-              <a href="#">Support</a>
-              <a href="#">Terms</a>
-              <a href="#">Privacy</a>
-              <a href="#">Refunds</a>
+              <a href="/support">Support</a>
+              <a href="/terms">Terms</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/refunds">Refunds</a>
             </div>
           </div>
-          <p className="mt-6 text-xs text-white/60 max-w-4xl">
-            NitroFlare is a third-party service. This site sells access codes/keys only. All brand names and logos are property of their respective owners.
-          </p>
+    <p className="mt-6 text-xs text-white/60 max-w-4xl">
+  © 2025 Only.Exchange | All brand names and logos are property of their respective owners.
+</p>
+
+
         </div>
       </footer>
     </div>
