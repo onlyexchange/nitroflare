@@ -17,6 +17,7 @@ import {
   Mail,
   ArrowLeftRight,
   HelpCircle,
+  Flame,
 
 } from 'lucide-react';
 
@@ -25,7 +26,9 @@ type Pack = {
   priceUSD: number;
   wasUSD?: number;
   bandwidth?: string;
-  planId?: string; // used for deep-link selection
+  planId?: string; 
+   badge?: 'Best Seller' | 'Most Popular' | 'New' | 'Limited';
+  featured?: boolean;
 };
 
 type Provider = {
@@ -60,7 +63,7 @@ const PROVIDERS: Provider[] = [
     glow: 'shadow-[0_0_28px_rgba(251,146,60,0.28)]',
   },
   packs: [
-    { label: '30 Days GOLD',  planId: '1f-30',   priceUSD: 7.00,   wasUSD: 11.95 },
+    { label: '30 Days GOLD',  planId: '1f-30',   priceUSD: 7.00,   wasUSD: 11.95, badge: 'Best Seller', featured: true },
     { label: '1 Year GOLD',   planId: '1f-365',  priceUSD: 26.95,  wasUSD: 44.95 },
     { label: '5 Years GOLD',  planId: '1f-1825', priceUSD: 119.95, wasUSD: 199.95 },
   ],
@@ -82,7 +85,7 @@ const PROVIDERS: Provider[] = [
     packs: [
       { label: '30 Days',  planId: 'nf-30',  priceUSD: 8.99,  wasUSD: 15,  bandwidth: '25 GB/day' },
       { label: '90 Days',  planId: 'nf-90',  priceUSD: 20.99, wasUSD: 35,  bandwidth: '50 GB/day' },
-      { label: '180 Days', planId: 'nf-180', priceUSD: 32.99, wasUSD: 55,  bandwidth: '75 GB/day' },
+      { label: '180 Days', planId: 'nf-180', priceUSD: 32.99, wasUSD: 55,  bandwidth: '75 GB/day', badge: 'Best Seller', featured: true },
       { label: '365 Days', planId: 'nf-365', priceUSD: 59.99, wasUSD: 100, bandwidth: '100 GB/day' },
     ],
   },
@@ -103,7 +106,7 @@ const PROVIDERS: Provider[] = [
     { label: '30 Days',  planId: 'rg-30',  priceUSD: 10.49, wasUSD: 14.99, bandwidth: '1 TB Bandwidth / 1 TB Storage' },
     { label: '90 Days',  planId: 'rg-90',  priceUSD: 27.99, wasUSD: 39.99, bandwidth: '4 TB Bandwidth / 3 TB Storage' },
     { label: '180 Days', planId: 'rg-180', priceUSD: 34.99, wasUSD: 49.99, bandwidth: '6 TB Bandwidth / 6 TB Storage' },
-    { label: '365 Days', planId: 'rg-365', priceUSD: 69.99, wasUSD: 99.99, bandwidth: '12 TB Bandwidth / 12 TB Storage' },
+    { label: '365 Days', planId: 'rg-365', priceUSD: 69.99, wasUSD: 99.99, bandwidth: '12 TB Bandwidth / 12 TB Storage', badge: 'Best Seller', featured: true },
   ],
 },
 {
@@ -140,12 +143,13 @@ const PROVIDERS: Provider[] = [
   mono: 'from-blue-700 via-blue-600 to-sky-500',
   glow: 'shadow-[0_0_28px_rgba(59,130,246,0.35)]', // blue-500 glow
 },
-  packs: [
-    { label: '31 Days',  planId: 'ff-31',  priceUSD: 21.00,  wasUSD: 35.00,  bandwidth: 'Includes 1TB storage' },
-    { label: '110 Days', planId: 'ff-110', priceUSD: 66.00,  wasUSD: 110.00, bandwidth: 'Includes 1TB storage' },
-    { label: '180 Days', planId: 'ff-180', priceUSD: 87.00,  wasUSD: 145.00, bandwidth: 'Includes 1TB storage' },
-    { label: '365 Days', planId: 'ff-365', priceUSD: 150.00, wasUSD: 250.00, bandwidth: 'Includes 1TB storage' },
-  ],
+ packs: [
+  { label: '31 Days',  planId: 'ff-31',  priceUSD: 21.00,  wasUSD: 35.00,  bandwidth: 'Includes 1TB storage' },
+  { label: '110 Days', planId: 'ff-110', priceUSD: 66.00,  wasUSD: 110.00, bandwidth: 'Includes 1TB storage', badge: 'Best Seller', featured: true },
+  { label: '180 Days', planId: 'ff-180', priceUSD: 87.00,  wasUSD: 145.00, bandwidth: 'Includes 1TB storage' },
+  { label: '365 Days', planId: 'ff-365', priceUSD: 150.00, wasUSD: 250.00, bandwidth: 'Includes 1TB storage' },
+],
+
 },
   {
   slug: 'emload',
@@ -161,7 +165,7 @@ const PROVIDERS: Provider[] = [
     glow: 'shadow-[0_0_28px_rgba(3,93,231,0.28)]',
   },
   packs: [
-    { label: '30 Days',  planId: 'em-30',  priceUSD: 13.95, wasUSD: 19.95,  bandwidth: '35 GB/day • 1 TB storage' },
+    { label: '30 Days',  planId: 'em-30',  priceUSD: 13.95, wasUSD: 19.95,  bandwidth: '35 GB/day • 1 TB storage', badge: 'Best Seller', featured: true },
     { label: '90 Days',  planId: 'em-90',  priceUSD: 34.95, wasUSD: 49.95,  bandwidth: '35 GB/day • 1 TB storage' },
     { label: '180 Days', planId: 'em-180', priceUSD: 55.95, wasUSD: 79.95,  bandwidth: '35 GB/day • 1 TB storage' },
     { label: '365 Days', planId: 'em-365', priceUSD: 83.95, wasUSD: 119.95, bandwidth: '35 GB/day • 1 TB storage' },
@@ -182,7 +186,7 @@ const PROVIDERS: Provider[] = [
   },
   packs: [
     { label: '31 Days',  planId: 'df-31',  priceUSD: 12.99, wasUSD: 19.95,  bandwidth: 'Up to 50 GB / 3 days' },
-    { label: '90 Days',  planId: 'df-90',  priceUSD: 27.99, wasUSD: 39.95,  bandwidth: 'Up to 50 GB / 3 days' },
+    { label: '90 Days',  planId: 'df-90',  priceUSD: 27.99, wasUSD: 39.95,  bandwidth: 'Up to 50 GB / 3 days', badge: 'Best Seller', featured: true },
     { label: '365 Days', planId: 'df-365', priceUSD: 59.99, wasUSD: 89.95,  bandwidth: 'Up to 50 GB / 3 days' },
     { label: '999 Days', planId: 'df-999', priceUSD: 89.99, wasUSD: 129.95, bandwidth: 'Up to 50 GB / 3 days' },
   ],
@@ -209,7 +213,18 @@ const PROVIDERS: Provider[] = [
 },
 ];
 
+// Top sellers (curated order)
+const TOP_SELLER_ORDER: Provider['slug'][] = [
+  'filesfly',    // #1
+  'nitroflare',  // #2
+  'rapidgator',  // #3
+  'emload',      // #4
+  'daofile',     // #5
+];
 
+const topSellers: Provider[] = TOP_SELLER_ORDER
+  .map(slug => PROVIDERS.find(p => p.slug === slug))
+  .filter(Boolean) as Provider[];
 
 export default function HomePage() {
   const providersAlpha = useMemo(
@@ -314,7 +329,7 @@ export default function HomePage() {
 
       <div className="mt-8 flex flex-wrap gap-3">
         <a
-          href="#hosts"
+          href="/filehost"
           className="px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 inline-flex items-center gap-2 hover:from-fuchsia-400 hover:to-indigo-400"
         >
           Browse filehosts
@@ -341,146 +356,153 @@ export default function HomePage() {
 </section>
 
 
-      {/* Hosts */}
-      <section id="hosts" className="py-10 border-t border-white/10 bg-white/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Header row with controls on the right */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <h2 className="text-3xl md:text-4xl font-bold">Filehosts</h2>
+     {/* Top Sellers */}
+<section id="hosts" className="py-10 border-t border-white/10 bg-white/5">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="flex items-end justify-between gap-4 flex-wrap">
+      <h2 className="text-3xl md:text-4xl font-bold">
+        Top sellers
+        <span className="ml-3 inline-block align-middle h-2 w-20 rounded-full bg-gradient-to-r from-fuchsia-500/70 via-purple-500/60 to-indigo-500/70" />
+      </h2>
 
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-              {/* Search */}
-              <div className="relative flex-1 sm:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search hosts, plans, bandwidth…"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white/5 border border-white/10 outline-none"
-                />
+      {/* Optional: link to full catalog also at the top */}
+      <Link
+        href="/filehost"
+        prefetch={false}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 hover:border-white/30 bg-white/5 text-sm"
+        aria-label="View all filehosts"
+      >
+        View all filehosts
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+
+    {/* Cards */}
+    <div className="mt-8 grid gap-6">
+      {topSellers.map((provider, idx) => (
+        <motion.div
+          key={provider.slug}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.3 }}
+          className={`rounded-3xl p-[1.5px] bg-gradient-to-r ${provider.vibe.ring} ${provider.vibe.glow}`}
+        >
+          <div className="rounded-[22px] bg-black/40 border border-white/10 p-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              {/* Left: identity */}
+              <div className="flex items-center gap-4">
+                <span className={`inline-grid place-items-center h-10 w-10 rounded-xl text-sm font-bold bg-gradient-to-br ${provider.vibe.mono}`}>
+                  {provider.monogram}
+                </span>
+                <div>
+                  <div className="text-xl font-semibold">{provider.name}</div>
+                  <p className="text-white/70 text-sm mt-0.5">{provider.blurb}</p>
+                </div>
               </div>
 
-              {/* Status filter */}
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'live' | 'soon')}
-                className="sm:w-44 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 outline-none text-sm text-white/80"
-                aria-label="Filter by status"
-              >
-                <option value="all">All statuses</option>
-                <option value="live">Live</option>
-                <option value="soon">Coming soon</option>
-              </select>
+              {/* Right: rank + CTA */}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tracking-wide uppercase px-2 py-1 rounded-md bg-white/10 border border-white/10">
+                  #{idx + 1}
+                </span>
+                <Link
+                  href={`/${provider.slug}`}
+                  prefetch={false}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 hover:border-white/30 bg-white/5 text-sm"
+                >
+                  {provider.cta ?? 'View'}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
-          </div>
 
-          {/* Single-column list */}
-          <div className="mt-8 grid gap-6">
-            {filtered.map((provider) => (
-              <motion.div
-                key={provider.slug}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3 }}
-                className={`rounded-3xl p-[1.5px] bg-gradient-to-r ${provider.vibe.ring} ${provider.vibe.glow}`}
+            {/* Show up to 3 packs for compactness */}
+            {!!provider.packs?.length && (
+  <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    {[...provider.packs]
+      
+      // show ALL packs (no .slice)
+      .map((pk) => {
+        const CardInner = (
+          <div
+            className={[
+              "relative rounded-xl p-4 transition h-full bg-white/5",
+              pk.featured
+                ? "border border-fuchsia-400/60 hover:border-fuchsia-300/70 hover:bg-white/10 shadow-[0_0_22px_rgba(168,85,247,0.25)]"
+                : "border border-white/10 hover:border-white/20 hover:bg-white/10"
+            ].join(' ')}
+          >
+            {/* Badge */}
+            {pk.badge && (
+              <span
+                className="absolute -top-2 -right-2 text-[10px] px-2 py-1 rounded-full
+                           bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                           shadow-[0_0_12px_rgba(168,85,247,0.35)]"
               >
-                <div className="rounded-[22px] bg-black/40 border border-white/10 p-6">
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
-                    {/* Left: identity */}
-                    <div className="flex items-center gap-4">
-                      <span className={`inline-grid place-items-center h-10 w-10 rounded-xl text-sm font-bold bg-gradient-to-br ${provider.vibe.mono}`}>
-                        {provider.monogram}
-                      </span>
-                      <div>
-                        <div className="text-xl font-semibold">{provider.name}</div>
-                        <p className="text-white/70 text-sm mt-0.5">{provider.blurb}</p>
-                      </div>
-                    </div>
+                {pk.badge}
+              </span>
+            )}
 
-                    {/* Right: status + CTA */}
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] tracking-wide uppercase px-2 py-1 rounded-md bg-gradient-to-r ${provider.vibe.chip}`}>
-                        {provider.status === 'live' ? 'Live' : 'Coming Soon'}
-                      </span>
-                      {provider.status === 'live' ? (
-                        <Link
-                          href={`/${provider.slug}`}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/15 hover:border-white/30 bg-white/5 text-sm"
-                          prefetch={false}
-                        >
-                          {provider.cta ?? 'View'}
-                          <ArrowRight className="h-4 w-4" />
-                        </Link>
-                      ) : (
-                        <button
-                          disabled
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm text-white/50 cursor-not-allowed"
-                          aria-disabled
-                          title="Coming soon"
-                        >
-                          Coming soon
-                        </button>
-                      )}
-                    </div>
-                  </div>
+            {/* Label + flame for featured */}
+            <div className="flex items-center gap-1.5 text-sm font-medium text-white/90">
+              {pk.label}
+              {pk.featured && <Flame className="h-3.5 w-3.5 text-fuchsia-300" />}
+            </div>
 
-                  {/* Packs */}
-                  {!!provider.packs?.length && (
-                    <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                      {provider.packs.map((pk) => {
-                        const live = provider.status === 'live';
-
-                        const CardInner = (
-                          <div className="rounded-xl border border-white/10 bg-white/5 p-4 hover:border-white/20 hover:bg-white/10 transition h-full">
-                            <div className="text-sm font-medium text-white/90">{pk.label}</div>
-
-                            {/* Price lines */}
-                            <div className="mt-1 leading-tight">
-                              {pk.wasUSD !== undefined && (
-                                <div className="text-xs text-white/50 line-through">
-                                  ${pk.wasUSD.toFixed(2)}
-                                </div>
-                              )}
-                              <div className="text-2xl font-bold">
-                                ${pk.priceUSD.toFixed(2)}
-                              </div>
-                            </div>
-
-                            {pk.bandwidth && (
-                              <div className="mt-2 text-xs text-white/60">{pk.bandwidth}</div>
-                            )}
-                          </div>
-                        );
-
-                        return live ? (
-                          <Link
-                            key={`${provider.slug}-${pk.label}`}
-                            href={{ pathname: `/${provider.slug}`, query: { plan: pk.planId ?? pk.label } }}
-                            prefetch={false}
-                            aria-label={`Buy ${provider.name} ${pk.label}`}
-                            className="block"
-                          >
-                            {CardInner}
-                          </Link>
-                        ) : (
-                          <div
-                            key={`${provider.slug}-${pk.label}`}
-                            className="opacity-60 cursor-not-allowed"
-                            title="Coming soon"
-                          >
-                            {CardInner}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+            {/* Price */}
+            <div className="mt-1 leading-tight">
+              {pk.wasUSD !== undefined && (
+                <div className="text-xs text-white/50 line-through">
+                  ${pk.wasUSD.toFixed(2)}
                 </div>
-              </motion.div>
-            ))}
+              )}
+              <div className="text-2xl font-bold">
+                ${pk.priceUSD.toFixed(2)}
+              </div>
+            </div>
+
+            {pk.bandwidth && (
+              <div className="mt-2 text-xs text-white/60">{pk.bandwidth}</div>
+            )}
           </div>
-        </div>
-      </section>
+        );
+
+        return (
+          <Link
+            key={`${provider.slug}-${pk.label}`}
+            href={{ pathname: `/${provider.slug}`, query: { plan: pk.planId ?? pk.label } }}
+            prefetch={false}
+            aria-label={`Buy ${provider.name} ${pk.label}`}
+            className="block"
+          >
+            {CardInner}
+          </Link>
+        );
+      })}
+  </div>
+)}
+
+          </div>
+        </motion.div>
+      ))}
+    </div>
+
+    {/* View all button (also at bottom) */}
+    <div className="mt-8 flex justify-center">
+      <Link
+        href="/filehost"
+        prefetch={false}
+        className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-indigo-500 hover:from-fuchsia-400 hover:to-indigo-400"
+        aria-label="View all filehosts"
+      >
+        View all filehosts
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
+  </div>
+</section>
+
 
       {/* Features (upgraded) */}
 <section id="features" className="py-16">
