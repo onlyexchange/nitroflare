@@ -201,16 +201,6 @@ const PROVIDERS: Provider[] = [
     glow: 'shadow-[0_0_28px_rgba(255,134,27,0.28)]',
   },
    packs: [
-    // Silver
-    { label: 'Premium Silver — 30 Days',  planId: 'tz-silver-30',  priceUSD: 20.95,  wasUSD: 29.95,  bandwidth: '20 GB/day' },
-    { label: 'Premium Silver — 90 Days',  planId: 'tz-silver-90',  priceUSD: 48.95,  wasUSD: 69.95,  bandwidth: '20 GB/day' },
-    { label: 'Premium Silver — 365 Days', planId: 'tz-silver-365', priceUSD: 125.95, wasUSD: 179.95, bandwidth: '20 GB/day' },
-
-    // Gold
-    { label: 'Premium Gold — 30 Days',    planId: 'tz-gold-30',    priceUSD: 24.45,  wasUSD: 34.95,  bandwidth: '50 GB/day' },
-    { label: 'Premium Gold — 90 Days',    planId: 'tz-gold-90',    priceUSD: 55.95,  wasUSD: 79.95,  bandwidth: '50 GB/day' },
-    { label: 'Premium Gold — 365 Days',   planId: 'tz-gold-365',   priceUSD: 132.95, wasUSD: 189.95, bandwidth: '50 GB/day' },
-
     // Max
     { label: 'Premium Max — 30 Days',     planId: 'tz-max-30',     priceUSD: 27.95,  wasUSD: 39.95,  bandwidth: '150 GB/day' },
     { label: 'Premium Max — 90 Days',     planId: 'tz-max-90',     priceUSD: 66.45,  wasUSD: 94.95,  bandwidth: '150 GB/day' },
