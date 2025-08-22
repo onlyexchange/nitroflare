@@ -294,7 +294,7 @@ export default function HomePage() {
 </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
-            <a href="#hosts" className="hover:text-white">Filehosts</a>
+            <a href="/filehost" className="hover:text-white">Filehosts</a>
             <a href="#features" className="hover:text-white">Features</a>
             <a href="#faq" className="hover:text-white">FAQ</a>
           </nav>

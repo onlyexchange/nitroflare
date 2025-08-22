@@ -10,6 +10,7 @@ import {
   Filter,
   Check,
   ArrowLeftRight,
+  HelpCircle,
 } from 'lucide-react';
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
@@ -223,6 +224,48 @@ const PROVIDERS: Provider[] = [
       { label: '365 Days', planId: 'af-365', priceUSD: 99.99, bandwidth: '12 TB bandwidth • 12 TB storage' },
     ],
   },
+  {
+  slug: 'crockdown',
+  name: 'CrockDown.com',
+  status: 'live',
+  blurb: '100 GB/day on all plans. No ads, no captchas — instant email delivery.',
+  cta: 'Buy CrockDown Premium',
+  monogram: 'C',
+  vibe: {
+    // blue-on-blue (distinct from NitroFlare’s cyan mix)
+    ring: 'from-sky-500/70 via-blue-600/60 to-indigo-700/70',
+    chip: 'from-sky-500 via-blue-600 to-indigo-700',
+    mono: 'from-sky-500 via-blue-600 to-indigo-700',
+    glow: 'shadow-[0_0_28px_rgba(37,99,235,0.30)]', // blue-600 glow
+  },
+  packs: [
+    { label: '30 Days',  planId: 'cd-30',  priceUSD:  5.99, wasUSD:  9.99, bandwidth: '100 GB/day' },
+    { label: '90 Days',  planId: 'cd-90',  priceUSD: 17.99, wasUSD: 24.99, bandwidth: '100 GB/day' },
+    { label: '180 Days', planId: 'cd-180', priceUSD: 29.99, wasUSD: 49.99, bandwidth: '100 GB/day' },
+    { label: '365 Days', planId: 'cd-365', priceUSD: 49.99, wasUSD: 74.99, bandwidth: '100 GB/day' },
+  ],
+},
+{
+  slug: 'dasan',
+  name: 'Dasan.co',
+  status: 'live',
+  blurb: 'GB credit for multi-host premium links (40+ hosts).',
+  cta: 'Buy Dasan Credits',
+  monogram: 'D',
+  vibe: {
+    ring: 'from-[#1E2B6A]/70 via-[#24317A]/60 to-[#192766]/70',
+    chip: 'from-[#1E2B6A] via-[#24317A] to-[#192766]',
+    mono: 'from-[#1E2B6A] via-[#24317A] to-[#192766]',
+    glow: 'shadow-[0_0_28px_rgba(30,43,106,0.28)]',
+  },
+  packs: [
+    { label: '35 GB',   planId: 'ds-35',   priceUSD: 2.99,  bandwidth: 'Free daily quota: 0 MB • 30% off' },
+    { label: '115 GB',  planId: 'ds-115',  priceUSD: 5.99,  bandwidth: 'Free daily quota: 300 MB • 30% off' },
+    { label: '310 GB',  planId: 'ds-310',  priceUSD: 14.99, bandwidth: 'Free daily quota: 500 MB • 30% off' },
+    { label: '1000 GB', planId: 'ds-1000', priceUSD: 33.00, bandwidth: 'Free daily 1.2 GB + 2 GB Usenet • 30% off' },
+  ],
+},
+
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
@@ -311,6 +354,22 @@ export default function FilehostIndexPage({
             </span>
             <span className="font-semibold group-hover:text-white">Only.Exchange</span>
           </Link>
+
+                 <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
+  <Link href="/" className="hover:text-white">Home</Link>
+
+  {/* Active: Filehost */}
+  <span
+    aria-current="page"
+    className="inline-flex items-center gap-2 px-3 py-1 rounded-xl border border-white/15 bg-white/10"
+    title="You are here"
+  >
+   
+    <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent font-medium">
+      Filehosts
+    </span>
+  </span>
+</nav>
         </div>
       </header>
 
