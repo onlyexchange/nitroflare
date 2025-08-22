@@ -304,6 +304,47 @@ const PROVIDERS: Provider[] = [
     { label: '365 Days', planId: 'dp-365', priceUSD: 49.95, wasUSD: 74.95 },
   ],
 },
+{
+  slug: 'drop-download',
+  name: 'Drop.Download',
+  status: 'live',
+  blurb: 'Premium PRO keys — unlimited storage, instant email delivery.',
+  cta: 'Buy Drop.Download Premium',
+  monogram: 'DD',
+  vibe: {
+    // mint → cyan
+    ring: 'from-[#36EEB0]/70 via-[#1CB8E8]/60 to-[#1CB8E8]/70',
+    chip: 'from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]',
+    mono: 'from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]',
+    glow: 'shadow-[0_0_28px_rgba(28,184,232,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'dd-30',  priceUSD: 30.00,  bandwidth: 'Unlimited storage' },
+    { label: '90 Days',  planId: 'dd-90',  priceUSD: 75.00,  bandwidth: 'Unlimited storage' },
+    { label: '180 Days', planId: 'dd-180', priceUSD: 120.00, bandwidth: 'Unlimited storage' },
+    { label: '365 Days', planId: 'dd-365', priceUSD: 200.00, bandwidth: 'Unlimited storage' },
+  ],
+},
+{
+  slug: 'elitefile',
+  name: 'EliteFile.net',
+  status: 'live',
+  blurb: 'No waiting, unlimited downloads — 1 TB storage, 30 GB/day.',
+  cta: 'Buy EliteFile Premium',
+  monogram: 'E',
+  vibe: {
+    ring: 'from-[#953EFE]/70 via-[#B85CFF]/60 to-[#DA72FF]/70',
+    chip: 'from-[#953EFE] via-[#B85CFF] to-[#DA72FF]',
+    mono: 'from-[#953EFE] via-[#B85CFF] to-[#DA72FF]',
+    glow: 'shadow-[0_0_28px_rgba(186,104,255,0.32)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'ef-30',  priceUSD: 36.00,  bandwidth: '30 GB/day • 1 TB storage' },
+    { label: '90 Days',  planId: 'ef-90',  priceUSD: 96.00,  bandwidth: '30 GB/day • 1 TB storage' }, // popular
+    { label: '180 Days', planId: 'ef-180', priceUSD: 180.00, bandwidth: '30 GB/day • 1 TB storage' },
+    { label: '365 Days', planId: 'ef-365', priceUSD: 300.00, bandwidth: '30 GB/day • 1 TB storage' },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
