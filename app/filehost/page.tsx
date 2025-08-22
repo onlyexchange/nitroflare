@@ -265,7 +265,25 @@ const PROVIDERS: Provider[] = [
     { label: '1000 GB', planId: 'ds-1000', priceUSD: 33.00, bandwidth: 'Free daily 1.2 GB + 2 GB Usenet • 30% off' },
   ],
 },
-
+{
+  slug: 'ddownload',
+  name: 'DDownload.com',
+  status: 'live',
+  blurb: 'Unlimited speed and 200 GB/day — instant key delivery.',
+  cta: 'Buy DDownload Premium',
+  monogram: 'DD',
+  vibe: {
+    ring: 'from-[#6ea0ff]/70 via-[#3562da]/60 to-[#153FA6]/70',
+    chip: 'from-[#6ea0ff] via-[#3562da] to-[#153FA6]',
+    mono: 'from-[#6ea0ff] via-[#3562da] to-[#153FA6]',
+    glow: 'shadow-[0_0_28px_rgba(21,63,166,0.28)]',
+  },
+  packs: [
+    { label: '1 Month',   planId: 'dd-30',  priceUSD: 14.99,                 bandwidth: '200 GB/day • parallel downloads' },
+    { label: '6 Months',  planId: 'dd-180', priceUSD: 49.99,                 bandwidth: '200 GB/day • parallel downloads' },
+    { label: '12 Months', planId: 'dd-365', priceUSD: 39.99, wasUSD: 69.99,  bandwidth: '200 GB/day • parallel downloads' },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
