@@ -284,6 +284,26 @@ const PROVIDERS: Provider[] = [
     { label: '12 Months', planId: 'dd-365', priceUSD: 39.99, wasUSD: 69.99,  bandwidth: '200 GB/day • parallel downloads' },
   ],
 },
+{
+  slug: 'depositfiles',
+  name: 'DepositFiles.com',
+  status: 'live',
+  blurb: 'GOLD membership keys — instant email delivery.',
+  cta: 'Buy DepositFiles GOLD',
+  monogram: 'D',
+  vibe: {
+    ring: 'from-[#ff6a3d]/70 via-[#EF360E]/60 to-[#b51f02]/70',
+    chip: 'from-[#ff6a3d] via-[#EF360E] to-[#b51f02]',
+    mono: 'from-[#ff6a3d] via-[#EF360E] to-[#b51f02]',
+    glow: 'shadow-[0_0_28px_rgba(239,54,14,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'dp-30',  priceUSD: 8.95,  wasUSD: 11.95 },
+    { label: '90 Days',  planId: 'dp-90',  priceUSD: 12.95, wasUSD: 19.95 },
+    { label: '180 Days', planId: 'dp-180', priceUSD: 29.95, wasUSD: 44.95 },
+    { label: '365 Days', planId: 'dp-365', priceUSD: 49.95, wasUSD: 74.95 },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
