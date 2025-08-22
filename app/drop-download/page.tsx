@@ -20,17 +20,20 @@ import {
   HelpCircle,
   AlertTriangle,
   RefreshCw,
+  HardDrive,
+  CloudUpload,
+  Download,
   ArrowLeftRight,
 } from 'lucide-react';
 
 /** ────────────────────────────────────────────────────────────────────────────
- *  Brand vibe (DepositFiles = warm orange/red)
+ *  Brand vibe (Drop.Download = #36EEB0 → #1CB8E8)
  *  ──────────────────────────────────────────────────────────────────────────── */
 const BRAND = {
-  ring: 'from-[#ff6a3d]/70 via-[#EF360E]/60 to-[#b51f02]/70',
-  chip: 'from-[#ff6a3d] via-[#EF360E] to-[#b51f02]',
-  mono: 'from-[#ff6a3d] via-[#EF360E] to-[#b51f02]',
-  glow: 'shadow-[0_0_28px_rgba(239,54,14,0.28)]',
+  ring: 'from-[#36EEB0]/70 via-[#1CB8E8]/60 to-[#1CB8E8]/70',
+  chip: 'from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]',
+  mono: 'from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]',
+  glow: 'shadow-[0_0_28px_rgba(28,184,232,0.28)]',
 };
 
 /** ────────────────────────────────────────────────────────────────────────────
@@ -75,10 +78,10 @@ const ALL_IDS = Object.values(COINGECKO_IDS);
 const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
 
 const PLANS = [
-  { id: 'dp-30',  label: '30 Days',  days: 30,  priceUSD: 8.95,  wasUSD: 11.95 },
-  { id: 'dp-90',  label: '90 Days',  days: 90,  priceUSD: 12.95, wasUSD: 19.95 },
-  { id: 'dp-180', label: '180 Days', days: 180, priceUSD: 29.95, wasUSD: 44.95 },
-  { id: 'dp-365', label: '365 Days', days: 365, priceUSD: 49.95, wasUSD: 74.95 },
+  { id: 'dd-30',  label: '30 Days',  days: 30,  priceUSD: 30.00 },
+  { id: 'dd-90',  label: '90 Days',  days: 90,  priceUSD: 75.00 },
+  { id: 'dd-180', label: '180 Days', days: 180, priceUSD: 120.00 },
+  { id: 'dd-365', label: '365 Days', days: 365, priceUSD: 200.00 },
 ] as const;
 type Plan = typeof PLANS[number];
 
@@ -94,7 +97,7 @@ const METHODS = [
 
 const METHOD_NEEDS_CHAIN: Record<Method, boolean> = {
   BTC: false,
-  ETH: true,   // ETH shows L2s; we still serve ETH mainnet addresses
+  ETH: true,   // show L2s; address is still ETH EOA
   SOL: false,
   BNB: false,
   LTC: false,
@@ -115,8 +118,8 @@ const CHAIN_OPTIONS: Record<Method, Chain[] | undefined> = {
 /** ────────────────────────────────────────────────────────────────────────────
  *  Page
  *  ──────────────────────────────────────────────────────────────────────────── */
-export default function DepositFilesPage() {
-  const [selected, setSelected]       = useState<Plan>(PLANS[1]); // default to 90d (popular)
+export default function DropDownloadPage() {
+  const [selected, setSelected]       = useState<Plan>(PLANS[1]); // default 90d (popular)
   const [email, setEmail]             = useState('');
   const [emailLocked, setEmailLocked] = useState(false);
 
@@ -376,7 +379,7 @@ export default function DepositFilesPage() {
             <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hover:text-white">Checkout</a>
             <a href="#faq" onClick={e=>{e.preventDefault(); scrollToId('faq')}} className="hover:text-white">FAQ</a>
           </nav>
-          <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#ff6a3d] to-[#EF360E]">
+          <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#36EEB0] to-[#1CB8E8]">
             <Bitcoin className="h-4 w-4"/> Pay with Crypto
           </a>
         </div>
@@ -391,20 +394,20 @@ export default function DepositFilesPage() {
               Instant delivery • Live price lock • Unique address
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              DepositFiles{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6a3d] via-[#EF360E] to-[#b51f02]">
-                GOLD Keys
+              Drop.Download{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]">
+                Premium Keys
               </span>
             </h1>
             <p className="mt-4 text-white/80 text-lg max-w-2xl">
-              Pay with crypto and get your DepositFiles GOLD key <em>instantly</em> after confirmation.
+              Pay with crypto and get your Drop.Download Premium key <em>instantly</em> after confirmation.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href="#plans"
                 onClick={e=>{e.preventDefault(); scrollToId('plans')}}
-                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#ff6a3d] to-[#EF360E] inline-flex items-center gap-2 hover:from-[#ff865f] hover:to-[#ff4a15]"
+                className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#36EEB0] to-[#1CB8E8] inline-flex items-center gap-2 hover:from-[#62f0c5] hover:to-[#45c9ee]"
               >
                 View Plans
                 <ArrowRight className="h-4 w-4" />
@@ -419,7 +422,6 @@ export default function DepositFilesPage() {
               </a>
             </div>
 
-           
           </motion.div>
         </div>
       </section>
@@ -428,7 +430,7 @@ export default function DepositFilesPage() {
       <section id="plans" className="py-14 border-t border-white/10 bg-white/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold">Choose your plan</h2>
-          <p className="text-white/70 mt-2">Instant GOLD activation after confirmations.</p>
+          <p className="text-white/70 mt-2">Premium PRO activation after confirmations.</p>
 
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLANS.map((p) => (
@@ -436,20 +438,24 @@ export default function DepositFilesPage() {
                 key={p.id}
                 onClick={()=> handleSelectPlan(p)}
                 whileHover={{scale:1.02}}
-                className={`relative text-left rounded-2xl border ${selected.id===p.id? 'border-[#ff6a3d]/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
+                className={`relative text-left rounded-2xl border ${selected.id===p.id? 'border-[#36EEB0]/60' : 'border-white/10'} bg-gradient-to-br from-white/10 to-transparent p-5`}
               >
-                {p.id === 'dp-90' && (
-                  <span className="absolute -top-2 right-3 text-[10px] uppercase tracking-wide px-2 py-1 rounded-md bg-gradient-to-r from-[#ff6a3d] to-[#EF360E]">
+                {p.id === 'dd-90' && (
+                  <span className="absolute -top-2 right-3 text-[10px] uppercase tracking-wide px-2 py-1 rounded-md bg-gradient-to-r from-[#36EEB0] to-[#1CB8E8]">
                     Most Popular
+                  </span>
+                )}
+                {p.id === 'dd-365' && (
+                  <span className="absolute -top-2 left-3 text-[10px] uppercase tracking-wide px-2 py-1 rounded-md bg-gradient-to-r from-[#22d3ee] to-[#36EEB0]">
+                    Best Value
                   </span>
                 )}
                 <div className="flex items-center justify-between">
                   <div className="text-xl font-semibold">{p.label}</div>
-                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-[#ffb199]"/>}
+                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-[#8bf5dc]"/>}
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
                   <div className="text-3xl font-bold">${p.priceUSD.toFixed(2)}</div>
-                  <div className="text-white/50 line-through">${p.wasUSD.toFixed(2)}</div>
                 </div>
                 <div className="mt-3 text-xs text-white/70">
                   Best for: {p.days} days of ad-free, full-speed downloads
@@ -464,20 +470,18 @@ export default function DepositFilesPage() {
         </div>
       </section>
 
-      {/* Features (DepositFiles GOLD) */}
+      {/* Features */}
       <section id="features" className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            💎 GOLD Membership Highlights
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold">💎 Premium PRO Features</h2>
 
           <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="Multiple connections" text="Download with several connections at once for maximum throughput." />
-            <Feature icon={<Zap className="h-5 w-5" />} title="Full speed, no delays" text="Start instantly—no queues or waiting between parts." />
-            <Feature icon={<Rocket className="h-5 w-5" />} title="Download managers" text="Compatible with popular accelerators and resume support." />
-            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="No ads" text="Completely ad-free experience throughout." />
-            <Feature icon={<Coins className="h-5 w-5" />} title="Simple activation" text="Paste your voucher on the GOLD page and apply." />
-            <Feature icon={<Mail className="h-5 w-5" />} title="Instant delivery" text="Key sent to your email after confirmations." />
+            <Feature icon={<HardDrive className="h-5 w-5" />} title="Unlimited storage" text="Keep your files online with no storage cap." />
+            <Feature icon={<Download className="h-5 w-5" />} title="No speed limits" text="Instant starts, no waiting time, and parallel downloads." />
+            <Feature icon={<CloudUpload className="h-5 w-5" />} title="Remote URL upload" text="Add files by link—no local upload needed." />
+            <Feature icon={<Rocket className="h-5 w-5" />} title="Accelerators & resume" text="Full support for popular download managers and resume." />
+            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="100 GB/day volume" text="Generous daily traffic for heavy workflows." />
+            <Feature icon={<Zap className="h-5 w-5" />} title="No ads" text="Clean, focused experience—no interruptions." />
           </div>
         </div>
       </section>
@@ -489,7 +493,7 @@ export default function DepositFilesPage() {
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight">Checkout</h3>
-                <p className="mt-2 text-white/70">Buy DepositFiles GOLD key direct to Email.</p>
+                <p className="mt-2 text-white/70">Buy Drop.Download Premium key direct to Email.</p>
               </div>
             </div>
 
@@ -510,7 +514,7 @@ export default function DepositFilesPage() {
                     }}
                     className={`px-4 py-2 rounded-2xl border text-sm inline-flex items-center gap-2
                       ${active
-                        ? 'border-[#ff6a3d]/60 bg-white/10'
+                        ? 'border-[#36EEB0]/60 bg-white/10'
                         : 'border-white/10 hover:border-white/30 bg-white/5'}`}
                   >
                     <Icon className="h-4 w-4"/>{m.label}
@@ -531,7 +535,7 @@ export default function DepositFilesPage() {
                       key={c}
                       onClick={() => { setChain(c); resetPayment(); }}
                       className={`px-3 py-1.5 rounded-xl border text-sm
-                        ${active ? 'border-[#ff6a3d]/60 bg-white/10'
+                        ${active ? 'border-[#36EEB0]/60 bg-white/10'
                                  : 'border-white/10 hover:border-white/30 bg-white/5'}`}
                     >
                       {chainLabel(c)}
@@ -592,7 +596,7 @@ export default function DepositFilesPage() {
                       className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
                         ${(!isEmailValid || (methodNeedsLivePrice(method) && !pricesUSD[method]) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
                           ? "bg-white/10 text-white/50 cursor-not-allowed"
-                          : "bg-gradient-to-r from-[#ff6a3d] via-[#EF360E] to-[#b51f02] hover:from-[#ff865f] hover:to-[#ff4a15] shadow-[0_0_25px_rgba(239,54,14,0.4)]"}`}
+                          : "bg-gradient-to-r from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8] hover:from-[#62f0c5] hover:to-[#45c9ee] shadow-[0_0_25px_rgba(28,184,232,0.4)]"}`}
                     >
                       {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
                       {generating ? 'Generating…' : 'Buy Now'}
@@ -644,7 +648,7 @@ export default function DepositFilesPage() {
                         alt="Payment QR"
                         width={260}
                         height={260}
-                        className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(239,54,14,0.25)]"
+                        className="mt-2 rounded-xl border border-white/10 shadow-[0_0_35px_rgba(28,184,232,0.25)]"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           const uri = paymentURI();
@@ -678,7 +682,7 @@ export default function DepositFilesPage() {
                       <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
                         <Bitcoin className="h-4 w-4 opacity-80" />
                       </div>
-                      <span>Select a DepositFiles GOLD plan</span>
+                      <span>Select a Drop.Download plan</span>
                     </li>
                     <li className="flex items-center gap-3">
                       <div className="h-7 w-7 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
@@ -771,7 +775,7 @@ export default function DepositFilesPage() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <h2 className="text-3xl md:text-4xl font-bold">
               FAQ
-              <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-[#ff6a3d]/70 via-[#EF360E]/60 to-[#b51f02]/70" />
+              <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-[#36EEB0]/70 via-[#1CB8E8]/60 to-[#1CB8E8]/70" />
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -779,9 +783,9 @@ export default function DepositFilesPage() {
                 href="/support"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
                            text-sm font-semibold text-white
-                           bg-gradient-to-r from-[#ff6a3d] via-[#EF360E] to-[#b51f02]
-                           hover:from-[#ff865f] hover:to-[#ff4a15]
-                           shadow-[0_0_18px_rgba(239,54,14,0.4)]"
+                           bg-gradient-to-r from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]
+                           hover:from-[#62f0c5] hover:to-[#45c9ee]
+                           shadow-[0_0_18px_rgba(28,184,232,0.4)]"
               >
                 <Mail className="h-4 w-4" />
                 Contact support
@@ -792,7 +796,7 @@ export default function DepositFilesPage() {
                            border border-white/15 bg-white/5 hover:border-white/30"
               >
                 <Zap className="h-4 w-4" />
-                View DepositFiles plans
+                View Drop.Download plans
               </a>
             </div>
           </div>
@@ -838,24 +842,24 @@ export default function DepositFilesPage() {
               />
 
               <QA
-                q={<span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 opacity-90" />How do I activate a DepositFiles GOLD key?</span>}
+                q={<span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 opacity-90" />How do I activate my Drop.Download key?</span>}
                 a={
                   <>
-                    <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#ff6a3d]/10 via-[#EF360E]/10 to-[#b51f02]/10 p-3">
+                    <div className="rounded-xl border border-white/10 bg-gradient-to-br from-[#36EEB0]/10 via-[#1CB8E8]/10 to-[#1CB8E8]/10 p-3">
                       <div className="text-sm font-semibold text-white/90">You’ll receive a voucher like:</div>
                       <div className="mt-1 inline-block rounded-md border border-white/10 bg-black/40 px-2 py-1 font-mono text-sm text-white/90">
                         3XD3-GUEL-XUPJ-H61G
                       </div>
                     </div>
                     <ol className="mt-3 list-decimal list-inside space-y-1">
-                      <li>Log in to your DepositFiles account.{' '}
-                        <a href="https://depositfiles.com/signup.php" target="_blank" rel="noopener noreferrer" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#ff6a3d] via-[#EF360E] to-[#b51f02] underline underline-offset-4 decoration-white/20">
+                      <li>Log in to your Drop.Download account.{' '}
+                        <a href="https://drop.download/register/" target="_blank" rel="noopener noreferrer" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8] underline underline-offset-4 decoration-white/20">
                           Create one here
                         </a>
                         .
                       </li>
-                      <li>Open the GOLD/Payment page in your account.</li>
-                      <li>Find the <em>Use voucher</em> field, paste your code, and click <em>Activate</em>.</li>
+                      <li>Open your <em>My Account</em> page.</li>
+                      <li>Find the <em>Use Voucher</em> field, paste your code, and click <em>Activate</em>.</li>
                     </ol>
                     <p className="mt-2 text-xs text-white/70">Tip: Paste without spaces; keys are case-sensitive.</p>
                   </>
@@ -889,14 +893,14 @@ export default function DepositFilesPage() {
                 <li>✔️ <a href="#checkout" className="underline decoration-white/20 hover:decoration-white">Where to find my QR</a></li>
                 <li>✔️ <a href="/support" className="underline decoration-white/20 hover:decoration-white">Payment issues</a></li>
               </ul>
-              <div className="mt-5 rounded-xl border border-white/10 bg-gradient-to-br from-[#ff6a3d]/10 via-[#EF360E]/10 to-[#b51f02]/10 p-4">
+              <div className="mt-5 rounded-xl border border-white/10 bg-gradient-to-br from-[#36EEB0]/10 via-[#1CB8E8]/10 to-[#1CB8E8]/10 p-4">
                 <div className="text-sm font-semibold">Still stuck?</div>
                 <p className="text-white/70 text-sm mt-1">Our team can verify your transaction and resend keys if needed.</p>
                 <a
                   href="/support"
                   className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-white
-                             bg-gradient-to-r from-[#ff6a3d] via-[#EF360E] to-[#b51f02]
-                             hover:from-[#ff865f] hover:to-[#ff4a15]"
+                             bg-gradient-to-r from-[#36EEB0] via-[#1CB8E8] to-[#1CB8E8]
+                             hover:from-[#62f0c5] hover:to-[#45c9ee]"
                 >
                   <Mail className="h-4 w-4" />
                   Contact support
@@ -965,7 +969,7 @@ function QA({ q, a }: { q: ReactNode; a: ReactNode }) {
         <div className="inline-flex items-center gap-2">{q}</div>
         <ArrowRight className="h-4 w-4 opacity-60 transition-transform group-open:rotate-90" />
       </summary>
-      <div className="h-px w-full bg-gradient-to-r from-[#ff6a3d]/40 via-[#EF360E]/30 to-[#b51f02]/40" />
+      <div className="h-px w-full bg-gradient-to-r from-[#36EEB0]/40 via-[#1CB8E8]/30 to-[#1CB8E8]/40" />
       <div className="px-4 pb-4 pt-3 text-white/80 text-sm">{a}</div>
     </details>
   );
@@ -973,8 +977,8 @@ function QA({ q, a }: { q: ReactNode; a: ReactNode }) {
 function BG(){
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[80vh] w-[120vw] rounded-full bg-gradient-to-br from-[#ff6a3d]/20 via-[#EF360E]/10 to-[#b51f02]/20 blur-3xl"/>
-      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-gradient-to-br from-[#b51f02]/15 via-[#ff6a3d]/10 to-[#EF360E]/15 blur-3xl"/>
+      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[80vh] w-[120vw] rounded-full bg-gradient-to-br from-[#36EEB0]/20 via-[#1CB8E8]/10 to-[#1CB8E8]/20 blur-3xl"/>
+      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-gradient-to-br from-[#1CB8E8]/15 via-[#36EEB0]/10 to-[#1CB8E8]/15 blur-3xl"/>
     </div>
   );
 }
