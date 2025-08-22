@@ -271,7 +271,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: 'Unlimited speed and 200 GB/day — instant key delivery.',
   cta: 'Buy DDownload Premium',
-  monogram: 'DD',
+  monogram: 'D',
   vibe: {
     ring: 'from-[#6ea0ff]/70 via-[#3562da]/60 to-[#153FA6]/70',
     chip: 'from-[#6ea0ff] via-[#3562da] to-[#153FA6]',
@@ -310,7 +310,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: 'Premium PRO keys — unlimited storage, instant email delivery.',
   cta: 'Buy Drop.Download Premium',
-  monogram: 'DD',
+  monogram: 'D',
   vibe: {
     // mint → cyan
     ring: 'from-[#36EEB0]/70 via-[#1CB8E8]/60 to-[#1CB8E8]/70',
@@ -343,6 +343,45 @@ const PROVIDERS: Provider[] = [
     { label: '90 Days',  planId: 'ef-90',  priceUSD: 96.00,  bandwidth: '30 GB/day • 1 TB storage' }, // popular
     { label: '180 Days', planId: 'ef-180', priceUSD: 180.00, bandwidth: '30 GB/day • 1 TB storage' },
     { label: '365 Days', planId: 'ef-365', priceUSD: 300.00, bandwidth: '30 GB/day • 1 TB storage' },
+  ],
+},
+{
+  slug: 'ex-load',
+  name: 'Ex-Load.com',
+  status: 'live',
+  blurb: 'Sale pricing • instant email delivery • unlimited speed & storage.',
+  cta: 'Buy Ex-Load Premium',
+  monogram: 'E',
+  vibe: {
+    ring: 'from-[#C36259]/70 via-[#a85456]/60 to-[#64444B]/70',
+    chip: 'from-[#C36259] via-[#a85456] to-[#64444B]',
+    mono: 'from-[#C36259] via-[#a85456] to-[#64444B]',
+    glow: 'shadow-[0_0_28px_rgba(195,98,89,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',          planId: 'xl-30',  priceUSD: 12.50, wasUSD: 34,   bandwidth: '1 TB total • 65 GB / 2 days' },
+    { label: '90 Days',          planId: 'xl-90',  priceUSD: 29.99, wasUSD: 69,   bandwidth: '3 TB total • 65 GB / 2 days' },
+    { label: '180 + 60 Days',    planId: 'xl-180', priceUSD: 79.99, wasUSD: 115,  bandwidth: '6 TB + 2 TB total • 65 GB / 2 days' },
+    { label: '365 + 120 Days',   planId: 'xl-365', priceUSD: 99.99, wasUSD: 155,  bandwidth: '12 TB + 4 TB total • 65 GB / 2 days' },
+  ],
+},
+{
+  slug: 'fastbit',
+  name: 'FastBit.cc',
+  status: 'live',
+  blurb: '50 GB/day, unlimited speed — instant key by email.',
+  cta: 'Buy FastBit Premium',
+  monogram: 'FB',
+  vibe: {
+    ring: 'from-[#05B565]/70 via-emerald-500/60 to-[#39505A]/70',
+    chip: 'from-[#05B565] via-emerald-500 to-[#39505A]',
+    mono: 'from-[#05B565] via-emerald-500 to-[#39505A]',
+    glow: 'shadow-[0_0_28px_rgba(5,181,101,0.28)]',
+  },
+  packs: [
+    { label: '1 Month',   planId: 'fb-30',  priceUSD: 14.95, wasUSD: 24.95, bandwidth: '50 GB/day' },
+    { label: '3 Months',  planId: 'fb-180', priceUSD: 42.95, wasUSD: 49.95,                bandwidth: '50 GB/day' },
+    { label: '1 Year',  planId: 'fb-365', priceUSD: 89.95,    wasUSD: 99.95,             bandwidth: '50 GB/day' },
   ],
 },
 ];
