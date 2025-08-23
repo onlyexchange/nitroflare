@@ -471,6 +471,34 @@ const PROVIDERS: Provider[] = [
     { label: '100 GB Traffic', planId: 'fa-100gb',priceUSD: 39.95,                  bandwidth: 'One-time data' },
   ],
 },
+{
+  slug: 'filejoker',
+  name: 'FileJoker.net',
+  status: 'live',
+  blurb: 'Premium & Premium VIP keys — instant email delivery.',
+  cta: 'Buy FileJoker Premium',
+  monogram: 'FJ',
+  vibe: {
+    // teal (Premium) → blue (VIP) → brand steel
+    ring: 'from-[#1EB4AA]/70 via-[#5C98CA]/60 to-[#457299]/70',
+    chip: 'from-[#1EB4AA] via-[#5C98CA] to-[#457299]',
+    mono: 'from-[#1EB4AA] via-[#5C98CA] to-[#457299]',
+    glow: 'shadow-[0_0_28px_rgba(92,152,202,0.28)]',
+  },
+  packs: [
+    // Show Premium first so homepage/filehost grids (slice 0..4) display 30/90/180/365
+    { label: 'Premium — 30 Days',  planId: 'fj-prem-30',  priceUSD: 18.95, wasUSD: 22.95 },
+    { label: 'Premium — 90 Days',  planId: 'fj-prem-90',  priceUSD: 44.95 },
+    { label: 'Premium — 180 Days', planId: 'fj-prem-180', priceUSD: 89.95 },
+    { label: 'Premium — 365 Days', planId: 'fj-prem-365', priceUSD: 134.95 },
+
+    // VIP tier
+    { label: 'Premium VIP — 30 Days',  planId: 'fj-vip-30',  priceUSD: 29.95, wasUSD: 33.95 },
+    { label: 'Premium VIP — 90 Days',  planId: 'fj-vip-90',  priceUSD: 73.95 },
+    { label: 'Premium VIP — 180 Days', planId: 'fj-vip-180', priceUSD: 109.95 },
+    { label: 'Premium VIP — 365 Days', planId: 'fj-vip-365', priceUSD: 169.95 },
+  ],
+},
 
 ];
 
