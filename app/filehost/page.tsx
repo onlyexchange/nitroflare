@@ -695,6 +695,126 @@ vibe: {
     { label: '365 Days MAX', planId: 'k2s-max-365', priceUSD: 149.99, wasUSD: 299.99, bandwidth: '100 GB / Day' },
   ],
 },
+{
+  slug: 'katfile',
+  name: 'KatFile.com',
+  status: 'live',
+  blurb: 'Premium keys — 100GB/day or 200GB/day tiers. Instant email delivery.',
+  cta: 'Buy KatFile Premium',
+  monogram: 'K',
+  vibe: {
+    // white-glass brand with solid blue accent
+    ring: 'from-[#66A6E8]/70 via-[#3E86C9]/60 to-[#3074B5]/70',
+    chip: 'from-[#66A6E8] via-[#3E86C9] to-[#3074B5]',
+    mono: 'from-[#66A6E8] via-[#3E86C9] to-[#3074B5]',
+    glow: 'shadow-[0_0_28px_rgba(48,116,181,0.28)]',
+  },
+  packs: [
+    // 100 GB/day
+    { label: '30 Days — 100 GB/day',  planId: 'kf-30-100',   priceUSD: 6.95 },
+    { label: '60 Days — 100 GB/day',  planId: 'kf-60-100',   priceUSD: 19.95 },
+    { label: '365 Days — 100 GB/day', planId: 'kf-365-100',  priceUSD: 29.95 },
+    { label: 'Lifetime — 100 GB/day', planId: 'kf-life-100', priceUSD: 49.95 },
+
+    // 200 GB/day
+    { label: '30 Days — 200 GB/day',  planId: 'kf-30-200',   priceUSD: 9.95 },
+    { label: '60 Days — 200 GB/day',  planId: 'kf-60-200',   priceUSD: 24.95 },
+    { label: '365 Days — 200 GB/day', planId: 'kf-365-200',  priceUSD: 49.95 },
+    { label: 'Lifetime — 200 GB/day', planId: 'kf-life-200', priceUSD: 69.95 },
+
+    // PRO
+    { label: 'Lifetime — PRO',        planId: 'kf-life-pro', priceUSD: 149.99 },
+  ],
+},
+{
+  slug: 'kshared',
+  name: 'Kshared.com',
+  status: 'live',
+  blurb: '35 GB/day bandwidth • instant email delivery.',
+  cta: 'Buy Kshared Premium',
+  monogram: 'K',
+  vibe: {
+    ring: 'from-[#49A8FF]/70 via-[#1E88FF]/60 to-[#0661E8]/70',
+    chip: 'from-[#49A8FF] via-[#1E88FF] to-[#0661E8]',
+    mono: 'from-[#49A8FF] via-[#1E88FF] to-[#0661E8]',
+    glow: 'shadow-[0_0_28px_rgba(6,97,232,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'ks-30',  priceUSD: 14.95, wasUSD: 19.95,  bandwidth: '35 GB/day • 1 TB storage' },
+    { label: '90 Days',  planId: 'ks-90',  priceUSD: 37.95, wasUSD: 49.95,  bandwidth: '35 GB/day • 1 TB storage' },
+    { label: '180 Days', planId: 'ks-180', priceUSD: 49.95, wasUSD: 79.95,  bandwidth: '35 GB/day • 1 TB storage' },
+    { label: '365 Days', planId: 'ks-365', priceUSD: 89.95, wasUSD: 119.95, bandwidth: '35 GB/day • 1 TB storage' },
+  ],
+},
+{
+  slug: 'novafile',
+  name: 'NovaFile.org',
+  status: 'live',
+  blurb: 'Premium & VIP keys — instant email delivery.',
+  cta: 'Buy NovaFile',
+  monogram: 'N',
+  vibe: {
+    // Cyan → deep-cyan (matches the site)
+    ring: 'from-[#2DA6D8]/70 via-[#1E7CC0]/60 to-[#2DA6D8]/70',
+    chip: 'from-[#2DA6D8] via-[#1E7CC0] to-[#2DA6D8]',
+    mono: 'from-[#2DA6D8] via-[#1E7CC0] to-[#2DA6D8]',
+    glow: 'shadow-[0_0_28px_rgba(30,124,192,0.28)]',
+  },
+  packs: [
+    // Premium
+    { label: 'Premium — 30 Days',  planId: 'nv-30',   priceUSD: 9.95,  wasUSD: 14.95 },
+    { label: 'Premium — 90 Days',  planId: 'nv-90',   priceUSD: 33.95, wasUSD: 39.95 },
+    { label: 'Premium — 180 Days', planId: 'nv-180',  priceUSD: 64.95, wasUSD: 69.95 },
+    { label: 'Premium — 365 Days', planId: 'nv-365',  priceUSD: 89.95, wasUSD: 99.95 },
+
+    // Premium VIP
+    { label: 'VIP — 30 Days',      planId: 'nv-vip-30',  priceUSD: 16.95, wasUSD: 22.95 },
+    { label: 'VIP — 90 Days',      planId: 'nv-vip-90',  priceUSD: 39.95, wasUSD: 49.95 },
+    { label: 'VIP — 180 Days',     planId: 'nv-vip-180', priceUSD: 69.95, wasUSD: 79.95 },
+    { label: 'VIP — 365 Days',     planId: 'nv-vip-365', priceUSD: 99.95, wasUSD: 109.95 },
+  ],
+},
+{
+  slug: 'rarefile',
+  name: 'RareFile.net',
+  status: 'live',
+  blurb: 'Fast, direct downloads — instant premium key delivery.',
+  cta: 'Buy RareFile Premium',
+  monogram: 'R',
+  vibe: {
+    ring: 'from-sky-300/70 via-sky-500/60 to-[#007DD0]/70',
+    chip: 'from-sky-400 via-sky-500 to-[#007DD0]',
+    mono: 'from-sky-400 via-sky-500 to-[#007DD0]',
+    glow: 'shadow-[0_0_28px_rgba(0,125,208,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'rf-30',  priceUSD: 7.99,  wasUSD: 12.95 },
+    { label: '90 Days',  planId: 'rf-90',  priceUSD: 17.99, wasUSD: 32.95 },
+    { label: '180 Days', planId: 'rf-180', priceUSD: 38.99, wasUSD: 53.95 },
+    { label: '365 Days', planId: 'rf-365', priceUSD: 49.99, wasUSD: 89.90 },
+  ],
+},
+{
+  slug: 'silkfiles',
+  name: 'SilkFiles.com',
+  status: 'live',
+  blurb: 'Super-fast, direct downloads — instant key delivery.',
+  cta: 'Buy SilkFiles Premium',
+  monogram: 'S',
+  vibe: {
+    ring: 'from-[#E0664B]/70 via-[#C14E31]/60 to-[#9F3F27]/70',
+    chip: 'from-[#E0664B] via-[#C14E31] to-[#9F3F27]',
+    mono: 'from-[#E0664B] via-[#C14E31] to-[#9F3F27]',
+    glow: 'shadow-[0_0_28px_rgba(193,78,49,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'sf-30',  priceUSD: 19.99, wasUSD: 30.00,  bandwidth: 'Includes 1 TB storage' },
+    { label: '90 Days',  planId: 'sf-90',  priceUSD: 59.99, wasUSD: 70.00,  bandwidth: 'Includes 1 TB storage' },
+    { label: '180 Days', planId: 'sf-180', priceUSD: 99.99, wasUSD: 130.00, bandwidth: 'Includes 1 TB storage' },
+    { label: '365 Days', planId: 'sf-365', priceUSD: 249.99, wasUSD: 270.00, bandwidth: 'Includes 1 TB storage' },
+  ],
+},
+
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
