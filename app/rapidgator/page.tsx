@@ -392,7 +392,7 @@ export default function RapidgatorPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-3 py-1 text-xs text-white/70 mb-6">
-              <Zap className="h-3.5 w-3.5"/> Best pricing • Instant email delivery • {heroTimeLeft} price window
+              <Zap className="h-3.5 w-3.5"/> Best pricing • Instant email delivery
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
               Rapidgator <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500">Premium Keys</span>
