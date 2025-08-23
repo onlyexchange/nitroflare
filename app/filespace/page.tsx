@@ -26,7 +26,8 @@ import {
   ArrowLeftRight,
 } from 'lucide-react';
 
-/** --- Pricing feed setup (CoinGecko proxy you already use) --- */
+/** Filespace — light/glass theme + full checkout */
+
 const COINGECKO_IDS = {
   BTC:  'bitcoin',
   ETH:  'ethereum',
@@ -66,16 +67,14 @@ const chainLabel = (c: Chain) =>
 const ALL_IDS = Object.values(COINGECKO_IDS);
 const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
 
-/** --- FilesMonster plans --- */
+/** FILESPACE PLANS */
 const PLANS = [
-  { id: 'fm-30',  label: '30 Days',  days: 30,  priceUSD: 13.95, wasUSD: 17.00 },
-  { id: 'fm-90',  label: '90 Days',  days: 90,  priceUSD: 32.95, wasUSD: 37.00 },
-  { id: 'fm-180', label: '180 Days', days: 180, priceUSD: 59.95, wasUSD: 66.00 },
-  { id: 'fm-365', label: '365 Days', days: 365, priceUSD: 99.95, wasUSD: 116.00 },
-] as const
+  { id: 'fs-30',  label: '30 Days',  days: 30,  priceUSD: 9.95,  wasUSD: 15.95 },
+  { id: 'fs-90',  label: '90 Days',  days: 90,  priceUSD: 14.95, wasUSD: 39.95 }, // great deal
+  { id: 'fs-330', label: '330 Days', days: 330, priceUSD: 79.95, wasUSD: 117.95 },
+] as const;
 type Plan = typeof PLANS[number];
 
-/** Payment methods */
 const METHODS = [
   { id: 'BTC',  label: 'Bitcoin',  icon: Bitcoin },
   { id: 'ETH',  label: 'Ethereum', icon: Zap },
@@ -106,7 +105,7 @@ const CHAIN_OPTIONS: Record<Method, Chain[] | undefined> = {
   LTC:  undefined,
 };
 
-export default function Page() {
+export default function Page(){
   const [selected, setSelected]       = useState<Plan>(PLANS[0]);
   const [email, setEmail]             = useState('');
   const [emailLocked, setEmailLocked] = useState(false);
@@ -132,14 +131,14 @@ export default function Page() {
   const [scanIdx, setScanIdx] = useState(0);
   const scanTicker = useRef<ReturnType<typeof setInterval> | null>(null);
   const scanMessages = [
-    "Scanning blockchain network…",
-    "Watching mempool for your tx…",
-    "Matching recipient address…",
-    "Waiting for broadcast…",
-    "Verifying inputs…",
-    "0/2 confirmations…",
-    "Checking network fee…",
-    "Still scanning…"
+    'Scanning blockchain network…',
+    'Watching mempool for your tx…',
+    'Matching recipient address…',
+    'Waiting for broadcast…',
+    'Verifying inputs…',
+    '0/2 confirmations…',
+    'Checking network fee…',
+    'Still scanning…',
   ];
 
   // Cosmetic hero timer
@@ -225,7 +224,6 @@ export default function Page() {
   }
   useEffect(()=>()=>{ stopPayCountdown(); stopScanLoop(); },[]);
 
-  // Deep-link ?plan selection
   const searchParams = useSearchParams();
   useEffect(() => {
     const q = searchParams?.get('plan');
@@ -271,7 +269,6 @@ export default function Page() {
       const res = await fetch(endpoint, { cache: 'no-store' });
       const data = await res.json();
       const addr = data?.address || '';
-
       setAddress(addr || demoAddress(method));
       setLockedAmount(previewAmount || '');
       setStep('pay');
@@ -343,32 +340,30 @@ export default function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(255,255,255,0.9),rgba(248,250,252,0.85)_40%,rgba(241,245,249,0.9))] text-slate-900">
+    <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900">
       <BG />
 
-      {/* Header (light) */}
-      <header className="sticky top-0 z-40 backdrop-blur bg-white/60 border-b border-slate-200/60">
+      {/* Header (light glass) */}
+      <header className="sticky top-0 z-40 backdrop-blur bg-white/70 supports-[backdrop-filter]:bg-white/60 border-b border-slate-200/70">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group" aria-label="Only.Exchange — Home" prefetch={false}>
             <span className="inline-grid h-8 w-8 place-items-center rounded-xl
-                             bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500
-                             text-white ring-1 ring-black/5 shadow-sm
-                             transition-transform group-hover:scale-105">
+               bg-gradient-to-br from-[#52AEE0] via-sky-400 to-blue-600
+               text-white ring-1 ring-black/5 shadow-sm transition-transform group-hover:scale-105">
               <ArrowLeftRight className="h-4 w-4" />
             </span>
-            <span className="font-semibold group-hover:text-slate-950">Only.Exchange</span>
+            <span className="font-semibold group-hover:text-slate-900">Only.Exchange</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-slate-600">
-            <a href="#plans" onClick={(e)=>{e.preventDefault(); scrollToId('plans')}} className="hover:text-slate-900">Plans</a>
-            <a href="#features" onClick={(e)=>{e.preventDefault(); scrollToId('features')}} className="hover:text-slate-900">Features</a>
-            <a href="#checkout" onClick={(e)=>{e.preventDefault(); scrollToId('checkout')}} className="hover:text-slate-900">Checkout</a>
-            <a href="#faq" onClick={(e)=>{e.preventDefault(); scrollToId('faq')}} className="hover:text-slate-900">FAQ</a>
+            <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="hover:text-slate-900">Plans</a>
+            <a href="#features" onClick={e=>{e.preventDefault(); scrollToId('features')}} className="hover:text-slate-900">Features</a>
+            <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="hover:text-slate-900">Checkout</a>
+            <a href="#faq" onClick={e=>{e.preventDefault(); scrollToId('faq')}} className="hover:text-slate-900">FAQ</a>
           </nav>
           <a
             href="#checkout"
-            onClick={(e)=>{e.preventDefault(); scrollToId('checkout')}}
-            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl
-                       bg-gradient-to-r from-red-500 to-rose-600 text-white"
+            onClick={e=>{e.preventDefault(); scrollToId('checkout')}}
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#8ABD3F] text-white hover:brightness-110"
           >
             <Bitcoin className="h-4 w-4"/> Pay with Crypto
           </a>
@@ -379,54 +374,56 @@ export default function Page() {
       <section className="relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/60 ring-1 ring-slate-200/70 px-3 py-1 text-xs text-slate-700 mb-6">
-              <Zap className="h-3.5 w-3.5 text-red-600"/> Best pricing • Instant email delivery
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/60 ring-1 ring-slate-200 px-3 py-1 text-xs text-slate-600 mb-6">
+              <Zap className="h-3.5 w-3.5 text-[#52AEE0]"/> Best pricing • Instant email delivery
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-              <span className="text-slate-900">FilesMonster </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600">Premium Keys</span>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">
+              <span className="text-[#52AEE0]">Filespace</span>{' '}
+              <span className="text-slate-900">Premium Keys</span>
             </h1>
             <p className="mt-4 text-slate-700 text-lg max-w-2xl">
-              Pay with crypto and get your FilesMonster premium key <em>instantly</em> after confirmations.
+              Pay with crypto and get your Filespace premium key <em>instantly</em> after confirmation.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white inline-flex items-center gap-2 hover:from-red-500/90 hover:to-rose-600/90">
+              <a href="#plans" onClick={e=>{e.preventDefault(); scrollToId('plans')}} className="px-5 py-3 rounded-2xl bg-[#8ABD3F] text-white inline-flex items-center gap-2 hover:brightness-110">
                 <Flame className="h-5 w-5"/> View Plans
               </a>
-              <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="px-5 py-3 rounded-2xl border border-slate-200/70 bg-white/60 hover:bg-white/80 inline-flex items-center gap-2">
-                <Bitcoin className="h-5 w-5 text-red-600"/> Pay with Crypto
+              <a href="#checkout" onClick={e=>{e.preventDefault(); scrollToId('checkout')}} className="px-5 py-3 rounded-2xl border border-slate-200 bg-white/60 hover:bg-white/80 inline-flex items-center gap-2">
+                <Bitcoin className="h-5 w-5 text-[#52AEE0]"/> Pay with Crypto
               </a>
             </div>
 
-          
+            
           </motion.div>
         </div>
       </section>
 
       {/* Plans */}
-      <section id="plans" className="py-14 border-t border-slate-200/70 bg-white/50 backdrop-blur-xl">
+      <section id="plans" className="py-14 border-t border-slate-200 bg-white/60 supports-[backdrop-filter]:bg-white/50 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900">Choose your plan</h2>
-          <p className="text-slate-600 mt-2">Big savings today. Instant delivery after confirmations.</p>
-          <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <p className="text-slate-600 mt-2">Instant delivery after confirmations.</p>
+          <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PLANS.map((p) => (
               <motion.button
                 key={p.id}
                 onClick={()=> handleSelectPlan(p)}
                 whileHover={{scale:1.02}}
-                className={`text-left rounded-2xl border ${selected.id===p.id? 'border-red-400/70' : 'border-slate-200/70'} bg-white/70 backdrop-blur p-5`}
+                className={`text-left rounded-2xl border ${selected.id===p.id? 'border-[#52AEE0]/60' : 'border-slate-200'} bg-white/70 p-5`}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-xl font-semibold text-slate-900">{p.label}</div>
-                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-red-500"/>}
+                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5 text-[#52AEE0]"/>}
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <div className="text-3xl font-extrabold text-slate-900">${p.priceUSD.toFixed(2)}</div>
-                  {p.wasUSD && <div className="text-slate-400 line-through">${p.wasUSD.toFixed(2)}</div>}
+                  <div className="text-3xl font-bold text-slate-900">${p.priceUSD.toFixed(2)}</div>
+                  <div className="text-slate-400 line-through">${p.wasUSD.toFixed(2)}</div>
                 </div>
                 <div className="mt-3 text-xs text-slate-600">
-                  {p.label} of high-speed downloads
+                  {p.label === '30 Days' ? '500 GB storage • Instant start' :
+                   p.label === '90 Days' ? 'Best deal • 500 GB storage' :
+                   'Long-term • 500 GB storage'}
                 </div>
               </motion.button>
             ))}
@@ -435,30 +432,32 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Features — FilesMonster highlights */}
+      {/* Features */}
       <section id="features" className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900">💎 Premium Advantages</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
+            <span className="text-[#52AEE0]">Premium</span> Features
+          </h2>
 
           <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Feature icon={<Gauge className="h-5 w-5 text-red-600" />} title="Unlimited speed" text="Full-speed downloads with no throttling." />
-            <Feature icon={<PlayCircle className="h-5 w-5 text-red-600" />} title="Media streaming" text="Stream media directly—no plugins required." />
-            <Feature icon={<ShieldCheck className="h-5 w-5 text-red-600" />} title="Single-part files" text="One file—no multi-volume archive hassles." />
-            <Feature icon={<RotateCcw className="h-5 w-5 text-red-600" />} title="Resume support" text="Pause and resume large downloads anytime." />
-            <Feature icon={<Rocket className="h-5 w-5 text-red-600" />} title="Instant start" text="Downloads begin immediately—skip waiting." />
-            <Feature icon={<Zap className="h-5 w-5 text-red-600" />} title="Manager-friendly" text="Works with popular download managers." />
+            <Feature icon={<Gauge className="h-5 w-5 text-[#52AEE0]" />} title="Download speed" text="Unlimited — no throttling." />
+            <Feature icon={<Zap className="h-5 w-5 text-[#52AEE0]" />} title="Instant start" text="Next download starts immediately." />
+            <Feature icon={<PlayCircle className="h-5 w-5 text-[#52AEE0]" />} title="Direct links" text="Skip queues and redirections." />
+            <Feature icon={<ShieldCheck className="h-5 w-5 text-[#52AEE0]" />} title="Simultaneous downloads" text="Multiple files at once." />
+            <Feature icon={<Mail className="h-5 w-5 text-[#52AEE0]" />} title="Instant delivery" text="Premium key emailed on confirmations." />
+            <Feature icon={<Coins className="h-5 w-5 text-[#52AEE0]" />} title="Storage" text="500 GB secure storage included." />
           </div>
         </div>
       </section>
 
       {/* Checkout */}
-      <section id="checkout" className="py-24 border-t border-slate-200/70 bg-gradient-to-b from-white/40 via-white/60 to-white/40 backdrop-blur-xl">
+      <section id="checkout" className="py-24 border-t border-slate-200 bg-white/60 supports-[backdrop-filter]:bg-white/50 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">Checkout</h3>
-                <p className="mt-2 text-slate-600">Buy FilesMonster Premium Key direct to Email.</p>
+                <p className="mt-2 text-slate-600">Buy Filespace Premium Key direct to Email.</p>
               </div>
             </div>
 
@@ -479,10 +478,10 @@ export default function Page() {
                     }}
                     className={`px-4 py-2 rounded-2xl border text-sm inline-flex items-center gap-2
                       ${active
-                        ? "border-red-400/70 bg-white/70"
-                        : "border-slate-200/70 hover:border-slate-300 bg-white/60"}`}
+                        ? 'border-[#52AEE0]/60 bg-white/80'
+                        : 'border-slate-200 hover:border-slate-300 bg-white/60'}`}
                   >
-                    <Icon className="h-4 w-4 text-red-600"/>{m.label}
+                    <Icon className="h-4 w-4 text-[#52AEE0]"/>{m.label}
                     {active && <span className="ml-1 text-xs text-slate-600">(selected)</span>}
                   </button>
                 );
@@ -492,7 +491,7 @@ export default function Page() {
             {/* Network picker */}
             {METHOD_NEEDS_CHAIN[method] && (
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="text-sm text-slate-700">Network:</span>
+                <span className="text-sm text-slate-600">Network:</span>
                 {(CHAIN_OPTIONS[method] || []).map(c => {
                   const active = chain === c;
                   return (
@@ -500,8 +499,8 @@ export default function Page() {
                       key={c}
                       onClick={() => { setChain(c); resetPayment(); }}
                       className={`px-3 py-1.5 rounded-xl border text-sm
-                        ${active ? 'border-red-400/70 bg-white/70'
-                                 : 'border-slate-200/70 hover:border-slate-300 bg-white/60'}`}
+                        ${active ? 'border-[#52AEE0]/60 bg-white/80'
+                                 : 'border-slate-200 hover:border-slate-300 bg-white/60'}`}
                     >
                       {chainLabel(c)}
                     </button>
@@ -510,19 +509,18 @@ export default function Page() {
               </div>
             )}
 
-            {/* Two-column switcher */}
+            {/* Two-column switch */}
             <div className="mt-10 grid lg:grid-cols-2 gap-8">
-              {/* LEFT COLUMN */}
+              {/* LEFT */}
               {step !== 'pay' ? (
-                // Pre-generate
                 <div className="space-y-4">
                   <div>
                     <div className="text-sm text-slate-600">Selected Plan</div>
                     <div className="mt-1 flex items-center gap-2">
-                      <div className="flex-1 px-4 py-3 rounded-xl bg-white/60 backdrop-blur border border-slate-200/70 text-lg">
+                      <div className="flex-1 px-4 py-3 rounded-xl bg-white/60 border border-slate-200 text-lg text-slate-900">
                         {selected.label} — ${selected.priceUSD.toFixed(2)}
                       </div>
-                      <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/60 border border-slate-200/70 hover:border-slate-300">
+                      <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/60 border border-slate-200 hover:border-slate-300">
                         Change
                       </button>
                     </div>
@@ -536,10 +534,10 @@ export default function Page() {
                         onChange={e=>setEmail(e.target.value)}
                         placeholder="you@email.com"
                         disabled={emailLocked}
-                        className={`flex-1 px-4 py-3 rounded-xl bg-white/60 backdrop-blur border outline-none text-lg ${
+                        className={`flex-1 px-4 py-3 rounded-xl bg-white/60 border outline-none text-lg text-slate-900 ${
                           email.length === 0
-                            ? "border-slate-200/70"
-                            : isEmailValid ? "border-emerald-400/70" : "border-red-400/70"
+                            ? 'border-slate-200'
+                            : isEmailValid ? 'border-emerald-400/60' : 'border-rose-400/60'
                         }`}
                       />
                     </div>
@@ -561,8 +559,8 @@ export default function Page() {
                       }
                       className={`w-full px-6 py-4 rounded-2xl inline-flex items-center justify-center gap-2 text-lg
                         ${(!isEmailValid || (methodNeedsLivePrice(method) && !pricesUSD[method]) || (METHOD_NEEDS_CHAIN[method] && !chain) || generating)
-                          ? "bg-white/50 text-slate-400 cursor-not-allowed border border-slate-200/70"
-                          : "bg-gradient-to-r from-red-500 via-rose-600 to-red-600 text-white hover:from-red-500/90 hover:to-rose-600/90 shadow-[0_0_25px_rgba(244,63,94,0.25)]"}`}
+                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                          : 'bg-[#8ABD3F] text-white hover:brightness-110 shadow-[0_0_25px_rgba(255,255,255,0.45)]'}`}
                     >
                       {generating ? <Loader2 className="h-5 w-5 animate-spin"/> : <Rocket className="h-5 w-5"/>}
                       {generating ? 'Generating…' : 'Buy Now'}
@@ -570,10 +568,10 @@ export default function Page() {
                   </div>
                 </div>
               ) : (
-                // During payment
+                // ====== DURING PAYMENT ======
                 <div className="space-y-6">
                   <h4 className="text-2xl font-semibold flex items-center gap-2 text-slate-900">
-                    <QrCode className="h-5 w-5 text-red-600"/> Payment Details
+                    <QrCode className="h-5 w-5 text-[#52AEE0]"/> Payment Details
                   </h4>
 
                   <div className="grid md:grid-cols-2 gap-4">
@@ -583,10 +581,10 @@ export default function Page() {
                         <input
                           readOnly
                           value={lockedAmount}
-                          className="w-full px-4 py-3 rounded-xl bg-white/60 backdrop-blur border border-slate-200/70 font-mono text-lg"
+                          className="w-full px-4 py-3 rounded-xl bg-white/60 border border-slate-200 font-mono text-lg text-slate-900"
                         />
-                        <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-slate-200/70 hover:border-slate-300 bg-white/60" title="Copy amount">
-                          <Copy className="h-4 w-4"/>
+                        <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-white/60" title="Copy amount">
+                          <Copy className="h-4 w-4 text-slate-700"/>
                         </button>
                       </div>
                     </div>
@@ -594,14 +592,14 @@ export default function Page() {
                     <div>
                       <div className="text-sm text-slate-600">Payment Address</div>
                       <div className="mt-1 flex gap-2">
-                        <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-white/60 backdrop-blur border border-slate-200/70 font-mono text-sm"/>
-                        <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-slate-200/70 hover:border-slate-300 bg-white/60" title="Copy address">
-                          <Copy className="h-4 w-4"/>
+                        <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-white/60 border border-slate-200 font-mono text-sm text-slate-900"/>
+                        <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-white/60" title="Copy address">
+                          <Copy className="h-4 w-4 text-slate-700"/>
                         </button>
                       </div>
                       {METHOD_NEEDS_CHAIN[method] && chain && (
                         <div className="text-xs text-slate-600 mt-1">
-                          Network: <span className="text-slate-800">{chainLabel(chain)}</span>
+                          Network: <span className="text-slate-900">{chainLabel(chain)}</span>
                         </div>
                       )}
                     </div>
@@ -614,7 +612,7 @@ export default function Page() {
                         alt="Payment QR"
                         width={260}
                         height={260}
-                        className="mt-2 rounded-xl border border-slate-200/70 shadow-[0_0_35px_rgba(244,63,94,0.18)] bg-white/70"
+                        className="mt-2 rounded-xl border border-slate-200 shadow-[0_0_35px_rgba(255,255,255,0.5)]"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           const uri = paymentURI();
@@ -623,7 +621,7 @@ export default function Page() {
                         }}
                       />
                     ) : (
-                      <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-slate-200/70 grid place-items-center text-slate-400 bg-white/50">
+                      <div className="mt-2 h-[260px] w-[260px] rounded-xl border border-dashed border-slate-200 grid place-items-center text-slate-400">
                         QR will appear here
                       </div>
                     )}
@@ -632,57 +630,57 @@ export default function Page() {
                   <div className="pt-2 flex flex-col items-center gap-2 text-sm text-slate-700 text-center">
                     <div className="font-medium">Send the exact amount.</div>
                     <div className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-red-600"/>
+                      <Loader2 className="h-4 w-4 animate-spin text-[#52AEE0]"/>
                       <span className="font-mono">{status || scanMessages[scanIdx]}</span>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* RIGHT COLUMN */}
+              {/* RIGHT */}
               {step !== 'pay' ? (
                 <div className="space-y-4">
                   <h4 className="text-2xl font-semibold text-slate-900">How it works</h4>
                   <ol className="space-y-3 text-slate-700 text-sm">
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <Bitcoin className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <Bitcoin className="h-4 w-4 text-[#52AEE0]" />
                       </div>
-                      <span>Select a FilesMonster Premium plan</span>
+                      <span>Select a Filespace Premium plan</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <Mail className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <Mail className="h-4 w-4 text-[#52AEE0]" />
                       </div>
                       <span>Enter your email for delivery</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <ShieldCheck className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <ShieldCheck className="h-4 w-4 text-[#52AEE0]" />
                       </div>
                       <span>Choose coin (and network for ETH / USDT / USDC)</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <QrCode className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <QrCode className="h-4 w-4 text-[#52AEE0]" />
                       </div>
                       <span>Generate to lock price &amp; get your address</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <TimerIcon className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <TimerIcon className="h-4 w-4 text-[#52AEE0]" />
                       </div>
                       <span>Send the exact amount within 30:00</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200/70 grid place-items-center">
-                        <Rocket className="h-4 w-4 text-red-600" />
+                      <div className="h-7 w-7 rounded-xl bg-white/60 border border-slate-200 grid place-items-center">
+                        <Rocket className="h-4 w-4 text-[#52AEE0]" />
                       </div>
-                      <span>Key emailed after <span className="text-slate-900">2 confirmations</span></span>
+                      <span>Key emailed after <span className="text-slate-900 font-medium">2 confirmations</span></span>
                     </li>
                   </ol>
 
-                  <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-4 text-xs text-slate-600">
+                  <div className="rounded-2xl border border-slate-200 bg-white/60 p-4 text-xs text-slate-600">
                     Payment details and QR will appear after you generate an address.
                   </div>
                 </div>
@@ -701,30 +699,30 @@ export default function Page() {
                   </div>
 
                   <div className="mt-6 space-y-3 text-center">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/60 border border-slate-200/70 px-3 py-1 text-sm text-slate-700">
-                      <TimerIcon className="h-4 w-4 text-red-600" />
+                    <div className="inline-flex items-center gap-2 rounded-full bg-white/60 border border-slate-200 px-3 py-1 text-sm text-slate-700">
+                      <TimerIcon className="h-4 w-4 text-[#52AEE0]" />
                       <span>Time left</span>
                       <span className="font-mono text-slate-900">{fmtSecs(paySecs)}</span>
                     </div>
 
                     <div className="grid sm:grid-cols-3 gap-3 text-xs">
-                      <div className="rounded-xl border border-slate-200/70 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-700">
-                        <ShieldCheck className="h-4 w-4 text-red-600" />
+                      <div className="rounded-xl border border-slate-200 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-600">
+                        <ShieldCheck className="h-4 w-4 text-[#52AEE0]" />
                         Buyer pays network fees
                       </div>
-                      <div className="rounded-xl border border-slate-200/70 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-700">
-                        <ShieldCheck className="h-4 w-4 text-red-600" />
+                      <div className="rounded-xl border border-slate-200 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-600">
+                        <ShieldCheck className="h-4 w-4 text-[#52AEE0]" />
                         2 confirmations required
                       </div>
-                      <div className="rounded-xl border border-slate-200/70 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-700">
-                        <Mail className="h-4 w-4 text-red-600" />
+                      <div className="rounded-xl border border-slate-200 bg-white/60 px-3 py-2 flex items-center justify-center gap-2 text-slate-600">
+                        <Mail className="h-4 w-4 text-[#52AEE0]" />
                         Instant Delivery
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-6 grid sm:grid-cols-2 gap-3">
-                    <button onClick={resetPayment} className="w-full px-6 py-4 rounded-2xl border border-slate-200/70 hover:border-slate-300 bg-white/60">
+                    <button onClick={resetPayment} className="w-full px-6 py-4 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white/60">
                       Cancel / Start Over
                     </button>
                   </div>
@@ -736,13 +734,12 @@ export default function Page() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-16 border-t border-slate-200/70 bg-gradient-to-b from-white/40 via-white/60 to-white/40 backdrop-blur">
+      <section id="faq" className="py-16 border-t border-slate-200 bg-gradient-to-b from-white/70 to-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Heading + quick actions */}
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
               FAQ
-              <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-red-500/70 to-rose-600/70" />
+              <span className="ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-[#52AEE0]/70 via-sky-500/60 to-blue-600/70" />
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -750,9 +747,8 @@ export default function Page() {
                 href="/support"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
                            text-sm font-semibold text-white
-                           bg-gradient-to-r from-red-500 via-rose-600 to-red-600
-                           hover:from-red-500/90 hover:to-rose-600/90
-                           shadow-[0_0_18px_rgba(244,63,94,0.25)]"
+                           bg-[#8ABD3F] hover:brightness-110
+                           shadow-[0_0_18px_rgba(255,255,255,0.45)]"
               >
                 <Mail className="h-4 w-4" />
                 Contact support
@@ -760,118 +756,105 @@ export default function Page() {
               <a
                 href="#plans"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm
-                           border border-slate-200/70 bg-white/60 hover:bg-white/80 text-slate-800"
+                           border border-slate-200 bg-white/60 hover:bg-white/80"
               >
-                <Zap className="h-4 w-4 text-red-600" />
-                Buy FilesMonster keys
+                <Zap className="h-4 w-4 text-[#52AEE0]" />
+                Buy Filespace keys
               </a>
             </div>
           </div>
 
           <div className="mt-8 grid lg:grid-cols-3 gap-6">
-            {/* Main Q&A */}
+            {/* Q&A left */}
             <div className="lg:col-span-2 grid md:grid-cols-2 gap-5">
               <QA
-                q={<><QrCode className="h-4 w-4 text-red-600"/> How do I buy a key?</>}
+                q={<><QrCode className="h-4 w-4 text-[#52AEE0]" /> How do I buy a Filespace key?</>}
                 a={
                   <>
-                    <ol className="list-decimal list-inside space-y-1">
+                    <ol className="list-decimal list-inside space-y-1 text-slate-800">
                       <li>Choose a pack & enter your email.</li>
                       <li>Select coin (and network for USDT/USDC or ETH L2).</li>
                       <li>Click <em>Generate</em> to lock price & get your address.</li>
                       <li>Send the exact amount within 30 minutes.</li>
                     </ol>
                     <p className="mt-2 text-slate-600 text-xs">
-                      Stuck? <a href="/support" className="underline decoration-slate-300 hover:text-slate-900">Contact support</a>.
+                      Stuck? <a href="/support" className="font-semibold text-[#52AEE0] underline underline-offset-4 decoration-slate-300">Contact support</a>.
                     </p>
                   </>
                 }
               />
 
               <QA
-                q={<><ShieldCheck className="h-4 w-4 text-red-600"/> Which plan is right for me?</>}
+                q={<><ShieldCheck className="h-4 w-4 text-[#52AEE0]" /> Which coins & networks are supported?</>}
                 a={
-                  <div className="rounded-xl border border-slate-200/70 bg-white/60 p-3 text-slate-800">
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-                      <div className="text-slate-600">30 Days</div><div>Great for short projects</div>
-                      <div className="text-slate-600">90 Days</div><div>Regular downloader</div>
-                      <div className="text-slate-600">180 Days</div><div>Heavy usage</div>
-                      <div className="text-slate-600">365 Days</div><div>Power user / best value</div>
-                    </div>
-                  </div>
+                  <>
+                    <div>Coins: BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div>
+                    <div className="mt-1">USDT/USDC networks: Ethereum, Solana, BNB Smart Chain.</div>
+                    <div className="mt-1">ETH supports L2s: Base, Arbitrum, Optimism, Polygon, zkSync, Linea, Scroll.</div>
+                  </>
                 }
               />
 
               <QA
-                q={<><Mail className="h-4 w-4 text-red-600"/> When do I receive my key?</>}
-                a={<><div>Instantly after required confirmations (usually minutes).</div><div className="mt-1 text-slate-600 text-sm">We send the key to the email you entered at checkout.</div></>}
+                q={<><Mail className="h-4 w-4 text-[#52AEE0]" /> When do I receive my key?</>}
+                a={
+                  <>
+                    <div>Instantly after required confirmations (usually minutes).</div>
+                    <div className="mt-1 text-slate-600 text-sm">We send the key to the email you entered at checkout.</div>
+                  </>
+                }
               />
 
               <QA
-                q={<><ShieldCheck className="h-4 w-4 text-red-600"/> How do I redeem my key?</>}
+                q={<><ShieldCheck className="h-4 w-4 text-[#52AEE0]" /> How do I activate my key?</>}
                 a={
                   <>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/60 p-3">
+                    <div className="rounded-xl border border-slate-200 bg-white/60 p-3">
                       <div className="text-sm font-semibold text-slate-900">You’ll receive a Premium Key like:</div>
-                      <div className="mt-1 inline-block rounded-md border border-slate-200/70 bg-white/60 px-2 py-1 font-mono text-sm text-slate-900">
+                      <div className="mt-1 inline-block rounded-md border border-slate-200 bg-white/80 px-2 py-1 font-mono text-sm text-slate-900">
                         1220s5e5cbo381XXXXX
                       </div>
                     </div>
-                    <ol className="mt-3 list-decimal list-inside space-y-1">
-                      <li>Log in to your FilesMonster account (<a href="https://filesmonster.com/" target="_blank" rel="noreferrer" className="underline decoration-slate-300">register here</a> if needed).</li>
-                      <li>Open <em>My Account</em>.</li>
-                      <li>Find <em>Apply Promo Code</em>, paste your key, and submit.</li>
+                    <ol className="mt-3 list-decimal list-inside space-y-1 text-slate-800">
+                      <li>Log in to your Filespace account (<a href="https://filespace.com/?op=registration" target="_blank" rel="noreferrer" className="text-[#52AEE0] underline">register here</a> if needed).</li>
+                      <li>Open <span className="font-medium">My Account</span>.</li>
+                      <li>Paste your Premium Key into <span className="font-medium">Apply Promo Code</span> and submit.</li>
                     </ol>
                   </>
                 }
               />
 
               <QA
-                q={<><Coins className="h-4 w-4 text-red-600"/> Coins & networks supported?</>}
-                a={<><div>BTC, ETH, SOL, BNB, LTC, USDT, USDC.</div><div className="mt-1">USDT/USDC: Ethereum, Solana, BNB.</div><div className="mt-1">ETH supports L2 (Base, Arbitrum, Optimism, Polygon, zkSync, Linea, Scroll).</div></>}
-              />
-
-              <QA
-                q={<><AlertTriangle className="h-4 w-4 text-red-600"/> Wrong amount / network?</>}
+                q={<><AlertTriangle className="h-4 w-4 text-[#52AEE0]" /> I sent the wrong amount / network</>}
                 a={
-                  <ul className="list-disc list-inside space-y-1">
+                  <ul className="list-disc list-inside space-y-1 text-slate-800">
                     <li><strong>Underpaid:</strong> send the difference to the same address before the timer expires.</li>
-                    <li><strong>Overpaid:</strong> <a href="/support" className="underline decoration-slate-300">Contact support</a> with your TX hash—we’ll reconcile.</li>
-                    <li><strong>Wrong network:</strong> For USDT/USDC, network must match. Not sure? <a href="/support" className="underline decoration-slate-300">Reach out</a> ASAP.</li>
+                    <li><strong>Overpaid:</strong> <a href="/support" className="text-[#52AEE0] underline">Contact support</a> with your TX hash—we’ll reconcile.</li>
+                    <li><strong>Wrong network:</strong> For USDT/USDC, network must match. Reach out ASAP if unsure.</li>
                   </ul>
                 }
               />
 
               <QA
-                q={<><ShieldCheck className="h-4 w-4 text-red-600"/> Fees & confirmations</>}
-                a="Sender pays miner/validator fees. Keys are released after 2 confirmations."
-              />
-
-              <QA
-                q={<><Coins className="h-4 w-4 text-red-600"/> Pricing source?</>}
-                a="Live crypto market pricing. Your amount is locked for 30 minutes when you click Buy Now."
-              />
-
-              <QA
-                q={<><Mail className="h-4 w-4 text-red-600"/> Didn’t get the key?</>}
-                a={<><div>Check spam/junk first.</div><div className="mt-1">Still missing? <a href="/support" className="underline decoration-slate-300">Open a ticket</a> with your order email and TX hash.</div></>}
+                q={<><Coins className="h-4 w-4 text-[#52AEE0]" /> Where do your prices come from?</>}
+                a="Live crypto market pricing (via /api/price). Your amount is locked for 30 minutes when you click Buy Now."
               />
             </div>
 
             {/* Side panel */}
-            <aside className="rounded-2xl border border-slate-200/70 bg-white/60 p-5 backdrop-blur">
+            <aside className="rounded-2xl border border-slate-200 bg-white/60 p-5">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                <Zap className="h-4 w-4 text-red-600" />
+                <Zap className="h-4 w-4 text-[#52AEE0]" />
                 Quick help
               </div>
-
               <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                <li>✔️ <a href="#plans" className="underline decoration-slate-300">Plans</a></li>
-                <li>✔️ <a href="#checkout" className="underline decoration-slate-300">Checkout</a></li>
-                <li>✔️ <a href="/support" className="underline decoration-slate-300">Payment issues</a></li>
+                <li>✔️ <a href="#plans" className="underline decoration-slate-300 hover:decoration-slate-500">Filespace packs</a></li>
+                <li>✔️ <a href="#checkout" className="underline decoration-slate-300 hover:decoration-slate-500">Checkout flow</a></li>
+                <li>✔️ <a href="/support" className="underline decoration-slate-300 hover:decoration-slate-500">Payment issues</a></li>
+                <li>✔️ <a href="/support" className="underline decoration-slate-300 hover:decoration-slate-500">Key not received</a></li>
               </ul>
 
-              <div className="mt-5 rounded-xl border border-slate-200/70 bg-gradient-to-br from-red-500/10 via-rose-500/10 to-red-500/10 p-4">
+              <div className="mt-5 rounded-xl border border-slate-200 bg-white/70 p-4 shadow-[0_0_24px_rgba(255,255,255,0.45)]">
                 <div className="text-sm font-semibold text-slate-900">Still stuck?</div>
                 <p className="text-slate-700 text-sm mt-1">
                   Our team can verify your transaction and resend keys if needed.
@@ -880,8 +863,7 @@ export default function Page() {
                   href="/support"
                   className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg
                              text-sm font-semibold text-white
-                             bg-gradient-to-r from-red-500 via-rose-600 to-red-600
-                             hover:from-red-500/90 hover:to-rose-600/90"
+                             bg-[#8ABD3F] hover:brightness-110"
                 >
                   <Mail className="h-4 w-4" />
                   Contact support
@@ -893,18 +875,18 @@ export default function Page() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/70 bg-white/50">
+      <footer className="border-t border-slate-200 bg-white/70">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-slate-600">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-fuchsia-500 via-purple-500 to-indigo-500" />
+              <span className="inline-flex h-6 w-6 rounded-lg bg-gradient-to-br from-[#52AEE0] via-sky-400 to-blue-600" />
               <span className="font-semibold text-slate-900">Only.Exchange</span>
             </div>
             <div className="flex flex-wrap gap-6">
-              <Link href="/support">Support</Link>
-              <Link href="/terms">Terms</Link>
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/refunds">Refunds</Link>
+              <Link href="/support" className="hover:text-slate-900">Support</Link>
+              <Link href="/terms" className="hover:text-slate-900">Terms</Link>
+              <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>
+              <Link href="/refunds" className="hover:text-slate-900">Refunds</Link>
             </div>
           </div>
           <p className="mt-6 text-xs text-slate-500 max-w-4xl">
@@ -916,12 +898,12 @@ export default function Page() {
   );
 }
 
-/* Helpers */
+/* Presentational helpers */
 function Stat({ label, value, mono=false }:{label:string; value:string; mono?:boolean}){
   return (
     <div>
       <div className="text-sm text-slate-600">{label}</div>
-      <div className={`mt-1 px-4 py-3 rounded-xl bg-white/60 backdrop-blur border border-slate-200/70 ${mono ? 'font-mono' : ''} text-lg text-slate-900`}>
+      <div className={`mt-1 px-4 py-3 rounded-xl bg-white/60 border border-slate-200 ${mono ? 'font-mono' : ''} text-lg text-slate-900`}>
         {value}
       </div>
     </div>
@@ -937,7 +919,7 @@ function Summary({ label, value, mono=false, wrap=false }:{label:string; value:s
 }
 function Feature({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }){
   return (
-    <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-5 backdrop-blur">
+    <div className="rounded-2xl border border-slate-200 bg-white/60 p-5">
       <div className="inline-flex items-center gap-2 text-slate-900">{icon}<span className="font-semibold">{title}</span></div>
       <p className="text-slate-700 mt-1.5 text-sm">{text}</p>
     </div>
@@ -945,12 +927,12 @@ function Feature({ icon, title, text }: { icon: React.ReactNode; title: string; 
 }
 function QA({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
   return (
-    <details className="group rounded-2xl border border-slate-200/70 bg-white/60 backdrop-blur hover:border-slate-300 transition overflow-hidden">
+    <details className="group rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-sm hover:border-slate-300 transition overflow-hidden">
       <summary className="cursor-pointer list-none flex items-center justify-between p-4">
         <div className="inline-flex items-center gap-2 text-slate-900">{q}</div>
-        <ArrowRight className="h-4 w-4 text-slate-500 transition-transform group-open:rotate-90" />
+        <ArrowRight className="h-4 w-4 text-slate-500 group-open:rotate-90 transition-transform" />
       </summary>
-      <div className="h-px w-full bg-gradient-to-r from-red-500/40 via-rose-500/30 to-red-500/40" />
+      <div className="h-px w-full bg-gradient-to-r from-[#52AEE0]/40 via-sky-500/30 to-blue-600/40" />
       <div className="px-4 pb-4 pt-3 text-slate-700 text-sm">
         {a}
       </div>
@@ -960,9 +942,9 @@ function QA({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
 function BG(){
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* soft white glows */}
-      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[80vh] w-[120vw] rounded-full bg-white/60 blur-3xl"/>
-      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-white/40 blur-3xl"/>
+      {/* soft white glow blobs */}
+      <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 h-[70vh] w-[120vw] rounded-full bg-white/70 blur-3xl"/>
+      <div className="absolute bottom-[-30vh] right-[-10vw] h-[60vh] w-[60vw] rounded-full bg-white/60 blur-3xl"/>
     </div>
   );
 }

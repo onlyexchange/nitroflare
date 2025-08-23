@@ -452,7 +452,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: '4TB storage • 30GB/day • up to 100GB uploads — instant key delivery.',
   cta: 'Buy File.al Premium',
-  monogram: 'FA',
+  monogram: 'F',
  vibe: {
     // subtle white/silver ring; works on dark home too
     ring: 'from-white via-zinc-100 to-zinc-200',
@@ -477,7 +477,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: 'Premium & Premium VIP keys — instant email delivery.',
   cta: 'Buy FileJoker Premium',
-  monogram: 'FJ',
+  monogram: 'F',
   vibe: {
     // teal (Premium) → blue (VIP) → brand steel
     ring: 'from-[#1EB4AA]/70 via-[#5C98CA]/60 to-[#457299]/70',
@@ -505,7 +505,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: 'Unlimited speed, media streaming, instant start — keys by email.',
   cta: 'Buy FilesMonster Premium',
-  monogram: 'FM',
+  monogram: 'F',
   // Light/glass page uses red accents — keep a rich red ring for the card
   vibe: {
     ring: 'from-rose-400/70 via-red-500/60 to-red-600/70',
@@ -515,11 +515,55 @@ const PROVIDERS: Provider[] = [
   },
   packs: [
     { label: '30 Days',  planId: 'fm-30',  priceUSD: 13.95, wasUSD: 17.00 },
-    { label: '90 Days',  planId: 'fm-90',  priceUSD: 37.00 },
-    { label: '180 Days', planId: 'fm-180', priceUSD: 66.00 },
+    { label: '90 Days',  planId: 'fm-90',  priceUSD: 32.95, wasUSD: 37.00 },
+    { label: '180 Days', planId: 'fm-180', priceUSD: 59.95, wasUSD: 66.00 },
     { label: '365 Days', planId: 'fm-365', priceUSD: 99.95, wasUSD: 116.00 },
   ],
 },
+{
+  slug: 'filespace',
+  name: 'Filespace.com',
+  status: 'live',
+  blurb: 'Ad-free, unlimited speed, direct links — instant key delivery.',
+  cta: 'Buy Filespace Premium',
+  monogram: 'F',
+  vibe: {
+    ring: 'from-[#52AEE0]/70 via-sky-400/60 to-[#8ABD3F]/70',
+    chip: 'from-[#52AEE0] via-sky-500 to-[#8ABD3F]',
+    mono: 'from-sky-500 via-[#52AEE0] to-[#8ABD3F]',
+    glow: 'shadow-[0_0_28px_rgba(82,174,224,0.32)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'fs-30',  priceUSD: 9.95,  wasUSD: 15.95,  bandwidth: 'Unlimited speed • 500 GB storage' },
+    { label: '90 Days',  planId: 'fs-90',  priceUSD: 14.95, wasUSD: 39.95,  bandwidth: 'Unlimited speed • 500 GB storage' },
+    { label: '330 Days', planId: 'fs-330', priceUSD: 79.95, wasUSD: 117.95, bandwidth: 'Unlimited speed • 500 GB storage' },
+  ],
+},
+{
+  slug: 'file-upload',
+  name: 'File-Upload.org',
+  status: 'live',
+  blurb: 'No waiting, unlimited speed, no ads — instant email delivery.',
+  cta: 'Buy File-Upload Premium',
+  monogram: 'F',
+  vibe: {
+    // blue highlight + orange CTA, on white-glass cards
+    ring: 'from-[#2C82C9]/70 via-[#62A9DD]/60 to-[#FE5722]/70',
+    chip: 'from-[#2C82C9] via-[#62A9DD] to-[#FE5722]',
+    mono: 'from-[#2C82C9] via-[#62A9DD] to-[#FE5722]',
+    glow: 'shadow-[0_0_28px_rgba(255,87,34,0.25)]',
+  },
+  packs: [
+    { label: '7 Days',   planId: 'fu-7',   priceUSD: 5.95, wasUSD: 5.95 },
+    { label: '30 Days',  planId: 'fu-30',  priceUSD: 16.95, wasUSD: 19.95 },
+    { label: '90 Days',  planId: 'fu-90',  priceUSD: 24.95, wasUSD: 29.95 },
+    { label: '180 Days', planId: 'fu-180', priceUSD: 49.95, wasUSD: 56.95 },
+    { label: '365 Days', planId: 'fu-365', priceUSD: 89.95, wasUSD: 99.95 },
+    { label: '730 Days', planId: 'fu-730', priceUSD: 129.95, wasUSD: 499.95 },
+  ],
+},
+
+
 
 ];
 
