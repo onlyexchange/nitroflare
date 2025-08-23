@@ -499,6 +499,27 @@ const PROVIDERS: Provider[] = [
     { label: 'Premium VIP — 365 Days', planId: 'fj-vip-365', priceUSD: 169.95 },
   ],
 },
+{
+  slug: 'filesmonster',
+  name: 'FilesMonster.com',
+  status: 'live',
+  blurb: 'Unlimited speed, media streaming, instant start — keys by email.',
+  cta: 'Buy FilesMonster Premium',
+  monogram: 'FM',
+  // Light/glass page uses red accents — keep a rich red ring for the card
+  vibe: {
+    ring: 'from-rose-400/70 via-red-500/60 to-red-600/70',
+    chip: 'from-rose-500 via-red-500 to-red-600',
+    mono: 'from-rose-500 via-red-500 to-red-600',
+    glow: 'shadow-[0_0_28px_rgba(244,63,94,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'fm-30',  priceUSD: 13.95, wasUSD: 17.00 },
+    { label: '90 Days',  planId: 'fm-90',  priceUSD: 37.00 },
+    { label: '180 Days', planId: 'fm-180', priceUSD: 66.00 },
+    { label: '365 Days', planId: 'fm-365', priceUSD: 99.95, wasUSD: 116.00 },
+  ],
+},
 
 ];
 
