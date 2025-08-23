@@ -854,6 +854,53 @@ vibe: {
     { label: 'Premium — 365 Days', planId: 'tf-365', priceUSD: 117.99, wasUSD: 129.99, bandwidth: '65 GB / 2 days' },
   ],
 },
+{
+  slug: 'turbobit',
+  name: 'Turbobit.net',
+  status: 'live',
+  blurb: 'Ultra-fast downloads with large traffic limits — instant key delivery.',
+  cta: 'Buy Turbobit Premium',
+  monogram: 'T',
+  vibe: {
+    ring: 'from-orange-400/70 via-orange-500/60 to-[#F8641C]/70',
+    chip: 'from-orange-500 via-orange-500 to-[#F8641C]',
+    mono: 'from-orange-500 via-orange-500 to-[#F8641C]',
+    glow: 'shadow-[0_0_28px_rgba(248,100,28,0.28)]',
+  },
+  packs: [
+    { label: '1 Month (Premium)',  planId: 'tb-30',   priceUSD: 6.95,  wasUSD: 9.95,  bandwidth: '600 GB total' },
+    { label: '6 Months (Premium)', planId: 'tb-180',  priceUSD: 19.95, wasUSD: 34.95, bandwidth: '3600 GB total' },
+    { label: '1 Year (Premium)',   planId: 'tb-365',  priceUSD: 29.95, wasUSD: 59.95, bandwidth: '7200 GB total' },
+    { label: '2 Years (Premium)',  planId: 'tb-730',  priceUSD: 39.95, wasUSD: 89.95, bandwidth: '14400 GB total' },
+    // If you want PLUS on the card instead, swap these in:
+    // { label: '1 Month (PLUS)',  planId: 'tb-plus-30',  priceUSD: 8.95,  wasUSD: 12.95, bandwidth: '1200 GB total' },
+    // { label: '6 Months (PLUS)', planId: 'tb-plus-180', priceUSD: 27.95, wasUSD: 44.95, bandwidth: '7200 GB total' },
+    // { label: '1 Year (PLUS)',   planId: 'tb-plus-365', priceUSD: 39.95, wasUSD: 74.95, bandwidth: '14400 GB total' },
+    // { label: '2 Years (PLUS)',  planId: 'tb-plus-730', priceUSD: 79.95, wasUSD: 124.95, bandwidth: '28800 GB total' },
+  ],
+},
+{
+  slug: 'ubiqfile',
+  name: 'UbiqFile.com',
+  status: 'live',
+  blurb: 'Premium Pro keys — MAX speed up to 10 Gbit/s, 55 GB/day, instant email delivery.',
+  cta: 'Buy UbiqFile Premium Pro',
+  monogram: 'U',
+  // UbiqFile vibe (sky blue)
+  vibe: {
+    ring: 'from-[#3C9ADC]/70 via-[#2B7EBF]/60 to-[#2B7EBF]/70',
+    chip: 'from-[#3C9ADC] via-[#2B7EBF] to-[#2B7EBF]',
+    mono: 'from-[#3C9ADC] via-[#2B7EBF] to-[#2B7EBF]',
+    glow: 'shadow-[0_0_28px_rgba(60,154,220,0.28)]',
+  },
+  packs: [
+    { label: 'Premium Pro — 30 Days',  planId: 'ub-30',  priceUSD: 19.95, wasUSD: 25.00, bandwidth: '55 GB/day • up to 10 Gbit/s' },
+    { label: 'Premium Pro — 90 Days',  planId: 'ub-90',  priceUSD: 37.95, wasUSD: 55.00, bandwidth: '55 GB/day • up to 10 Gbit/s' },
+    { label: 'Premium Pro — 180 Days', planId: 'ub-180', priceUSD: 69.95, wasUSD: 85.00, bandwidth: '55 GB/day • up to 10 Gbit/s' },
+    { label: 'Premium Pro — 365 Days', planId: 'ub-365', priceUSD: 49.95, wasUSD: 115.00, bandwidth: '55 GB/day • up to 10 Gbit/s' },
+  ],
+},
+
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
