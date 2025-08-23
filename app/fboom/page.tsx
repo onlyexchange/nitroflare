@@ -343,11 +343,11 @@ export default function FboomPage() {
 
   /* ===== Brand / vibe: charcoal/grey with orange highlight (#FFA648) ===== */
   const brandOrange = '#FFA648';
-  const brandChip = `bg-gradient-to-r from-zinc-700 via-zinc-500 to-[${brandOrange}]`;
+  const brandChip = `bg-[#FFA648] hover:bg-[#FF8C32] text-black]`;
   const brandAccentLine = `from-zinc-600/40 via-zinc-500/30 to-[${brandOrange}]/40`;
 
   return (
-    <div className="min-h-screen bg-[#0b0b12] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#17181d] to-[#0e1014] text-white">
       <BG />
 
       {/* Header */}
@@ -375,12 +375,12 @@ export default function FboomPage() {
       <section className="relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 ring-1 ring-white/10 px-3 py-1 text-xs text-white/70 mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-zinc-900/50 ring-1 ring-white/10 px-3 py-1 text-xs text-white/70 mb-6">
               <Zap className="h-3.5 w-3.5" />
               Instant email delivery • Price lock • Unique address
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              Fboom <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 via-zinc-200 to-[#FFA648]">Premium Keys</span>
+              Fboom <span className="text-transparent bg-clip-text bg-[#FFA648] hover:bg-[#FF8C32] text-black">Premium Keys</span>
             </h1>
             <p className="mt-4 text-white/80 text-lg max-w-2xl">
               Pick <strong>Premium</strong> or <strong>Premium Max</strong> and pay with crypto for instant key delivery.
@@ -400,7 +400,7 @@ export default function FboomPage() {
       </section>
 
       {/* Plans (grouped by tier) */}
-      <section id="plans" className="py-14 border-t border-white/10 bg-white/5">
+      <section id="plans" className="py-14 border-t border-white/10 bg-zinc-900/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold">Choose your plan</h2>
           <p className="text-white/70 mt-2">Keys are sent after 2 confirmations. Emails deliver instantly.</p>
@@ -539,7 +539,7 @@ export default function FboomPage() {
                       }
                     }}
                     className={`px-4 py-2 rounded-2xl border text-sm inline-flex items-center gap-2 ${
-                      active ? 'border-[rgba(255,166,72,0.7)] bg-white/10' : 'border-white/10 hover:border-white/30 bg-white/5'
+                      active ? 'border-[rgba(255,166,72,0.7)] bg-white/10' : 'border-white/10 hover:border-white/30 bg-zinc-900/50'
                     }`}
                   >
                     <Icon className="h-4 w-4" />{m.label}
@@ -560,7 +560,7 @@ export default function FboomPage() {
                       key={c}
                       onClick={() => { setChain(c); resetPayment(); }}
                       className={`px-3 py-1.5 rounded-xl border text-sm ${
-                        active ? 'border-[rgba(255,166,72,0.7)] bg-white/10' : 'border-white/10 hover:border-white/30 bg-white/5'
+                        active ? 'border-[rgba(255,166,72,0.7)] bg-white/10' : 'border-white/10 hover:border-white/30 bg-zinc-900/50'
                       }`}
                     >
                       {chainLabel(c)}
@@ -578,7 +578,7 @@ export default function FboomPage() {
                   <div>
                     <div className="text-sm text-white/70">Selected Plan</div>
                     <div className="mt-1 flex items-center gap-2">
-                      <div className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-lg">
+                      <div className="flex-1 px-4 py-3 rounded-xl bg-zinc-900/50 border border-white/10 text-lg">
                         {selected.tier} — {selected.label} — ${selected.priceUSD.toFixed(2)}
                       </div>
                       <button onClick={()=>{ resetPayment(); scrollToId('plans'); }} className="text-xs px-3 py-2 rounded-xl bg-white/10 border border-white/15 hover:border-white/30">
@@ -595,7 +595,7 @@ export default function FboomPage() {
                         onChange={(e)=>setEmail(e.target.value)}
                         placeholder="you@email.com"
                         disabled={emailLocked}
-                        className={`flex-1 px-4 py-3 rounded-xl bg-white/5 border outline-none text-lg ${
+                        className={`flex-1 px-4 py-3 rounded-xl bg-zinc-900/50 border outline-none text-lg ${
                           email.length === 0 ? 'border-white/10' : isEmailValid ? 'border-[rgba(255,166,72,0.7)]' : 'border-red-400/60'
                         }`}
                       />
@@ -638,7 +638,7 @@ export default function FboomPage() {
                     <div>
                       <div className="text-sm text-white/70">Amount ({method})</div>
                       <div className="mt-1 flex gap-2">
-                        <input readOnly value={lockedAmount} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-lg" />
+                        <input readOnly value={lockedAmount} className="w-full px-4 py-3 rounded-xl bg-zinc-900/50 border border-white/10 font-mono text-lg" />
                         <button onClick={()=>copy(lockedAmount)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy amount">
                           <Copy className="h-4 w-4" />
                         </button>
@@ -648,7 +648,7 @@ export default function FboomPage() {
                     <div>
                       <div className="text-sm text-white/70">Payment Address</div>
                       <div className="mt-1 flex gap-2">
-                        <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-mono text-sm" />
+                        <input readOnly value={address} className="w-full px-4 py-3 rounded-xl bg-zinc-900/50 border border-white/10 font-mono text-sm" />
                         <button onClick={()=>copy(address)} className="px-3 rounded-xl border border-white/10 hover:border-white/20" title="Copy address">
                           <Copy className="h-4 w-4" />
                         </button>
@@ -802,7 +802,7 @@ export default function FboomPage() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <h2 className="text-3xl md:text-4xl font-bold">
               FAQ
-              <span className={`ml-3 inline-block align-middle h-2 w-24 rounded-full bg-gradient-to-r from-zinc-500/70 via-zinc-400/60 to-[${brandOrange}]/70`} />
+              <span className={`ml-3 inline-block align-middle h-2 w-24 rounded-full bg-[#FFA648] text-black`} />
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -951,7 +951,7 @@ function QA({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
         <div className="inline-flex items-center gap-2">{q}</div>
         <ArrowRight className="h-4 w-4 opacity-60 transition-transform group-open:rotate-90" />
       </summary>
-      <div className={`h-px w-full bg-gradient-to-r from-zinc-600/40 via-zinc-500/30 to-[${'#FFA648'}]/40`} />
+      <div className={`h-px w-full bg-[#FFA648] hover:bg-[#FF8C32] text-black]/40`} />
       <div className="px-4 pb-4 pt-3 text-white/80 text-sm">{a}</div>
     </details>
   );

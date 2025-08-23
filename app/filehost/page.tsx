@@ -413,10 +413,10 @@ const PROVIDERS: Provider[] = [
   monogram: 'F',
   // Charcoal/grey with orange highlight (#FFA648)
   vibe: {
-    ring: 'from-zinc-500/70 via-zinc-700/60 to-[#FFA648]/70',
-    chip: 'from-zinc-600 via-zinc-500 to-[#FFA648]',
-    mono: 'from-zinc-600 via-zinc-500 to-[#FFA648]',
-    glow: 'shadow-[0_0_28px_rgba(255,166,72,0.28)]',
+    ring: 'from-zinc-700/70 via-zinc-800/60 to-zinc-900/70',
+    chip: 'from-[#FFA648] via-[#FFA648] to-[#FFA648]', // solid
+    mono: 'from-[#FFA648] via-[#FFA648] to-[#FFA648]', // solid
+    glow: 'shadow-[0_0_28px_rgba(255,166,72,0.34)]',
   },
   packs: [
     // Show the Max tier first (homepage/filehost list will slice to 4)
@@ -446,6 +446,32 @@ const PROVIDERS: Provider[] = [
     { label: '365 Days', planId: 'fk-365', priceUSD: 129.95 },
   ],
 },
+{
+  slug: 'fileal',
+  name: 'File.al',
+  status: 'live',
+  blurb: '4TB storage • 30GB/day • up to 100GB uploads — instant key delivery.',
+  cta: 'Buy File.al Premium',
+  monogram: 'FA',
+ vibe: {
+    // subtle white/silver ring; works on dark home too
+    ring: 'from-white via-zinc-100 to-zinc-200',
+    // keep solid red accents for identity
+    chip: 'from-red-600 via-red-600 to-red-600',
+    mono: 'from-red-600 via-red-600 to-red-600',
+    // ✨ white glow (not red)
+    glow: 'shadow-[0_0_34px_rgba(255,255,255,0.45)]',
+  },
+  packs: [
+    { label: '30 Days',        planId: 'fa-30',   priceUSD: 19.95, wasUSD: 29.95, bandwidth: '30 GB/day • 4 TB storage' },
+    { label: '90 Days',        planId: 'fa-90',   priceUSD: 59.95,                  bandwidth: '30 GB/day • 4 TB storage' },
+    { label: '365 Days',       planId: 'fa-365',  priceUSD: 99.95,                  bandwidth: '30 GB/day • 4 TB storage' },
+    { label: '25 GB Traffic',  planId: 'fa-25gb', priceUSD: 17.95,                  bandwidth: 'One-time data' },
+    { label: '50 GB Traffic',  planId: 'fa-50gb', priceUSD: 24.95,                  bandwidth: 'One-time data' },
+    { label: '100 GB Traffic', planId: 'fa-100gb',priceUSD: 39.95,                  bandwidth: 'One-time data' },
+  ],
+},
+
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
