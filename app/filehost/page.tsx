@@ -923,12 +923,9 @@ vibe: {
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
-export default function FilehostIndexPage({
-  providers = (globalThis as any).PROVIDERS as Provider[] | undefined,
-}: {
-  providers?: Provider[];
-}) {
-  const ALL: Provider[] = providers ?? PROVIDERS;
+export default function FilehostIndexPage() {
+  const ALL: Provider[] =
+  ((globalThis as any).PROVIDERS as Provider[] | undefined) ?? PROVIDERS;
 
   // UI state
   const [query, setQuery] = useState('');
