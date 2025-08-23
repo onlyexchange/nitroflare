@@ -371,7 +371,7 @@ const PROVIDERS: Provider[] = [
   status: 'live',
   blurb: '50 GB/day, unlimited speed — instant key by email.',
   cta: 'Buy FastBit Premium',
-  monogram: 'FB',
+  monogram: 'F',
   vibe: {
     ring: 'from-[#05B565]/70 via-emerald-500/60 to-[#39505A]/70',
     chip: 'from-[#05B565] via-emerald-500 to-[#39505A]',
@@ -382,6 +382,48 @@ const PROVIDERS: Provider[] = [
     { label: '1 Month',   planId: 'fb-30',  priceUSD: 14.95, wasUSD: 24.95, bandwidth: '50 GB/day' },
     { label: '3 Months',  planId: 'fb-180', priceUSD: 42.95, wasUSD: 49.95,                bandwidth: '50 GB/day' },
     { label: '1 Year',  planId: 'fb-365', priceUSD: 89.95,    wasUSD: 99.95,             bandwidth: '50 GB/day' },
+  ],
+},
+{
+  slug: 'fastfile',
+  name: 'FastFile.cc',
+  status: 'live',
+  blurb: '150 GB/day • no delays or captchas — instant key by email.',
+  cta: 'Buy FastFile Premium',
+  monogram: 'F',
+  vibe: {
+    ring: 'from-[#4692C3]/70 via-sky-400/60 to-[#4692C3]/70',
+    chip: 'from-[#4692C3] via-sky-400 to-[#4692C3]',
+    mono: 'from-[#4692C3] via-sky-400 to-[#4692C3]',
+    glow: 'shadow-[0_0_28px_rgba(70,146,195,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'ff-30',  priceUSD: 11.95, wasUSD: 19.95, bandwidth: '150 GB/day' },
+    { label: '90 Days',  planId: 'ff-90',  priceUSD: 42.95,                 bandwidth: '150 GB/day' },
+    { label: '180 Days', planId: 'ff-180', priceUSD: 65.95,                 bandwidth: '150 GB/day' },
+    { label: '365 Days', planId: 'ff-365', priceUSD: 95.95,                 bandwidth: '150 GB/day' },
+  ],
+},
+{
+  slug: 'fboom',
+  name: 'Fboom.me',
+  status: 'live',
+  blurb: 'Fileboom Premium keys — up to 100GB/day. Instant email delivery.',
+  cta: 'Buy Fboom Premium',
+  monogram: 'F',
+  // Charcoal/grey with orange highlight (#FFA648)
+  vibe: {
+    ring: 'from-zinc-500/70 via-zinc-700/60 to-[#FFA648]/70',
+    chip: 'from-zinc-600 via-zinc-500 to-[#FFA648]',
+    mono: 'from-zinc-600 via-zinc-500 to-[#FFA648]',
+    glow: 'shadow-[0_0_28px_rgba(255,166,72,0.28)]',
+  },
+  packs: [
+    // Show the Max tier first (homepage/filehost list will slice to 4)
+    { label: 'Premium Max — 30 Days',  planId: 'fb-max-30',  priceUSD: 34.95,  wasUSD: 46.95,  bandwidth: '100 GB/day • Video streaming' },
+    { label: 'Premium Max — 90 Days',  planId: 'fb-max-90',  priceUSD: 79.95,  wasUSD: 109.95, bandwidth: '100 GB/day • Video streaming' },
+    { label: 'Premium Max — 365 Days', planId: 'fb-max-365', priceUSD: 199.95, wasUSD: 279.95, bandwidth: '100 GB/day • Video streaming' },
+    { label: 'Premium — 30 Days',      planId: 'fb-prem-30', priceUSD: 28.95,                      bandwidth: '20 GB/day' },
   ],
 },
 ];
