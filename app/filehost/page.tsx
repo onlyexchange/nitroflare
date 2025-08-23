@@ -426,6 +426,26 @@ const PROVIDERS: Provider[] = [
     { label: 'Premium — 30 Days',      planId: 'fb-prem-30', priceUSD: 28.95,                      bandwidth: '20 GB/day' },
   ],
 },
+{
+  slug: 'fikper',
+  name: 'Fikper.com',
+  status: 'live',
+  blurb: 'No-speed-limit downloads, no ads or queues — instant key delivery.',
+  cta: 'Buy Fikper Premium',
+  monogram: 'F',
+  vibe: {
+    ring: 'from-[#0D47A1]/70 via-[#1565C0]/60 to-[#1E88E5]/70',
+    chip: 'from-[#0D47A1] via-[#1565C0] to-[#1E88E5]',
+    mono: 'from-[#0D47A1] via-[#1565C0] to-[#1E88E5]',
+    glow: 'shadow-[0_0_28px_rgba(13,71,161,0.30)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'fk-30',  priceUSD: 19.95 },
+    { label: '90 Days',  planId: 'fk-90',  priceUSD: 49.95 },
+    { label: '180 Days', planId: 'fk-180', priceUSD: 89.95 },
+    { label: '365 Days', planId: 'fk-365', priceUSD: 129.95 },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
