@@ -814,7 +814,46 @@ vibe: {
     { label: '365 Days', planId: 'sf-365', priceUSD: 249.99, wasUSD: 270.00, bandwidth: 'Includes 1 TB storage' },
   ],
 },
-
+{
+  slug: 'subyshare',
+  name: 'SubyShare.com',
+  status: 'live',
+  blurb: '40 GB/day, no ads or waiting — instant email delivery.',
+  cta: 'Buy SubyShare Premium',
+  monogram: 'S',
+  vibe: {
+    ring: 'from-[#1AA3CD]/70 via-[#1489AD]/60 to-[#1AA3CD]/70',
+    chip: 'from-[#1AA3CD] via-[#1489AD] to-[#1AA3CD]',
+    mono: 'from-[#1AA3CD] via-[#1489AD] to-[#1AA3CD]',
+    glow: 'shadow-[0_0_28px_rgba(26,163,205,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'ss-30',  priceUSD: 12.95, wasUSD: 19.99, bandwidth: '40 GB/day' },
+    { label: '75 Days',  planId: 'ss-75',  priceUSD: 22.95, wasUSD: 29.95, bandwidth: '40 GB/day' },
+    { label: '180 Days', planId: 'ss-180', priceUSD: 34.95, wasUSD: 47.45, bandwidth: '40 GB/day' },
+    { label: '365 Days', planId: 'ss-365', priceUSD: 72.95, wasUSD: 87.95, bandwidth: '40 GB/day' },
+  ],
+},
+{
+  slug: 'takefile',
+  name: 'TakeFile.link',
+  status: 'live',
+  blurb: 'Premium keys — 65 GB every 2 days, instant email delivery.',
+  cta: 'Buy TakeFile Premium',
+  monogram: 'T',
+  vibe: {
+    ring: 'from-[#F8A53E]/70 via-[#F7921E]/60 to-[#DE7F10]/70',
+    chip: 'from-[#F8A53E] via-[#F7921E] to-[#DE7F10]',
+    mono: 'from-[#F8A53E] via-[#F7921E] to-[#DE7F10]',
+    glow: 'shadow-[0_0_28px_rgba(247,146,30,0.28)]',
+  },
+  packs: [
+    { label: 'Premium — 30 Days',  planId: 'tf-30',  priceUSD: 20.99, wasUSD: 34.99, bandwidth: '65 GB / 2 days' },
+    { label: 'Premium — 60 Days',  planId: 'tf-60',  priceUSD: 38.99, wasUSD: 49.99, bandwidth: '65 GB / 2 days' },
+    { label: 'Premium — 90 Days',  planId: 'tf-90',  priceUSD: 62.39, wasUSD: 68.99, bandwidth: '65 GB / 2 days' },
+    { label: 'Premium — 365 Days', planId: 'tf-365', priceUSD: 117.99, wasUSD: 129.99, bandwidth: '65 GB / 2 days' },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
