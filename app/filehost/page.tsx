@@ -900,7 +900,26 @@ vibe: {
     { label: 'Premium Pro — 365 Days', planId: 'ub-365', priceUSD: 49.95, wasUSD: 115.00, bandwidth: '55 GB/day • up to 10 Gbit/s' },
   ],
 },
-
+{
+  slug: 'uploady',
+  name: 'Uploady.io',
+  status: 'live',
+  blurb: '300 GB/day, 5 TB storage — instant email delivery.',
+  cta: 'Buy Uploady Premium',
+  monogram: 'U',
+  vibe: {
+    ring: 'from-[#2269FF]/70 via-[#1B59D4]/60 to-[#2269FF]/70',
+    chip: 'from-[#2269FF] via-[#1B59D4] to-[#2269FF]',
+    mono: 'from-[#2269FF] via-[#1B59D4] to-[#2269FF]',
+    glow: 'shadow-[0_0_28px_rgba(34,105,255,0.22)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'up-30',  priceUSD: 11.95, wasUSD: 14.99, bandwidth: '300 GB/day • 5 TB storage' },
+    { label: '90 Days',  planId: 'up-90',  priceUSD: 27.95, wasUSD: 35.99, bandwidth: '300 GB/day • 5 TB storage' },
+    { label: '180 Days', planId: 'up-180', priceUSD: 47.95, wasUSD: 59.99, bandwidth: '300 GB/day • 5 TB storage' },
+    { label: '365 Days', planId: 'up-365', priceUSD: 69.95, wasUSD: 89.99, bandwidth: '300 GB/day • 5 TB storage' },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */

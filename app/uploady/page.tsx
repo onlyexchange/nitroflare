@@ -1,3 +1,4 @@
+// app/uploady/page.tsx
 'use client';
 
 import Link from 'next/link';
@@ -21,30 +22,27 @@ import {
   AlertTriangle,
   RefreshCw,
   Gauge,
-  ArrowLeftRight,
-  Activity,
   HardDrive,
+  Film,
+  ArrowLeftRight,
 } from "lucide-react";
 
 /** ───────────────────────────────────────────────────────────────────────────
- *  UbiqFile — light glass UI
- *  Palette:
- *    Primary sky:       #3C9ADC
- *    Primary dark:      #2B7EBF
- *    Glass from→to:     #FFFFFF → #EAF1FB
- *    Card edge:         rgba(60,154,220,0.14)
- *    Accent check:      #56C271
- *    Body ink:          #0A2233
+ *  Uploady.io — white glass UI
+ *  Accent / primary: #2269FF
+ *  Sub-accent (darker): #1B59D4
+ *  Card edge tint: rgba(34,105,255,0.12)
+ *  Glass bg: #FFFFFF → #F5F8FF
+ *  Ink: #0B1B2B
  *  ───────────────────────────────────────────────────────────────────────── */
 
 const COLORS = {
-  primary: '#3C9ADC',
-  primaryDark: '#2B7EBF',
-  check: '#56C271',
+  primary: '#2269FF',
+  primaryDark: '#1B59D4',
   glassFrom: '#FFFFFF',
-  glassTo: '#EAF1FB',
-  cardEdge: 'rgba(60,154,220,0.14)',
-  ink: '#0A2233',
+  glassTo: '#F5F8FF',
+  cardEdge: 'rgba(34,105,255,0.12)',
+  ink: '#0B1B2B',
 };
 
 const COINGECKO_IDS = {
@@ -56,7 +54,6 @@ const COINGECKO_IDS = {
   USDT: 'tether',
   USDC: 'usd-coin',
 } as const;
-
 type Method = keyof typeof COINGECKO_IDS;
 
 type Chain =
@@ -86,12 +83,12 @@ const chainLabel = (c: Chain) =>
 const ALL_IDS = Object.values(COINGECKO_IDS);
 const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
 
-// Packs from your brief
+// Plans (with headline bandwidth note)
 const PLANS = [
-  { id: 'ub-30',  label: 'Premium Pro — 30 Days',  days: 30,  priceUSD: 19.95, wasUSD: 25.00 },
-  { id: 'ub-90',  label: 'Premium Pro — 90 Days',  days: 90,  priceUSD: 37.95, wasUSD: 55.00 },
-  { id: 'ub-180', label: 'Premium Pro — 180 Days', days: 180, priceUSD: 69.95, wasUSD: 85.00 },
-  { id: 'ub-365', label: 'Premium Pro — 365 Days', days: 365, priceUSD: 49.95, wasUSD: 115.00 },
+  { id: 'up-30',  label: 'Premium — 30 Days',  priceUSD: 11.95, wasUSD: 14.99, bandwidth: '300 GB/day • 5 TB storage' },
+  { id: 'up-90',  label: 'Premium — 90 Days',  priceUSD: 27.95, wasUSD: 35.99, bandwidth: '300 GB/day • 5 TB storage' },
+  { id: 'up-180', label: 'Premium — 180 Days', priceUSD: 47.95, wasUSD: 59.99, bandwidth: '300 GB/day • 5 TB storage' },
+  { id: 'up-365', label: 'Premium — 365 Days', priceUSD: 69.95, wasUSD: 89.99, bandwidth: '300 GB/day • 5 TB storage' },
 ] as const;
 type Plan = typeof PLANS[number];
 
@@ -161,7 +158,7 @@ export default function Page(){
     "Still scanning…"
   ];
 
-  // light cosmetic header timer
+  // Cosmetic hero timer
   const [heroTimer, setHeroTimer] = useState(29 * 60 + 59);
   useEffect(()=>{
     const t = setInterval(()=> setHeroTimer(v => (v>0? v-1 : 0)), 1000);
@@ -193,7 +190,7 @@ export default function Page(){
     return ()=>{ active=false; clearInterval(i); };
   },[]);
 
-  // amount preview
+  // amount preview (only defined once)
   const previewAmount = useMemo(()=>{
     const usd = pricesUSD[method];
     if (method === 'USDT' || method === 'USDC') return selected.priceUSD.toFixed(2);
@@ -251,7 +248,7 @@ export default function Page(){
     if (!q) return;
 
     const byId = PLANS.find(p => p.id.toLowerCase() === q.toLowerCase());
-    const byLabel = PLANS.find(p => pLabel(p).toLowerCase() === decodeURIComponent(q).toLowerCase());
+    const byLabel = PLANS.find(p => p.label.toLowerCase() === decodeURIComponent(q).toLowerCase());
     const target = byId || byLabel;
     if (!target) return;
 
@@ -285,9 +282,6 @@ export default function Page(){
     const m = Math.floor(s/60);
     const ss = s % 60;
     return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
-  }
-  function pLabel(p: Plan) {
-    return p.label;
   }
   function paymentURI(){
     if (!address) return '';
@@ -334,6 +328,7 @@ export default function Page(){
     }
   }
 
+  // Actions
   async function startPayment(){
     if (!isEmailValid) { setStatus('Enter a valid email to continue.'); return; }
     if (METHOD_NEEDS_CHAIN[method] && !chain) { setStatus('Select a network to continue.'); return; }
@@ -409,13 +404,15 @@ export default function Page(){
       <section className="relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 md:py-20">
           <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="max-w-3xl">
-           
+            <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs mb-6 text-white"
+                 style={{ background: `linear-gradient(180deg, ${COLORS.primary} 0%, ${COLORS.primaryDark} 100%)` }}>
+              <Zap className="h-3.5 w-3.5 text-white"/> Instant delivery • Live price lock
+            </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              UbiqFile <span style={{ color: COLORS.primaryDark }}>Premium Pro</span> Keys
+              Uploady.io <span style={{ color: COLORS.primaryDark }}>Premium Keys</span>
             </h1>
             <p className="mt-4 text-[color:var(--ink)]/70 text-lg max-w-2xl">
-              MAX downloads, up to <strong>10 Gbit/s</strong>, 55&nbsp;GB/day premium traffic,
-              unlimited storage, and zero waiting. Buy with crypto & get your key instantly after confirmations.
+              300 GB/day bandwidth, 5 TB storage. Buy with crypto and get your key instantly after confirmations.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -431,11 +428,13 @@ export default function Page(){
                 href="#checkout"
                 onClick={(e)=>{e.preventDefault(); document.getElementById('checkout')?.scrollIntoView({behavior:'smooth'})}}
                 className="px-5 py-3 rounded-2xl border inline-flex items-center gap-2"
-                style={{ borderColor: COLORS.cardEdge, background: 'rgba(255,255,255,0.55)' }}
+                style={{ borderColor: COLORS.cardEdge, background: 'rgba(255,255,255,0.6)' }}
               >
                 <Bitcoin className="h-5 w-5"/> Pay with Crypto
               </a>
             </div>
+
+          
           </motion.div>
         </div>
       </section>
@@ -444,7 +443,7 @@ export default function Page(){
       <section id="plans" className="py-14 border-t" style={{ borderColor: COLORS.cardEdge }}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold" style={{ color: COLORS.primaryDark }}>Choose your plan</h2>
-          <p className="text-[color:var(--ink)]/70 mt-2">Premium Pro keys — instant email delivery after confirmations.</p>
+          <p className="text-[color:var(--ink)]/70 mt-2">All plans include 300 GB/day and 5 TB storage. Instant delivery after confirmations.</p>
 
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {PLANS.map((p) => (
@@ -456,23 +455,24 @@ export default function Page(){
                 style={{
                   borderColor: COLORS.cardEdge,
                   boxShadow: selected.id===p.id
-                    ? `0 0 0 2px ${COLORS.primary} inset, 0 8px 24px rgba(60,154,220,0.15)`
-                    : '0 8px 24px rgba(60,154,220,0.08)',
+                    ? `0 0 0 2px ${COLORS.primary} inset, 0 8px 24px rgba(34,105,255,0.15)`
+                    : '0 8px 24px rgba(34,105,255,0.08)',
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="text-xs uppercase tracking-wide" style={{ color: COLORS.primaryDark }}>
-                    Premium Pro
+                    Premium
                   </div>
-                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5" style={{ color: COLORS.check }}/>}
+                  {selected.id===p.id && <CheckCircle2 className="h-5 w-5" style={{ color: COLORS.primary }}/>}
                 </div>
                 <div className="mt-1 text-lg font-semibold text-[color:var(--ink)]">
-                  {p.label.replace(/^Premium Pro — /, '')}
+                  {p.label.replace(/^Premium — /, '')}
                 </div>
                 <div className="mt-2 flex items-baseline gap-2">
                   <div className="text-3xl font-bold text-[color:var(--ink)]">${p.priceUSD.toFixed(2)}</div>
                   <div className="text-[color:var(--ink)]/50 line-through">${p.wasUSD.toFixed(2)}</div>
                 </div>
+                <div className="mt-2 text-xs text-[color:var(--ink)]/70">{p.bandwidth}</div>
               </motion.button>
             ))}
           </div>
@@ -483,20 +483,20 @@ export default function Page(){
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Features */}
       <section id="features" className="py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold" style={{ color: COLORS.primaryDark }}>
-            💎 UbiqFile Premium Pro Includes
+            💎 What you get with Uploady Premium
           </h2>
 
           <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Feature icon={<Activity className="h-5 w-5" />} title="MAX downloads" text="Parallel downloads with no artificial limits." />
-            <Feature icon={<Gauge className="h-5 w-5" />} title="Up to 10 Gbit/s" text="Full-speed downloads when your line can handle it." />
-            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="No waiting / no captcha" text="Skip the queues, skip the puzzles." />
-            <Feature icon={<HardDrive className="h-5 w-5" />} title="Unlimited storage" text="Keep what you need, as long as you need." />
-            <Feature icon={<Coins className="h-5 w-5" />} title="55 GB/day traffic" text="Plenty of daily premium bandwidth." />
-            <Feature icon={<Mail className="h-5 w-5" />} title="Instant key delivery" text="We email your key right after confirmations." />
+            <Feature icon={<Gauge className="h-5 w-5" />} title="300 GB daily traffic" text="Plenty of bandwidth for heavy downloads." />
+            <Feature icon={<HardDrive className="h-5 w-5" />} title="5 TB storage" text="Huge, secure cloud space for your files." />
+            <Feature icon={<Zap className="h-5 w-5" />} title="Max speed" text="No throttling, no delays—just fast downloads." />
+            <Feature icon={<Film className="h-5 w-5" />} title="Streaming ready" text="Watch online with full streaming support." />
+            <Feature icon={<ShieldCheck className="h-5 w-5" />} title="No waiting or captchas" text="Skip queues and captchas entirely." />
+            <Feature icon={<Mail className="h-5 w-5" />} title="Instant email delivery" text="Key sent automatically after confirmations." />
           </div>
         </div>
       </section>
@@ -508,7 +508,7 @@ export default function Page(){
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <h3 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[color:var(--ink)]">Checkout</h3>
-                <p className="mt-2 text-[color:var(--ink)]/70">Buy UbiqFile Premium Pro key, sent straight to your email.</p>
+                <p className="mt-2 text-[color:var(--ink)]/70">Buy Uploady.io Premium key — delivered to your email.</p>
               </div>
             </div>
 
@@ -600,7 +600,7 @@ export default function Page(){
                           borderColor:
                             email.length === 0
                               ? COLORS.cardEdge
-                              : isEmailValid ? 'rgba(86,194,113,0.65)' : 'rgba(239,68,68,0.5)'
+                              : isEmailValid ? 'rgba(34,197,94,0.55)' : 'rgba(239,68,68,0.5)'
                         }}
                       />
                     </div>
@@ -676,7 +676,7 @@ export default function Page(){
                         width={260}
                         height={260}
                         className="mt-2 rounded-xl border"
-                        style={{ borderColor: COLORS.cardEdge, boxShadow: '0 0 35px rgba(60,154,220,0.15)' }}
+                        style={{ borderColor: COLORS.cardEdge, boxShadow: '0 0 35px rgba(34,105,255,0.15)' }}
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           const uri = paymentURI();
@@ -707,7 +707,7 @@ export default function Page(){
                 <div className="space-y-4">
                   <h4 className="text-2xl font-semibold" style={{ color: COLORS.primaryDark }}>How it works</h4>
                   <ol className="space-y-3 text-[color:var(--ink)]/80 text-sm">
-                    <Step icon={<Bitcoin className="h-4 w-4" />} text="Pick a Premium Pro plan" />
+                    <Step icon={<Bitcoin className="h-4 w-4" />} text="Select a Premium plan (30–365 days)" />
                     <Step icon={<Mail className="h-4 w-4" />} text="Enter your email for delivery" />
                     <Step icon={<ShieldCheck className="h-4 w-4" />} text="Choose coin (and network for ETH / USDT / USDC)" />
                     <Step icon={<QrCode className="h-4 w-4" />} text="Generate to lock price & get your address" />
@@ -788,25 +788,24 @@ export default function Page(){
                 style={{ borderColor: COLORS.cardEdge, background: 'rgba(255,255,255,0.65)' }}
               >
                 <Zap className="h-4 w-4" />
-                View UbiqFile plans
+                View Uploady plans
               </a>
             </div>
           </div>
 
           <div className="mt-8 grid lg:grid-cols-3 gap-6">
+            {/* Q&A */}
             <div className="lg:col-span-2 grid md:grid-cols-2 gap-5">
               <QA
                 q={<><QrCode className="h-4 w-4 opacity-90" /> How do I buy a key?</>}
                 a={
-                  <>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>Choose a <span className="font-semibold">Premium Pro</span> pack.</li>
-                      <li>Enter your email.</li>
-                      <li>Select coin (and network for USDT/USDC or ETH L2).</li>
-                      <li>Click <em>Buy Now</em> to lock price & get your address.</li>
-                      <li>Send the exact amount within 30 minutes.</li>
-                    </ol>
-                  </>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>Choose a Premium pack above.</li>
+                    <li>Enter your email.</li>
+                    <li>Select coin (and network for USDT/USDC or ETH L2).</li>
+                    <li>Click <em>Buy Now</em> to lock price & get your address.</li>
+                    <li>Send the exact amount within 30 minutes.</li>
+                  </ol>
                 }
               />
               <QA
@@ -838,14 +837,14 @@ export default function Page(){
                 a="During payment, email is locked. Click Cancel / Start Over to edit, then Generate again."
               />
               <QA
-                q={<><Mail className="h-4 w-4 opacity-90" /> How to activate my UbiqFile key?</>}
+                q={<><Mail className="h-4 w-4 opacity-90" /> How to activate my Uploady key?</>}
                 a={
                   <>
-                    <div>You’ll receive a Premium Key like: <span className="font-mono px-2 py-0.5 rounded bg-black/5">1220s5e5cbo381XXXXX</span></div>
+                    <div>You’ll receive a Premium Key like: <span className="font-mono px-2 py-0.5 rounded bg-black/5">PREMIUM-KEY-XYZ12345</span></div>
                     <ol className="mt-2 list-decimal list-inside space-y-1">
-                      <li>Log in to your UbiqFile account (<a className="underline" href="https://ubiqfile.com/account" target="_blank" rel="noreferrer">create one here</a> if needed).</li>
-                      <li>Open <span className="font-semibold">My Account</span>.</li>
-                      <li>Paste your key into <span className="font-semibold">Apply Premium Key</span> and confirm.</li>
+                      <li>Log in to your Uploady account (<a className="underline" href="https://uploady.io/?op=registration" target="_blank" rel="noreferrer">create one here</a> if needed).</li>
+                      <li>Open <a className="underline" href="https://uploady.io/?op=my_account" target="_blank" rel="noreferrer">My Account</a>.</li>
+                      <li>Paste your key into <span className="font-semibold">Apply Premium Key</span> and click <span className="font-semibold">Apply key</span>.</li>
                     </ol>
                   </>
                 }
@@ -859,9 +858,9 @@ export default function Page(){
                 Quick help
               </div>
               <ul className="mt-3 space-y-2 text-sm text-[color:var(--ink)]/80">
-                <li>✔️ 55 GB/day premium traffic</li>
-                <li>✔️ Up to 10 Gbit/s speed</li>
-                <li>✔️ Unlimited storage, no waiting</li>
+                <li>✔️ 300 GB/day & 5 TB storage on all plans</li>
+                <li>✔️ Use the QR to pay exact amount</li>
+                <li>✔️ Keys auto-send after 2 confs</li>
               </ul>
               <div className="mt-5 rounded-xl border bg-white/70 backdrop-blur p-4" style={{ borderColor: COLORS.cardEdge }}>
                 <div className="text-sm font-semibold">Still stuck?</div>
@@ -922,7 +921,7 @@ function Badge({ children }:{ children: React.ReactNode }){
   return (
     <div className="rounded-xl px-3 py-2 flex items-center justify-center"
          style={{ border: `1px solid ${COLORS.cardEdge}`, background: 'rgba(255,255,255,0.7)' }}>
-      <ShieldCheck className="h-4 w-4 mr-2" style={{ color: COLORS.check }}/>
+      <ShieldCheck className="h-4 w-4 mr-2" style={{ color: COLORS.primary }}/>
       <span className="text-xs text-[color:var(--ink)]/80">{children}</span>
     </div>
   );
@@ -975,7 +974,7 @@ function QA({ q, a }: { q: React.ReactNode; a: React.ReactNode }) {
 function BG(){
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* subtle sky glows */}
+      {/* subtle blue glows */}
       <div className="absolute -top-20 -left-20 h-[40vh] w-[60vw] rounded-full"
            style={{ background: `radial-gradient(closest-side, ${COLORS.primary}20, transparent)`, filter: 'blur(40px)' }}/>
       <div className="absolute -bottom-20 -right-32 h-[40vh] w-[60vw] rounded-full"
