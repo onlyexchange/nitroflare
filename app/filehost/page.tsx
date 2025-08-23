@@ -607,7 +607,94 @@ const PROVIDERS: Provider[] = [
     { label: '1 Year',    planId: 'gp-365', priceUSD: 90.00 },
   ],
 },
-
+{
+  slug: 'hitfile',
+  name: 'Hitfile.net',
+  status: 'live',
+  blurb: 'Max speed, ad-free, no timeouts — instant email delivery.',
+  cta: 'Buy Hitfile Premium',
+  monogram: 'H',
+  vibe: {
+    ring: 'from-cyan-300/70 via-[#00A5B5]/60 to-teal-600/70',
+    chip: 'from-cyan-400 via-[#00A5B5] to-teal-600',
+    mono: 'from-cyan-400 via-[#00A5B5] to-teal-600',
+    glow: 'shadow-[0_0_28px_rgba(0,165,181,0.28)]',
+  },
+  packs: [
+    { label: '25 Days',     planId: 'hf-25',       priceUSD: 5.95,  wasUSD: 9.95,  bandwidth: '300 GB' },
+    { label: '70 Days',     planId: 'hf-70',       priceUSD: 19.95, wasUSD: 24.95, bandwidth: '1400 GB' },
+    { label: '150 Days',    planId: 'hf-150',      priceUSD: 39.95, wasUSD: 49.95, bandwidth: '3000 GB' },
+    { label: '350 Days',    planId: 'hf-350',      priceUSD: 69.95, wasUSD: 89.95, bandwidth: '7000 GB' },
+    { label: '25 Days +',   planId: 'hf-25-plus',  priceUSD: 7.95,  wasUSD: 12.45, bandwidth: '600 GB' },
+    { label: '70 Days +',   planId: 'hf-70-plus',  priceUSD: 24.95, wasUSD: 30.45, bandwidth: '2800 GB' },
+    { label: '150 Days +',  planId: 'hf-150-plus', priceUSD: 49.95, wasUSD: 62.45, bandwidth: '6000 GB' },
+    { label: '350 Days +',  planId: 'hf-350-plus', priceUSD: 99.95, wasUSD: 112.45, bandwidth: '14000 GB' },
+  ],
+},
+{
+  slug: 'hotlink',
+  name: 'Hotlink.cc',
+  status: 'live',
+  blurb: '65 GB every 2 days • max speed • direct downloads — instant key delivery.',
+  cta: 'Buy Hotlink Premium',
+  monogram: 'H',
+  vibe: {
+    ring: 'from-amber-300/70 via-[#FF9600]/60 to-orange-600/70',
+    chip: 'from-amber-400 via-[#FF9600] to-orange-600',
+    mono: 'from-amber-400 via-[#FF9600] to-orange-600',
+    glow: 'shadow-[0_0_28px_rgba(255,150,0,0.28)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'hl-30',  priceUSD: 17.95, wasUSD: 23.95, bandwidth: '65 GB every 2 days' },
+    { label: '60 Days',  planId: 'hl-60',  priceUSD: 29.95, wasUSD: 36.95, bandwidth: '65 GB every 2 days' },
+    { label: '90 Days',  planId: 'hl-90',  priceUSD: 39.95, wasUSD: 47.95, bandwidth: '65 GB every 2 days' },
+    { label: '365 Days', planId: 'hl-365', priceUSD: 99.95, wasUSD: 109.95, bandwidth: '65 GB every 2 days' },
+  ],
+},
+{
+  slug: 'jumploads',
+  name: 'Jumploads.com',
+  status: 'live',
+  blurb: '500 GB storage • 2 TB bandwidth — instant key delivery.',
+  cta: 'Buy Jumploads Premium',
+  monogram: 'J',
+vibe: {
+    // Subtle blue ring for white/glass background
+    ring: 'from-[#8FB8FF]/70 via-[#4D96FF]/60 to-[#2F82FF]/70',
+    // Status/label chip = strong blue
+    chip: 'from-[#4D96FF] via-[#3A89FF] to-[#2F82FF]',
+    // Monogram chip = your brand blue
+    mono: 'from-[#3385FF] via-[#2F82FF] to-[#1E6FFF]',
+    // Soft blue glow; reads well on white glass
+    glow: 'shadow-[0_0_28px_rgba(47,130,255,0.30)]',
+  },
+  packs: [
+    { label: '30 Days',  planId: 'jl-30',  priceUSD: 12.95, wasUSD: 17.95, bandwidth: '500 GB storage • 2 TB bandwidth' },
+    { label: '90 Days',  planId: 'jl-90',  priceUSD: 39.95, wasUSD: 43.95, bandwidth: '500 GB storage • 2 TB bandwidth' },
+    { label: '180 Days', planId: 'jl-180', priceUSD: 69.95, wasUSD: 70.95, bandwidth: '500 GB storage • 2 TB bandwidth' },
+    { label: '365 Days', planId: 'jl-365', priceUSD: 89.95, wasUSD: 107.95, bandwidth: '500 GB storage • 2 TB bandwidth' },
+  ],
+},
+{
+  slug: 'k2s',
+  name: 'K2S.cc',
+  status: 'live',
+  blurb: 'Premium / Pro / Max keys — instant email delivery.',
+  cta: 'Buy K2S Premium',
+  monogram: 'K2',
+  vibe: {
+    ring: 'from-sky-400/70 via-sky-500/60 to-[#0092D6]/70',
+    chip: 'from-sky-500 via-sky-600 to-[#0092D6]',
+    mono: 'from-sky-500 via-sky-600 to-[#0092D6]',
+    glow: 'shadow-[0_0_28px_rgba(0,146,214,0.28)]',
+  },
+  packs: [
+    { label: '30 Days PRO',  planId: 'k2s-pro-30',  priceUSD: 18.95, wasUSD: 29.94, bandwidth: '50 GB / Day' },
+    { label: '90 Days PRO',  planId: 'k2s-pro-90',  priceUSD: 24.95, wasUSD: 71.94, bandwidth: '50 GB / Day' },
+    { label: '30 Days MAX',  planId: 'k2s-max-30',  priceUSD: 19.99, wasUSD: 39.99, bandwidth: '100 GB / Day' },
+    { label: '365 Days MAX', planId: 'k2s-max-365', priceUSD: 149.99, wasUSD: 299.99, bandwidth: '100 GB / Day' },
+  ],
+},
 ];
 
 /* ── Page ───────────────────────────────────────────────────────────────── */
