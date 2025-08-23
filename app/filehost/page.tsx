@@ -562,8 +562,51 @@ const PROVIDERS: Provider[] = [
     { label: '730 Days', planId: 'fu-730', priceUSD: 129.95, wasUSD: 499.95 },
   ],
 },
-
-
+{
+  slug: 'flashbit',
+  name: 'FlashBit.cc',
+  status: 'live',
+  blurb: 'Premium MAX keys — instant delivery. No waiting, no ads, max speeds.',
+  cta: 'Buy FlashBit Premium',
+  monogram: 'F',
+  vibe: {
+    // Charcoal ring/mono to match the page bg; red chip as the accent
+    ring: 'from-slate-600/70 via-slate-700/70 to-slate-800/70',
+    chip: 'from-red-500 via-red-600 to-red-700',
+    mono: 'from-slate-700 via-slate-800 to-gray-900',
+    glow: 'shadow-[0_0_28px_rgba(15,23,42,0.35)]',
+  },
+  packs: [
+    { label: 'Premium MAX — 30 Days',  planId: 'fb-30',  priceUSD: 12.50, wasUSD: 24.95 },
+    { label: 'Premium MAX — 90 Days',  planId: 'fb-90',  priceUSD: 29.75, wasUSD: 59.95 },
+    { label: 'Premium MAX — 180 Days', planId: 'fb-180', priceUSD: 49.95, wasUSD: 79.95 },
+    { label: 'Premium MAX — 365 Days', planId: 'fb-365', priceUSD: 89.95, wasUSD: 110.00 },
+  ],
+},
+{
+  slug: 'gigapeta',
+  name: 'GigaPeta.com',
+  status: 'live',
+  blurb: 'Unlimited speed & threads, direct links — 90GB traffic per 72h.',
+  cta: 'Buy GigaPeta Premium',
+  monogram: 'G',
+  vibe: {
+    // white-glass friendly greens
+    ring: 'from-emerald-300/70 via-emerald-400/60 to-emerald-600/70',
+    chip: 'from-[#66CC66] via-[#59c159] to-[#4fb74f]',
+    mono: 'from-emerald-400 via-emerald-500 to-emerald-600',
+    glow: 'shadow-[0_0_28px_rgba(102,204,102,0.28)]',
+  },
+  packs: [
+    { label: '3 Days',    planId: 'gp-3',   priceUSD: 4.00 },
+    { label: '1 Week',    planId: 'gp-7',   priceUSD: 5.00 },
+    { label: '2 Weeks',   planId: 'gp-14',  priceUSD: 8.00 },
+    { label: '1 Month',   planId: 'gp-30',  priceUSD: 13.00 },
+    { label: '3 Months',  planId: 'gp-90',  priceUSD: 30.00 },
+    { label: '6 Months',  planId: 'gp-180', priceUSD: 55.00 },
+    { label: '1 Year',    planId: 'gp-365', priceUSD: 90.00 },
+  ],
+},
 
 ];
 
