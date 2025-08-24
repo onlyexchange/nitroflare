@@ -79,7 +79,10 @@ const ALL_IDS = Object.values(COINGECKO_IDS);
 const PRICE_URL = `/api/price?ids=${ALL_IDS.join(',')}`;
 
 export default function SoftwareProductPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+const slug = Array.isArray((params as any).slug)
+  ? (params as any).slug[0]
+  : (params as any).slug as string;
   const searchParams = useSearchParams();
 
   const product: Product | undefined = useMemo(

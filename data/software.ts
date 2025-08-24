@@ -1,3 +1,5 @@
+
+
 // data/software.ts
 export type Sku = {
   id: string;

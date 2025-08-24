@@ -72,7 +72,10 @@ type Product = {
 };
 
 export default function AccountProductPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+const slug = Array.isArray((params as any).slug)
+  ? (params as any).slug[0]
+  : (params as any).slug as string;
   const router = useRouter();
   const searchParams = useSearchParams();
 
