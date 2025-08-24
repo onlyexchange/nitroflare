@@ -1,5 +1,3 @@
-
-
 export type AccountSku = { id: string; label: string; priceUSD: number; wasUSD?: number };
 export type AccountProduct = {
   slug: string;

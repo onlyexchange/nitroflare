@@ -9,7 +9,24 @@ import {
   ArrowLeftRight, Search, Flame, Rocket, ShieldCheck, Coins, Mail,
   QrCode, Copy, Loader2, Timer as TimerIcon, ArrowRight, AlertTriangle, Gauge, Zap
 } from 'lucide-react';
+
+
 import { ACCOUNTS } from '../../../data/accounts';
+
+
+// Derive the item shape directly from your ACCOUNTS array
+type AccountProduct = (typeof ACCOUNTS)[number];
+
+// types/product.ts
+export type Vibe = { ring: string; glow: string; chip: string; mono: string };
+
+export type Product = {
+  slug: string; name: string; blurb?: string; monogram?: string;
+  vendor?: string; category?: string; status?: 'live'|'soon';
+  features?: string[]; vibe?: Partial<Vibe>; skus: Sku[];
+};
+
+
 
 /** ───────────────────────────────────────────────────────────────────────────
  *  Shared crypto checkout bits (same pattern as filehost pages)
@@ -61,15 +78,9 @@ const CHAIN_OPTIONS: Record<Method, Chain[] | undefined> = {
 const PRICE_URL = `/api/price?ids=${Object.values(COINGECKO_IDS).join(',')}`;
 
 type Sku = { id: string; label: string; priceUSD: number; wasUSD?: number };
-type Product = {
-  slug: string;
-  name: string;
-  blurb?: string;
-  monogram?: string;
-  vibe?: { ring: string; chip: string; mono: string; glow: string };
-  features?: string[];
-  skus: Sku[];
-};
+
+
+
 
 export default function AccountProductPage() {
   const params = useParams();
