@@ -425,9 +425,7 @@ export default function Page() {
               </a>
             </div>
 
-            <div className="mt-4 text-xs text-white/60">
-              No KYC • Sender pays network fees • 30-minute payment window • {heroTimeLeft} demo timer
-            </div>
+          
           </motion.div>
         </div>
       </section>
