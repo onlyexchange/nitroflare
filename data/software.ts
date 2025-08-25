@@ -128,6 +128,7 @@ export const SOFTWARE: SoftwareProduct[] = [
     status: 'live',
     blurb: 'OEM Global key — binds to one motherboard.',
     monogram: 'W',
+    image: 'https://raw.githubusercontent.com/onlyexchange/nitroflare/main/images/software/windows-11-pro.png',
     vibe: VIBES.OS,
     features: FEAT_OEM,
     skus: [
