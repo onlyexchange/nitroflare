@@ -20,6 +20,7 @@ export type SoftwareProduct = {
   vibe: { ring: string; chip: string; mono: string; glow: string };
   features: string[];
   skus: Sku[];
+   image?: string; // NEW: absolute or relative URL
   activation?: {
     steps: string[];
     link?: string;
@@ -111,6 +112,7 @@ export const SOFTWARE: SoftwareProduct[] = [
     status: 'live',
     blurb: 'Genuine Global key — instant email delivery.',
     monogram: 'W',
+    image: 'https://raw.githubusercontent.com/onlyexchange/nitroflare/main/images/software/windows-11-pro.png',
     vibe: VIBES.OS,
     features: FEAT_RETAIL,
     skus: [
